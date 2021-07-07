@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-07-05T14:18:38.067Z</updated>
+  <updated>2021-07-07T07:20:06.903Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -15,6 +15,56 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>消费者启动流程</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
+    <published>2021-07-07T07:19:09.000Z</published>
+    <updated>2021-07-07T07:20:06.903Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>  本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;  本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="RocketMQ" scheme="https://helloteemo.github.io/categories/RocketMQ/"/>
+    
+    <category term="消息消费" scheme="https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/"/>
+    
+    
+    <category term="RocketMQ" scheme="https://helloteemo.github.io/tags/RocketMQ/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>消费者基本理念</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
+    <published>2021-07-07T07:19:09.000Z</published>
+    <updated>2021-07-07T09:03:10.828Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>  本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a href="#消费者基本理念" class="headerlink" title="消费者基本理念"></a>消费者基本理念</h1><h2 id="消费者组"><a href="#消费者组" class="headerlink" title="消费者组"></a>消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>  Q：为什么需要消费者组</p><p>  A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a href="#消息消费模式" class="headerlink" title="消息消费模式"></a>消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>  在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>  广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a href="#消息传送方式" class="headerlink" title="消息传送方式"></a>消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li> 推模式：消息到达Broker后，推送给消息消费者</li><li> 拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a href="#消息队列负载机制" class="headerlink" title="消息队列负载机制"></a>消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><blockquote><p>  2021-07-07 17:00</p><p>  可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;  本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="RocketMQ" scheme="https://helloteemo.github.io/categories/RocketMQ/"/>
+    
+    <category term="消息消费" scheme="https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/"/>
+    
+    
+    <category term="RocketMQ" scheme="https://helloteemo.github.io/tags/RocketMQ/"/>
+    
+  </entry>
   
   <entry>
     <title>大致的存储过程</title>
@@ -386,9 +436,9 @@
     <link href="https://helloteemo.github.io/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/"/>
     <id>https://helloteemo.github.io/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</id>
     <published>2021-01-21T01:06:09.000Z</published>
-    <updated>2021-07-05T13:58:18.610Z</updated>
+    <updated>2021-07-07T07:21:14.759Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>  此文为目录，它可以让你对MQ有一个清晰的脉络。</p></blockquote><span id="more"></span><h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h2 id="基本理念"><a href="#基本理念" class="headerlink" title="基本理念"></a>基本理念</h2><ol><li> <a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a></li><li> <a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a></li><li> <a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a></li><li> <a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a></li></ol><hr><h2 id="RocketMQ生产者"><a href="#RocketMQ生产者" class="headerlink" title="RocketMQ生产者"></a>RocketMQ生产者</h2><ol><li> <a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a></li><li> <a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a></li><li> <a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a></li><li> <a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a></li></ol><h2 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h2><ol><li> <a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a></li></ol>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>  此文为目录，它可以让你对MQ有一个清晰的脉络。</p></blockquote><span id="more"></span><h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h2 id="基本理念"><a href="#基本理念" class="headerlink" title="基本理念"></a>基本理念</h2><ol><li> <a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a></li><li> <a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a></li><li> <a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a></li><li> <a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a></li></ol><hr><h2 id="RocketMQ生产者"><a href="#RocketMQ生产者" class="headerlink" title="RocketMQ生产者"></a>RocketMQ生产者</h2><ol><li> <a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a></li><li> <a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a></li><li> <a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a></li><li> <a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a></li></ol><h2 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h2><ol><li> <a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a></li></ol><h2 id="消息消费"><a href="#消息消费" class="headerlink" title="消息消费"></a>消息消费</h2><ol><li> <a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a></li><li> <a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a></li></ol>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
@@ -437,50 +487,6 @@
     
     <category term="SQL" scheme="https://helloteemo.github.io/categories/SQL/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>如何写出简短的代码</title>
-    <link href="https://helloteemo.github.io/2021/01/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E5%86%99%E5%87%BA%E7%AE%80%E7%9F%AD%E7%9A%84%E4%BB%A3%E7%A0%81/"/>
-    <id>https://helloteemo.github.io/2021/01/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E5%86%99%E5%87%BA%E7%AE%80%E7%9F%AD%E7%9A%84%E4%BB%A3%E7%A0%81/</id>
-    <published>2021-01-08T13:12:01.000Z</published>
-    <updated>2021-01-27T08:43:46.885Z</updated>
-    
-    <content type="html"><![CDATA[<p>其实这个部分针对于新手，老手可以不看</p><span id="more"></span><ul><li>  <strong>及时清理不再使用的代码或者配置信息</strong></li></ul><blockquote><p>  对于垃圾代码或者过时的配置，坚决清理干净，避免程序过度臃肿、代码冗余</p></blockquote><ul><li><p>  保持统一的命名规范</p></li><li><ul><li>变量名统一使用驼峰形式书写，变量首字母小写<ul><li>  不要使用一些常见包名作为变量名，如<code>time config</code>等</li><li>  如果参数为一个常量，它的首字母必须大写，且使用驼峰形式命名，如最大线程数应该表示为<code>MaxGoroutine</code></li></ul></li></ul></li><li><p>  保证你的变量名在足够明了的情况下尽量简单</p></li><li><p>  使用defer做资源清理工作</p></li><li><p>  在一个导出方法书写之后，应该在方法顶部加上注释，标注出函数的具体作用，如果有必要的话加上参数的意义</p></li></ul><pre class="language-none"><code class="language-none">&#x2F;&#x2F; Add 返回a+bfunc Add(a, b int) int &#123;     return a + b&#125;</code></pre><ul><li>  <strong>在写完代码之后记得对代码进行格式化操作</strong></li><li>  最紧张的资源应该尽量少的访问</li></ul><blockquote><p>   在我们目前的服务中，数据库资源往往是最为脆落的、最为紧张的资源，我们应该尽量把访问拦截在上游，有访问频次限制就加上访问频次限制，如果有内存缓存就查内存缓存，否则查redis，没有redis可以考虑熔断降级，保证只有一定量的请求到达数据库</p></blockquote><ul><li>  磁盘I/O，网络延时往往比你想的要更加耗时，应该尽量少的访问磁盘，以及减少网络通信中包的大小</li></ul><blockquote><p>  我们禁止在一个循环中做SQL查询操作，这个可以改写成in语句或者any语句，如果我们需要循环做update语句时，最好预处理我们的SQL语句，并且开启一个事务进行更改</p></blockquote><ul><li><p>  <strong>内存缓存只能用于缓存一些不经常被更改且即使被更改之后也不会影响现有业务的数据</strong></p></li><li><p>  redis线上操作禁止keys、hgetall等耗时操作</p></li><li><p>  <strong>用户输入的SQL参数严格使用参数绑定，防止SQL注入，禁止字符串拼接SQL访问数据库</strong></p></li><li><p>  <strong>用户请求传入的任何参数做有效性验证(试情况而定),忽略参数校验可能导致:</strong></p></li><li><ul><li>page size过大导致内存溢出<ul><li>  恶意order by导致数据库慢查询</li><li>  SQL注入</li></ul></li></ul></li><li><p>  表的命名最好是遵循“业务名称_表的作用” 如 (game_config)</p></li><li><p>  单表行数超过500万行或者单表容量超过2GB，才推荐进行分库分表。</p></li><li><p>  不要使用 count(列名)或 count(常量)来替代 count(<em>)，count(</em>)是 SQL92 定义的标准统计行数的语法，跟数据库无关，跟 NULL 和非 NULL 无关。</p></li><li><p>  数据订正（特别是删除或修改记录操作）时，要先 select，避免出现误删除，确认无误才能执行更新语句</p></li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;其实这个部分针对于新手，老手可以不看&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="不知道怎么分类" scheme="https://helloteemo.github.io/categories/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/"/>
-    
-    
-    <category term="没有标签" scheme="https://helloteemo.github.io/tags/%E6%B2%A1%E6%9C%89%E6%A0%87%E7%AD%BE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Kafka笔记</title>
-    <link href="https://helloteemo.github.io/2021/01/06/Kafaka/Kafka%E7%AC%94%E8%AE%B0/"/>
-    <id>https://helloteemo.github.io/2021/01/06/Kafaka/Kafka%E7%AC%94%E8%AE%B0/</id>
-    <published>2021-01-06T02:36:47.000Z</published>
-    <updated>2021-01-22T08:34:40.167Z</updated>
-    
-    <content type="html"><![CDATA[<p>记录一下我的<code>Kafka</code>学习记录哈</p><span id="more"></span><h1 id="Kafka笔记"><a href="#Kafka笔记" class="headerlink" title="Kafka笔记"></a><code>Kafka</code>笔记</h1><h2 id="Kafka术语"><a href="#Kafka术语" class="headerlink" title="Kafka术语"></a><code>Kafka</code>术语</h2><ol><li> <code>Broker</code> <code>Kafka</code>集群包含一个或者多个服务器，这种服务器就被称为<code>Broker</code></li><li> <code>Topic</code> 每条发布到<code>Kafka</code>集群的消息都有一个类别，这个类别被称为<code>Topic</code></li><li> <code>Partition</code> 是物理上的概念</li></ol>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;记录一下我的&lt;code&gt;Kafka&lt;/code&gt;学习记录哈&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="Kafaka" scheme="https://helloteemo.github.io/categories/Kafaka/"/>
-    
-    
-    <category term="java" scheme="https://helloteemo.github.io/tags/java/"/>
-    
-    <category term="Kafka" scheme="https://helloteemo.github.io/tags/Kafka/"/>
     
   </entry>
   
