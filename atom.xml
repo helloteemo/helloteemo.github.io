@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-07-08T03:49:14.000Z</updated>
+  <updated>2021-07-07T07:20:06.903Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -17,17 +17,17 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>消费者基本理念</title>
-    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
-    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
+    <title>消费者启动流程</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
     <published>2021-07-07T07:19:09.000Z</published>
-    <updated>2021-07-08T03:49:14.000Z</updated>
+    <updated>2021-07-07T07:20:06.903Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>  本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a href="#消费者基本理念" class="headerlink" title="消费者基本理念"></a>消费者基本理念</h1><h2 id="消费者组"><a href="#消费者组" class="headerlink" title="消费者组"></a>消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>  Q：为什么需要消费者组</p><p>  A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a href="#消息消费模式" class="headerlink" title="消息消费模式"></a>消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>  在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>  广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a href="#消息传送方式" class="headerlink" title="消息传送方式"></a>消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li> 推模式：消息到达Broker后，推送给消息消费者</li><li> 拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a href="#消息队列负载机制" class="headerlink" title="消息队列负载机制"></a>消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p><ol><li> <code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li><li> <code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li></ol><h2 id="消息队列重平衡机制"><a href="#消息队列重平衡机制" class="headerlink" title="消息队列重平衡机制"></a>消息队列重平衡机制</h2><p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p><p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p><h2 id="消费模型"><a href="#消费模型" class="headerlink" title="消费模型"></a>消费模型</h2><p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p><ol><li> 并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li><li> 顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li></ol><h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><blockquote><p>  2021-07-07 17:00</p><p>  可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote><blockquote><p>  2021-07-08 11:43</p><p>  昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>  本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;  本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
+&lt;p&gt;  本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -42,17 +42,17 @@
   </entry>
   
   <entry>
-    <title>消费者启动流程</title>
-    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
-    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
+    <title>消费者基本理念</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
     <published>2021-07-07T07:19:09.000Z</published>
-    <updated>2021-07-07T07:20:06.903Z</updated>
+    <updated>2021-07-08T03:49:14.000Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>  本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>  本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a href="#消费者基本理念" class="headerlink" title="消费者基本理念"></a>消费者基本理念</h1><h2 id="消费者组"><a href="#消费者组" class="headerlink" title="消费者组"></a>消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>  Q：为什么需要消费者组</p><p>  A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a href="#消息消费模式" class="headerlink" title="消息消费模式"></a>消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>  在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>  广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a href="#消息传送方式" class="headerlink" title="消息传送方式"></a>消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li> 推模式：消息到达Broker后，推送给消息消费者</li><li> 拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a href="#消息队列负载机制" class="headerlink" title="消息队列负载机制"></a>消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p><ol><li> <code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li><li> <code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li></ol><h2 id="消息队列重平衡机制"><a href="#消息队列重平衡机制" class="headerlink" title="消息队列重平衡机制"></a>消息队列重平衡机制</h2><p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p><p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p><h2 id="消费模型"><a href="#消费模型" class="headerlink" title="消费模型"></a>消费模型</h2><p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p><ol><li> 并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li><li> 顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li></ol><h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><blockquote><p>  2021-07-07 17:00</p><p>  可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote><blockquote><p>  2021-07-08 11:43</p><p>  昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p></blockquote>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;  本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
+&lt;p&gt;  本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
