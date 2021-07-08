@@ -256,14 +256,14 @@
 
   
   <url>
-    <loc>https://helloteemo.github.io/tags/JVM/</loc>
+    <loc>https://helloteemo.github.io/tags/go/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/tags/go/</loc>
+    <loc>https://helloteemo.github.io/tags/JVM/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -278,6 +278,20 @@
   
   <url>
     <loc>https://helloteemo.github.io/tags/Kafka/</loc>
+    <lastmod>2021-07-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/tags/sql/</loc>
+    <lastmod>2021-07-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/tags/leetcode/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -299,20 +313,6 @@
   
   <url>
     <loc>https://helloteemo.github.io/tags/Spring/</loc>
-    <lastmod>2021-07-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/tags/sql/</loc>
-    <lastmod>2021-07-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/tags/leetcode/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -349,14 +349,14 @@
 
   
   <url>
-    <loc>https://helloteemo.github.io/categories/JVM/</loc>
+    <loc>https://helloteemo.github.io/categories/Golang/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/categories/Golang/</loc>
+    <loc>https://helloteemo.github.io/categories/JVM/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -377,6 +377,13 @@
   </url>
   
   <url>
+    <loc>https://helloteemo.github.io/categories/SQL/</loc>
+    <lastmod>2021-07-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://helloteemo.github.io/categories/RocketMQ/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
@@ -385,13 +392,6 @@
   
   <url>
     <loc>https://helloteemo.github.io/categories/Spring/</loc>
-    <lastmod>2021-07-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/categories/SQL/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -419,20 +419,6 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/categories/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</loc>
-    <lastmod>2021-07-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/</loc>
-    <lastmod>2021-07-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
@@ -448,6 +434,20 @@
   
   <url>
     <loc>https://helloteemo.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</loc>
+    <lastmod>2021-07-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/categories/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</loc>
+    <lastmod>2021-07-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/</loc>
     <lastmod>2021-07-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
