@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-07-07T07:20:06.903Z</updated>
+  <updated>2021-07-09T15:51:28.908Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>GMP调度模型</title>
+    <link href="https://helloteemo.github.io/2021/07/09/Golang/%E5%9F%BA%E7%A1%80/GMP%E8%B0%83%E5%BA%A6%E6%A8%A1%E5%9E%8B/"/>
+    <id>https://helloteemo.github.io/2021/07/09/Golang/%E5%9F%BA%E7%A1%80/GMP%E8%B0%83%E5%BA%A6%E6%A8%A1%E5%9E%8B/</id>
+    <published>2021-07-09T08:22:16.000Z</published>
+    <updated>2021-07-09T15:51:28.908Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>  开坑，今天太晚明天写</p></blockquote><span id="more"></span><h1 id="GMP调度模型"><a href="#GMP调度模型" class="headerlink" title="GMP调度模型"></a>GMP调度模型</h1>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;  开坑，今天太晚明天写&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="Golang" scheme="https://helloteemo.github.io/categories/Golang/"/>
+    
+    <category term="基础" scheme="https://helloteemo.github.io/categories/Golang/%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="go" scheme="https://helloteemo.github.io/tags/go/"/>
+    
+  </entry>
   
   <entry>
     <title>消费者启动流程</title>
@@ -459,7 +484,7 @@
     <link href="https://helloteemo.github.io/2021/01/19/Golang/%E6%8C%89%E5%91%A8%E5%B9%B3%E5%88%86%E6%97%B6%E9%97%B4Go%E5%AE%9E%E7%8E%B0/"/>
     <id>https://helloteemo.github.io/2021/01/19/Golang/%E6%8C%89%E5%91%A8%E5%B9%B3%E5%88%86%E6%97%B6%E9%97%B4Go%E5%AE%9E%E7%8E%B0/</id>
     <published>2021-01-19T08:22:16.000Z</published>
-    <updated>2021-01-22T08:33:34.147Z</updated>
+    <updated>2021-07-09T05:35:28.646Z</updated>
     
     <content type="html"><![CDATA[<p>这段程序是受困于当初写数据统计时有个非常变态的周统计需求，所以做了一个关于ISO周划分的函数</p><span id="more"></span><pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> awesome<span class="token keyword">import</span> <span class="token string">"time"</span><span class="token keyword">type</span> WeekDate <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>ISOYear   <span class="token builtin">int</span>ISOWeek   <span class="token builtin">int</span>StartTime time<span class="token punctuation">.</span>TimeEndTime   time<span class="token punctuation">.</span>Time<span class="token punctuation">&#125;</span><span class="token keyword">func</span> <span class="token function">groupByWeekDate</span><span class="token punctuation">(</span>startTime<span class="token punctuation">,</span> endTime time<span class="token punctuation">.</span>Time<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>WeekDate <span class="token punctuation">&#123;</span><span class="token comment">// Sunday -> Saturday  0,1,2,3,4,5,6</span>startOffset <span class="token operator">:=</span> <span class="token function">int</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span>Monday <span class="token operator">-</span> startTime<span class="token punctuation">.</span><span class="token function">Weekday</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token comment">// 只有Monday减去Sunday的时候是正数</span><span class="token keyword">if</span> startOffset <span class="token operator">></span> <span class="token number">0</span> <span class="token punctuation">&#123;</span>startOffset <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">6</span><span class="token punctuation">&#125;</span>startMonday <span class="token operator">:=</span> startTime<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> startOffset<span class="token punctuation">)</span>endOffset <span class="token operator">:=</span> <span class="token function">int</span><span class="token punctuation">(</span><span class="token number">7</span> <span class="token operator">-</span> endTime<span class="token punctuation">.</span><span class="token function">Weekday</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token keyword">if</span> endOffset <span class="token operator">==</span> <span class="token number">7</span> <span class="token punctuation">&#123;</span>endOffset <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">&#125;</span>endSunday <span class="token operator">:=</span> endTime<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> endOffset<span class="token punctuation">)</span><span class="token keyword">var</span> res <span class="token operator">=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>WeekDate<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token keyword">for</span> i <span class="token operator">:=</span> startMonday<span class="token punctuation">;</span> i<span class="token punctuation">.</span><span class="token function">Before</span><span class="token punctuation">(</span>endSunday<span class="token punctuation">)</span> <span class="token operator">||</span> i<span class="token punctuation">.</span><span class="token function">Equal</span><span class="token punctuation">(</span>endSunday<span class="token punctuation">)</span><span class="token punctuation">;</span> i <span class="token operator">=</span> i<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>iISOYear<span class="token punctuation">,</span> iISOWeek <span class="token operator">:=</span> i<span class="token punctuation">.</span><span class="token function">ISOWeek</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token keyword">var</span> tmp <span class="token operator">=</span> WeekDate<span class="token punctuation">&#123;</span>ISOYear<span class="token punctuation">:</span>   iISOYear<span class="token punctuation">,</span>ISOWeek<span class="token punctuation">:</span>   iISOWeek<span class="token punctuation">,</span>StartTime<span class="token punctuation">:</span> i<span class="token punctuation">,</span>EndTime<span class="token punctuation">:</span>   i<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">&#125;</span>res <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>res<span class="token punctuation">,</span> tmp<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token keyword">return</span> res<span class="token punctuation">&#125;</span></code></pre>]]></content>
     
@@ -472,21 +497,6 @@
     
     
     <category term="go" scheme="https://helloteemo.github.io/tags/go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SQL中的时间类型</title>
-    <link href="https://helloteemo.github.io/2021/01/12/SQL/SQL%E4%B8%AD%E7%9A%84%E6%97%B6%E9%97%B4%E7%B1%BB%E5%9E%8B/"/>
-    <id>https://helloteemo.github.io/2021/01/12/SQL/SQL%E4%B8%AD%E7%9A%84%E6%97%B6%E9%97%B4%E7%B1%BB%E5%9E%8B/</id>
-    <published>2021-01-12T05:40:36.000Z</published>
-    <updated>2021-01-22T08:32:57.626Z</updated>
-    
-    
-    
-    
-    <category term="SQL" scheme="https://helloteemo.github.io/categories/SQL/"/>
-    
     
   </entry>
   
