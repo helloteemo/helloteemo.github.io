@@ -780,47 +780,154 @@ func main() &#123;
       </tags>
   </entry>
   <entry>
-    <title>消息队列目录</title>
-    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>  此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
-</blockquote>
+    <title>SpringMVC Controller书写</title>
+    <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
+    <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
 <span id="more"></span>
 
-<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h2 id="基本理念"><a href="#基本理念" class="headerlink" title="基本理念"></a>基本理念</h2><ol>
-<li> <a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a></li>
-<li> <a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a></li>
-<li> <a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a></li>
-<li> <a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a>
-
+<h1 id="Spring-MVC-Controller书写"><a href="#Spring-MVC-Controller书写" class="headerlink" title="Spring MVC Controller书写"></a><code>Spring MVC Controller</code>书写</h1><p><code>Spring MVC</code>是一个<code>MVC</code>的<code>WEB</code>框架，它建立在一个中央前端控制器Servlet(DispatcherServlter)，它负责发送每一个请求到合适的处理程序，使用视图或者其他方式来返回响应结果。<code>SpringMVC</code>是<code>Spring</code>产品组合的一部分，它享有<code>Spring Ioc</code>容器来紧密结合<code>Spring</code>松耦合等特点。</p>
+<p><img src="https://helloteemo.com.cn/2021.06/Spring%20MVC%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="SpringMVC架构图"></p>
+<h2 id="如何确定一个Controller"><a href="#如何确定一个Controller" class="headerlink" title="如何确定一个Controller"></a>如何确定一个<code>Controller</code></h2><h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ol>
+<li>确定请求的请求方法，如果可以请遵从<code>RESTful</code>规范</li>
+<li>确定请求的<code>URL</code>，<code>url</code>可以随意命名，但是尽量可以一眼就能看到表达的意思</li>
+<li>确定请求参数传参的方式，一般在请求体、路径、QueryString，一般来说请求体的参数类型会比较丰富</li>
+<li>确定请求参数，这里一般包括字段、字段类型、是否必传、备注构成</li>
+</ol>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>我需要获取一个用户的信息</p>
+<ol>
+<li>请求方法：GET</li>
+<li>url:<code>/user/&#123;user_id&#125;</code></li>
+<li>请求参数传参的方式:路径</li>
+<li>请求参数</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否必传</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>user_id</code></td>
+<td>int</td>
+<td>是</td>
+<td>用户ID</td>
+</tr>
+</tbody></table>
+<h2 id="如何书写一个Controller"><a href="#如何书写一个Controller" class="headerlink" title="如何书写一个Controller"></a>如何书写一个<code>Controller</code></h2><h3 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤"></a>步骤</h3><ol>
+<li><p>新建一个<code>Controller</code>，实际上就是新建一个类，并给它加上<code>Controller</code>、<code>RestController</code>注解</p>
+<blockquote>
+<p>新建一个类，给类加上<code>Controller</code>注解，这个注解会使<code>Spring</code>加载这个类为一个Bean，也可以使用<code>RestController</code>来表示这个<code>Controller</code>是一个符合<code>RESTful</code>规范的<code>Controller</code></p>
+<p><code>@RestController</code>和<code>@Controller</code>的区别</p>
+<p><code>@RestController</code>注解等价于<code>@ResponseBody</code> ＋ <code>@Controller</code>。<code>@RestController</code>和<code>@Controller</code>的共同点是都用来表示<code>Spring</code>某个类是否可以接收<code>HTTP</code>请求，<strong>二者区别： @RestController无法返回指定页面，而@Controller可以</strong>；前者可以直接返回数据，后者需要@ResponseBody辅助</p>
+<p><code>File</code>:<code>org.springframework.web.bind.annotation.RestController</code></p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Documented</span>
+<span class="token annotation punctuation">@Controller</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token annotation punctuation">@interface</span> <span class="token class-name">RestController</span> <span class="token punctuation">&#123;</span>
+ <span class="token annotation punctuation">@AliasFor</span><span class="token punctuation">(</span>
+     annotation <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span><span class="token keyword">class</span>
+ <span class="token punctuation">)</span>
+ <span class="token class-name">String</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token string">""</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+</blockquote>
+</li>
+<li><p>书写具体的方法</p>
+<ol>
+<li>书写注解，需要接受<code>HTTP</code>请求的方法需要加入<code>@RequestMapping</code>注解<ol>
+<li>确定请求方法，在<code>@RequestMapping</code>注解中的<code>method</code>中确定，不书写则默认为<code>GET</code>请求</li>
+<li>确定<code>URL</code>以及其它一些东西，<code>URL</code>由<code>value</code>确定，如果只有一个字段的话可以不用熟悉<code>value</code></li>
+</ol>
+</li>
+<li>确定返回值<ol>
+<li>如果返回值为<code>JSON</code>类型，则应该返回一个对象，并且要加上<code>@ResponseBody</code>注解</li>
+<li>如果返回的是一个页面，则需要配置视图解析器，并返回值为<code>String</code></li>
+</ol>
+</li>
+<li>确定参数<ol>
+<li>如果参数在Path中,则<code>URL</code>中应该由<code>&#123;&#125;</code>来确定参数位置，使用<code>@PathVariable</code>确定绑定到何处</li>
+<li>如果参数在请求体中，可以使用<code>@RequestBody</code>解析到对象中</li>
+<li>如果参数在<code>QueryString</code>中，可以使用<code>@RequestParam</code>绑定到何处</li>
+</ol>
 </li>
 </ol>
-<hr>
-<h2 id="RocketMQ生产者"><a href="#RocketMQ生产者" class="headerlink" title="RocketMQ生产者"></a>RocketMQ生产者</h2><ol>
-<li> <a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a></li>
-<li> <a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a></li>
-<li> <a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a></li>
-<li> <a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a>
-
 </li>
 </ol>
-<h2 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h2><ol>
-<li> <a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a>
-
-</li>
+<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><p>我需要获取一个用户的信息</p>
+<ol>
+<li>新建一个<code>Controller</code></li>
 </ol>
-<h2 id="消息消费"><a href="#消息消费" class="headerlink" title="消息消费"></a>消息消费</h2><ol>
-<li> <a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a></li>
-<li> <a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
 
-</li>
+<span class="token punctuation">&#125;</span></code></pre>
+
+<ol start="2">
+<li>确定方法，为GET，这里</li>
 </ol>
-]]></content>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span>
+<span class="token punctuation">&#125;</span></code></pre>
+
+<ol start="3">
+<li>确定<code>URL</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span></code></pre>
+
+<ol start="4">
+<li>确定返回值，因为我们要返回<code>JSON</code>，所以应该返回一个对象，如果注解不是<code>@RestController</code>，那么还应该在方法中加入<code>@ResponseBody</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+</code></pre>
+
+<ol start="4">
+<li>确定参数，因为使用路径作为参数，则使用<code>@PathVariable</code>注解</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">)</span> <span class="token keyword">int</span> userID<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>]]></content>
       <categories>
-        <category>RocketMQ</category>
+        <category>Spring</category>
       </categories>
       <tags>
-        <tag>RocketMQ</tag>
+        <tag>Java</tag>
+        <tag>Spring</tag>
       </tags>
   </entry>
   <entry>
@@ -1073,154 +1180,47 @@ where
       </tags>
   </entry>
   <entry>
-    <title>SpringMVC Controller书写</title>
-    <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
-    <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
+    <title>消息队列目录</title>
+    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>  此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
+</blockquote>
 <span id="more"></span>
 
-<h1 id="Spring-MVC-Controller书写"><a href="#Spring-MVC-Controller书写" class="headerlink" title="Spring MVC Controller书写"></a><code>Spring MVC Controller</code>书写</h1><p><code>Spring MVC</code>是一个<code>MVC</code>的<code>WEB</code>框架，它建立在一个中央前端控制器Servlet(DispatcherServlter)，它负责发送每一个请求到合适的处理程序，使用视图或者其他方式来返回响应结果。<code>SpringMVC</code>是<code>Spring</code>产品组合的一部分，它享有<code>Spring Ioc</code>容器来紧密结合<code>Spring</code>松耦合等特点。</p>
-<p><img src="https://helloteemo.com.cn/2021.06/Spring%20MVC%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="SpringMVC架构图"></p>
-<h2 id="如何确定一个Controller"><a href="#如何确定一个Controller" class="headerlink" title="如何确定一个Controller"></a>如何确定一个<code>Controller</code></h2><h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ol>
-<li>确定请求的请求方法，如果可以请遵从<code>RESTful</code>规范</li>
-<li>确定请求的<code>URL</code>，<code>url</code>可以随意命名，但是尽量可以一眼就能看到表达的意思</li>
-<li>确定请求参数传参的方式，一般在请求体、路径、QueryString，一般来说请求体的参数类型会比较丰富</li>
-<li>确定请求参数，这里一般包括字段、字段类型、是否必传、备注构成</li>
-</ol>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p>我需要获取一个用户的信息</p>
-<ol>
-<li>请求方法：GET</li>
-<li>url:<code>/user/&#123;user_id&#125;</code></li>
-<li>请求参数传参的方式:路径</li>
-<li>请求参数</li>
-</ol>
-<table>
-<thead>
-<tr>
-<th>字段</th>
-<th>类型</th>
-<th>是否必传</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>user_id</code></td>
-<td>int</td>
-<td>是</td>
-<td>用户ID</td>
-</tr>
-</tbody></table>
-<h2 id="如何书写一个Controller"><a href="#如何书写一个Controller" class="headerlink" title="如何书写一个Controller"></a>如何书写一个<code>Controller</code></h2><h3 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤"></a>步骤</h3><ol>
-<li><p>新建一个<code>Controller</code>，实际上就是新建一个类，并给它加上<code>Controller</code>、<code>RestController</code>注解</p>
-<blockquote>
-<p>新建一个类，给类加上<code>Controller</code>注解，这个注解会使<code>Spring</code>加载这个类为一个Bean，也可以使用<code>RestController</code>来表示这个<code>Controller</code>是一个符合<code>RESTful</code>规范的<code>Controller</code></p>
-<p><code>@RestController</code>和<code>@Controller</code>的区别</p>
-<p><code>@RestController</code>注解等价于<code>@ResponseBody</code> ＋ <code>@Controller</code>。<code>@RestController</code>和<code>@Controller</code>的共同点是都用来表示<code>Spring</code>某个类是否可以接收<code>HTTP</code>请求，<strong>二者区别： @RestController无法返回指定页面，而@Controller可以</strong>；前者可以直接返回数据，后者需要@ResponseBody辅助</p>
-<p><code>File</code>:<code>org.springframework.web.bind.annotation.RestController</code></p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Documented</span>
-<span class="token annotation punctuation">@Controller</span>
-<span class="token annotation punctuation">@ResponseBody</span>
-<span class="token keyword">public</span> <span class="token annotation punctuation">@interface</span> <span class="token class-name">RestController</span> <span class="token punctuation">&#123;</span>
- <span class="token annotation punctuation">@AliasFor</span><span class="token punctuation">(</span>
-     annotation <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span><span class="token keyword">class</span>
- <span class="token punctuation">)</span>
- <span class="token class-name">String</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token string">""</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-</blockquote>
-</li>
-<li><p>书写具体的方法</p>
-<ol>
-<li>书写注解，需要接受<code>HTTP</code>请求的方法需要加入<code>@RequestMapping</code>注解<ol>
-<li>确定请求方法，在<code>@RequestMapping</code>注解中的<code>method</code>中确定，不书写则默认为<code>GET</code>请求</li>
-<li>确定<code>URL</code>以及其它一些东西，<code>URL</code>由<code>value</code>确定，如果只有一个字段的话可以不用熟悉<code>value</code></li>
-</ol>
-</li>
-<li>确定返回值<ol>
-<li>如果返回值为<code>JSON</code>类型，则应该返回一个对象，并且要加上<code>@ResponseBody</code>注解</li>
-<li>如果返回的是一个页面，则需要配置视图解析器，并返回值为<code>String</code></li>
-</ol>
-</li>
-<li>确定参数<ol>
-<li>如果参数在Path中,则<code>URL</code>中应该由<code>&#123;&#125;</code>来确定参数位置，使用<code>@PathVariable</code>确定绑定到何处</li>
-<li>如果参数在请求体中，可以使用<code>@RequestBody</code>解析到对象中</li>
-<li>如果参数在<code>QueryString</code>中，可以使用<code>@RequestParam</code>绑定到何处</li>
-</ol>
+<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h2 id="基本理念"><a href="#基本理念" class="headerlink" title="基本理念"></a>基本理念</h2><ol>
+<li> <a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a></li>
+<li> <a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a></li>
+<li> <a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a></li>
+<li> <a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a>
+
 </li>
 </ol>
+<hr>
+<h2 id="RocketMQ生产者"><a href="#RocketMQ生产者" class="headerlink" title="RocketMQ生产者"></a>RocketMQ生产者</h2><ol>
+<li> <a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a></li>
+<li> <a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a></li>
+<li> <a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a></li>
+<li> <a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a>
+
 </li>
 </ol>
-<h3 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h3><p>我需要获取一个用户的信息</p>
-<ol>
-<li>新建一个<code>Controller</code></li>
+<h2 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h2><ol>
+<li> <a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a>
+
+</li>
 </ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+<h2 id="消息消费"><a href="#消息消费" class="headerlink" title="消息消费"></a>消息消费</h2><ol>
+<li> <a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a></li>
+<li> <a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a>
 
-<span class="token punctuation">&#125;</span></code></pre>
-
-<ol start="2">
-<li>确定方法，为GET，这里</li>
+</li>
 </ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span>
-<span class="token punctuation">&#125;</span></code></pre>
-
-<ol start="3">
-<li>确定<code>URL</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-<span class="token punctuation">&#125;</span></code></pre>
-
-<ol start="4">
-<li>确定返回值，因为我们要返回<code>JSON</code>，所以应该返回一个对象，如果注解不是<code>@RestController</code>，那么还应该在方法中加入<code>@ResponseBody</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span>
-</code></pre>
-
-<ol start="4">
-<li>确定参数，因为使用路径作为参数，则使用<code>@PathVariable</code>注解</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">)</span> <span class="token keyword">int</span> userID<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span></code></pre>]]></content>
+]]></content>
       <categories>
-        <category>Spring</category>
+        <category>RocketMQ</category>
       </categories>
       <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
+        <tag>RocketMQ</tag>
       </tags>
   </entry>
   <entry>
@@ -1649,28 +1649,18 @@ func Add(a, b int) int &#123;
       </tags>
   </entry>
   <entry>
-    <title>为什么要使用消息队列</title>
-    <url>/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</url>
+    <title>NameServer</title>
+    <url>/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/</url>
     <content><![CDATA[<blockquote>
-<p>  为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p>
+<p>  NameServer的主要知识。</p>
 </blockquote>
 <span id="more"></span>
 
-<h1 id="为什么使用消息队列"><a href="#为什么使用消息队列" class="headerlink" title="为什么使用消息队列"></a>为什么使用消息队列</h1><h2 id="简答"><a href="#简答" class="headerlink" title="简答"></a>简答</h2><ol>
-<li> 异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li>
-<li> 应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li>
-<li> 平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li>
-<li> 日志处理：解决不同机器之间的日志输出问题</li>
-<li> 消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li>
-</ol>
-<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h3 id="异步处理"><a href="#异步处理" class="headerlink" title="异步处理"></a>异步处理</h3><p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p>
-<h3 id="解除耦合"><a href="#解除耦合" class="headerlink" title="解除耦合"></a>解除耦合</h3><p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p>
-<p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p>
-<h3 id="平稳流量"><a href="#平稳流量" class="headerlink" title="平稳流量"></a>平稳流量</h3><p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><h3 id="系统可用性降低"><a href="#系统可用性降低" class="headerlink" title="系统可用性降低"></a>系统可用性降低</h3><p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p>
-<h3 id="系统复杂度降低"><a href="#系统复杂度降低" class="headerlink" title="系统复杂度降低"></a>系统复杂度降低</h3><p>一个系统每新增一个组件就要增加十倍的复杂度</p>
-<h3 id="一致性问题"><a href="#一致性问题" class="headerlink" title="一致性问题"></a>一致性问题</h3><p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>欲戴王冠，必承其重</p>
+<h1 id="NameServer"><a href="#NameServer" class="headerlink" title="NameServer"></a>NameServer</h1><p>NameServer充当了注册中心的作用，正如 <code>Zookeeper</code> 对 <code>kafka</code> 的作用， <code>NameServer</code> 本身的设计哲学是简单、无状态，<code>NameServer</code> 虽然可以集群部署，但是各个 <code>NameServer</code> 是互相不通信的，也就是说在一定的时间之内，<code>NameServer</code> 的数据会有不一致的情况。</p>
+<p><img src="https://helloteemo.com.cn/2021.07/image-20210702184024389.png" alt="image-20210702184024389"></p>
+<p>大概就是这样子了，</p>
+<p>NameServer可以集群部署，但是基本</p>
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>NameServer 不做太多的描述吧，，，因为真的太简单了。</p>
 ]]></content>
       <categories>
         <category>RocketMQ</category>
@@ -1712,18 +1702,28 @@ func Add(a, b int) int &#123;
       </tags>
   </entry>
   <entry>
-    <title>NameServer</title>
-    <url>/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/</url>
+    <title>为什么要使用消息队列</title>
+    <url>/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</url>
     <content><![CDATA[<blockquote>
-<p>  NameServer的主要知识。</p>
+<p>  为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p>
 </blockquote>
 <span id="more"></span>
 
-<h1 id="NameServer"><a href="#NameServer" class="headerlink" title="NameServer"></a>NameServer</h1><p>NameServer充当了注册中心的作用，正如 <code>Zookeeper</code> 对 <code>kafka</code> 的作用， <code>NameServer</code> 本身的设计哲学是简单、无状态，<code>NameServer</code> 虽然可以集群部署，但是各个 <code>NameServer</code> 是互相不通信的，也就是说在一定的时间之内，<code>NameServer</code> 的数据会有不一致的情况。</p>
-<p><img src="https://helloteemo.com.cn/2021.07/image-20210702184024389.png" alt="image-20210702184024389"></p>
-<p>大概就是这样子了，</p>
-<p>NameServer可以集群部署，但是基本</p>
-<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>NameServer 不做太多的描述吧，，，因为真的太简单了。</p>
+<h1 id="为什么使用消息队列"><a href="#为什么使用消息队列" class="headerlink" title="为什么使用消息队列"></a>为什么使用消息队列</h1><h2 id="简答"><a href="#简答" class="headerlink" title="简答"></a>简答</h2><ol>
+<li> 异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li>
+<li> 应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li>
+<li> 平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li>
+<li> 日志处理：解决不同机器之间的日志输出问题</li>
+<li> 消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li>
+</ol>
+<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h3 id="异步处理"><a href="#异步处理" class="headerlink" title="异步处理"></a>异步处理</h3><p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p>
+<h3 id="解除耦合"><a href="#解除耦合" class="headerlink" title="解除耦合"></a>解除耦合</h3><p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p>
+<p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p>
+<h3 id="平稳流量"><a href="#平稳流量" class="headerlink" title="平稳流量"></a>平稳流量</h3><p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><h3 id="系统可用性降低"><a href="#系统可用性降低" class="headerlink" title="系统可用性降低"></a>系统可用性降低</h3><p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p>
+<h3 id="系统复杂度降低"><a href="#系统复杂度降低" class="headerlink" title="系统复杂度降低"></a>系统复杂度降低</h3><p>一个系统每新增一个组件就要增加十倍的复杂度</p>
+<h3 id="一致性问题"><a href="#一致性问题" class="headerlink" title="一致性问题"></a>一致性问题</h3><p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>欲戴王冠，必承其重</p>
 ]]></content>
       <categories>
         <category>RocketMQ</category>
@@ -1922,43 +1922,6 @@ files &#x3D; &#x2F;etc&#x2F;supervisor.d&#x2F;*.ini</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>大致的存储过程</title>
-    <url>/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>  由于消息存储篇幅过长，这里只指明大致的消息存储过程</p>
-</blockquote>
-<span id="more"></span>
-
-<h1 id="大致的消息存储过程"><a href="#大致的消息存储过程" class="headerlink" title="大致的消息存储过程"></a>大致的消息存储过程</h1><h2 id="存储文件"><a href="#存储文件" class="headerlink" title="存储文件"></a>存储文件</h2><p><code>RocketMQ</code> 的主要存储三个文件:</p>
-<ol>
-<li>  <code>CommitLog</code> ，在 <code>RocketMQ </code> 的设计中，它存储了所有的消息</li>
-<li> <code>ConsumerQueue</code> ，每一个消息队列对应一个文件</li>
-<li> <code>IndexFile</code> ，加速了消息的检索速度</li>
-</ol>
-<p><img src="https://helloteemo.com.cn/2021.07/image-20210705221223338.png" alt="image-20210705221223338"></p>
-<h2 id="存储过程"><a href="#存储过程" class="headerlink" title="存储过程"></a>存储过程</h2><ol>
-<li> 检查消息是否可以写入，如该Broker是Slave、磁盘已满、队列没有写权限则不能写入</li>
-<li> 检查是否是延时消息，如果是延时消息则保存具体的Topic信息、MessageID到消息体中，并替换为延时消息的Topic和MessageID</li>
-<li> 获取当前可以写入的CommitLog文件</li>
-<li> 申请 <code>putMessageLock</code> ，即写入文件是串行写入的</li>
-<li> 设置消息的存储时间，创建全局唯一的 Message ID</li>
-<li> 获取该消息在消息队列中的偏移量，重新计算消息的总长度，并写入Commit Log文件中，如果无法存储所有的内容则创建新的CommitLog</li>
-<li> 把消息写入到CommitLog中，根据配置文件进行刷盘</li>
-<li> 更新逻辑偏移量，并释放 <code>putMessageLock</code></li>
-<li> 根据 <code>CommitLog</code> 偏移量、消息体大小、tag的hash值写入ConsumerQueue中</li>
-<li> 插入数据到IndexFile中</li>
-<li> Consumer Queue间隔一定时间刷盘</li>
-</ol>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>消息存储</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>消费者启动流程</title>
     <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
     <content><![CDATA[<blockquote>
@@ -2025,6 +1988,43 @@ files &#x3D; &#x2F;etc&#x2F;supervisor.d&#x2F;*.ini</code></pre>
       <categories>
         <category>RocketMQ</category>
         <category>消息消费</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>大致的存储过程</title>
+    <url>/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>  由于消息存储篇幅过长，这里只指明大致的消息存储过程</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="大致的消息存储过程"><a href="#大致的消息存储过程" class="headerlink" title="大致的消息存储过程"></a>大致的消息存储过程</h1><h2 id="存储文件"><a href="#存储文件" class="headerlink" title="存储文件"></a>存储文件</h2><p><code>RocketMQ</code> 的主要存储三个文件:</p>
+<ol>
+<li>  <code>CommitLog</code> ，在 <code>RocketMQ </code> 的设计中，它存储了所有的消息</li>
+<li> <code>ConsumerQueue</code> ，每一个消息队列对应一个文件</li>
+<li> <code>IndexFile</code> ，加速了消息的检索速度</li>
+</ol>
+<p><img src="https://helloteemo.com.cn/2021.07/image-20210705221223338.png" alt="image-20210705221223338"></p>
+<h2 id="存储过程"><a href="#存储过程" class="headerlink" title="存储过程"></a>存储过程</h2><ol>
+<li> 检查消息是否可以写入，如该Broker是Slave、磁盘已满、队列没有写权限则不能写入</li>
+<li> 检查是否是延时消息，如果是延时消息则保存具体的Topic信息、MessageID到消息体中，并替换为延时消息的Topic和MessageID</li>
+<li> 获取当前可以写入的CommitLog文件</li>
+<li> 申请 <code>putMessageLock</code> ，即写入文件是串行写入的</li>
+<li> 设置消息的存储时间，创建全局唯一的 Message ID</li>
+<li> 获取该消息在消息队列中的偏移量，重新计算消息的总长度，并写入Commit Log文件中，如果无法存储所有的内容则创建新的CommitLog</li>
+<li> 把消息写入到CommitLog中，根据配置文件进行刷盘</li>
+<li> 更新逻辑偏移量，并释放 <code>putMessageLock</code></li>
+<li> 根据 <code>CommitLog</code> 偏移量、消息体大小、tag的hash值写入ConsumerQueue中</li>
+<li> 插入数据到IndexFile中</li>
+<li> Consumer Queue间隔一定时间刷盘</li>
+</ol>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>消息存储</category>
       </categories>
       <tags>
         <tag>RocketMQ</tag>
