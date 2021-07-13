@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://helloteemo.github.io/schedule/index.html</loc>
+    
+    <lastmod>2021-07-13</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://helloteemo.github.io/todolist/index.html</loc>
     
     <lastmod>2021-07-13</lastmod>
@@ -9,7 +16,7 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/schedule/index.html</loc>
+    <loc>https://helloteemo.github.io/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/</loc>
     
     <lastmod>2021-07-13</lastmod>
     
@@ -305,14 +312,7 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/tags/Java/</loc>
-    <lastmod>2021-07-13</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/tags/Spring/</loc>
+    <loc>https://helloteemo.github.io/tags/RocketMQ/</loc>
     <lastmod>2021-07-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -333,7 +333,14 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/tags/RocketMQ/</loc>
+    <loc>https://helloteemo.github.io/tags/Java/</loc>
+    <lastmod>2021-07-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/tags/Spring/</loc>
     <lastmod>2021-07-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -398,7 +405,7 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/categories/Spring/</loc>
+    <loc>https://helloteemo.github.io/categories/RocketMQ/</loc>
     <lastmod>2021-07-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -412,7 +419,7 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/categories/RocketMQ/</loc>
+    <loc>https://helloteemo.github.io/categories/Spring/</loc>
     <lastmod>2021-07-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -447,7 +454,21 @@
   </url>
   
   <url>
+    <loc>https://helloteemo.github.io/categories/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</loc>
+    <lastmod>2021-07-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/</loc>
+    <lastmod>2021-07-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/</loc>
     <lastmod>2021-07-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -462,20 +483,6 @@
   
   <url>
     <loc>https://helloteemo.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2021-07-13</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/categories/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</loc>
-    <lastmod>2021-07-13</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/</loc>
     <lastmod>2021-07-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
