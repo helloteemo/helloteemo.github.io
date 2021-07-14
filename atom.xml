@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-07-13T07:00:34.644Z</updated>
+  <updated>2021-07-14T09:44:27.389Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -17,11 +17,36 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>TCP篇</title>
+    <link href="https://helloteemo.github.io/2021/07/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP/"/>
+    <id>https://helloteemo.github.io/2021/07/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP/</id>
+    <published>2021-07-14T06:28:28.000Z</published>
+    <updated>2021-07-14T09:44:27.389Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>  计算机网络中的TCP部分，简单复习一下。</p></blockquote><span id="more"></span><h1 id="TCP篇"><a href="#TCP篇" class="headerlink" title="TCP篇"></a>TCP篇</h1><h2 id="OSI七层协议"><a href="#OSI七层协议" class="headerlink" title="OSI七层协议"></a>OSI七层协议</h2><p>OSI七层从下至上分别为</p><ol><li> 物理层：定义了物理设备标准，主要作用是传输比特流，这一层的数据叫比特</li><li> 数据链路层：定义了如何让格式化数据以进行传输，以及如何让控制对物理介质的访问，</li><li> 网络层：对网络中的两个主机系统之间提供连接和路径选择</li><li> 传输层：定义一些传输数据的协议和端口号</li><li> 会话层：负责在数据传输中设置和维护计算机网络中两台计算机之间的通信连接</li><li> 表示层：数据转换为能与接收者的系统格式兼容并适合传输的格式</li><li> 应用层：为应用软件而设计的接口，以设置与另一应用软件之间的通信</li></ol><p>TCP、UDP协议是作用来传输层的协议</p><h2 id="TCP基础知识"><a href="#TCP基础知识" class="headerlink" title="TCP基础知识"></a>TCP基础知识</h2><h3 id="tcp是什么"><a href="#tcp是什么" class="headerlink" title="tcp是什么"></a>tcp是什么</h3><p>tcp的全称是 <code>Transmission Control Protocol</code>，即传输控制协议，它的重点在于控制，控制传输的可靠、有序的传输以及端对端的流量控制、拥塞控制等</p><h3 id="TCP连接是什么"><a href="#TCP连接是什么" class="headerlink" title="TCP连接是什么"></a>TCP连接是什么</h3><p>我们都知道TCP是基于连接的，所谓连接即双方都维护了一个状态，并在米一次通信间来更新这个状态。</p><h3 id="TCP协议头"><a href="#TCP协议头" class="headerlink" title="TCP协议头"></a>TCP协议头</h3><p>在深入了解TCP协议之前我们先来看下TCP的协议头吧，这里我截取了 <a href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">维基百科传输协议控制</a> 的图。</p><p><img src="https://helloteemo.com.cn/2021.07/image-20210714170908967.png" alt="image-20210714170908967"></p><p>我们不一定需要完全了解整体的内容，这里我挑选几个重要的参数来说</p><ol><li> 端口：包括源端口和目标端口</li><li> <code>seq</code> ：序列号，用来解决包乱序问题</li><li> <code>ack</code> ：确认号，用来解决丢包问题</li><li> <code>窗口大小</code> ：即滑动窗口大小，用来控流</li><li> <code>标志位</code> ：标识这个包是什么类型的，用来控制TCP的状态</li></ol><h3 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h3><p>三次握手是建立TCP连接的步骤。我们先来看图</p><img src="https://helloteemo.com.cn/2021.07/image-20210714173409157.png" alt="image-20210714173409157" style="zoom:50%;" /><p>为什么需要三次握手：为了初始化SeqNumer，并且三次握手时确保双方的发送接收功能都正常。</p><h3 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h3><p>四次挥手和三次握手类似，先看图</p><p><img src="https://pic2.zhimg.com/80/v2-8561a80c0b70da10eae1b298ca76c901_720w.jpg"></p><p>为什么需要四次挥手：因为TCP是全双工协议，也就是说双方都需要关闭。每一方都向对方发送FIN和回应ACK。从图中可以看到主动关闭方的状态是 FIN_WAIT_1 到 FIN_WAIT_2 然后再到 TIME_WAIT，而被动关闭方是 CLOSE_WAIT 到 LAST_ACK。</p><h3 id="为什么一定要有TIME-WAIT"><a href="#为什么一定要有TIME-WAIT" class="headerlink" title="为什么一定要有TIME_WAIT"></a>为什么一定要有TIME_WAIT</h3><p>断开连接发起方在接受到接受方的 FIN 并回复 ACK 之后并没有直接进入 CLOSED 状态，而是进行了一波等待，等待时间为 2MSL。</p><p>MSL 是 Maximum Segment Lifetime，即报文最长生存时间，RFC 793 定义的 MSL 时间是 2 分钟，Linux 实际实现是 30s，那么 2MSL 是一分钟。</p><p><strong>那么为什么要等 2MSL 呢？</strong></p><ul><li>  就是怕被动关闭方没有收到最后的 ACK，如果被动方由于网络原因没有到，那么它会再次发送 FIN， 此时如果主动关闭方已经 CLOSED 那就傻了，因此等一会儿。</li><li>  假设立马断开连接，但是又重用了这个连接，就是五元组完全一致，并且序号还在合适的范围内，虽然概率很低但理论上也有可能，那么新的连接会被已关闭连接链路上的一些残留数据干扰，因此给予一定的时间来处理一些残留数据。</li></ul><p>那么等待2MSL会引起什么问题呢，如果是服务器主动关闭了大量连接，会出现较大的资源占用问题，</p><h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><blockquote><p>  2021-07-14 17:43</p><p>  先写到这里吧，今天的事情有点多。还有很多地方没有写完的明天再写</p></blockquote>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;  计算机网络中的TCP部分，简单复习一下。&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="计算机网络" scheme="https://helloteemo.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
+    
+    
+    <category term="计算机网络" scheme="https://helloteemo.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
+    
+    <category term="TCP" scheme="https://helloteemo.github.io/tags/TCP/"/>
+    
+  </entry>
+  
+  <entry>
     <title>GC</title>
     <link href="https://helloteemo.github.io/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/"/>
     <id>https://helloteemo.github.io/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/</id>
     <published>2021-07-13T05:51:16.000Z</published>
-    <updated>2021-07-13T07:00:34.644Z</updated>
+    <updated>2021-07-14T00:58:25.568Z</updated>
     
     <content type="html"><![CDATA[<blockquote><p>  这里只是简单介绍一下GC，我本人对于GC的了解并不是特别深入</p></blockquote><span id="more"></span><h1 id="GC"><a href="#GC" class="headerlink" title="GC"></a>GC</h1><h2 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h2><p>首先我们来介绍一下GC算法的大致思路。</p><ol><li> 引用计数：每个对象维护一个域，其中保存其它对象指向它的引用数量，当引用数量为零时该对象为垃圾</li><li> 标记-清除：首先使用标记算法标记一些对象为不可达对象，之后在达到某个阈值或者固定时间的话，这个时候系统会挂起用户程序，也就是SWT，转而执行垃圾回收算法</li><li> 节点复制</li><li> 分代收集：分代垃圾回收算法将对象按生命周期长短存放到堆上的两个（或者更多）区域，这些区域就是分代（generation）。之后再进行垃圾回收</li></ol><p>这里 <code>Golang</code> 使用的是基于 标记-清除 法的三色标记算法</p><h2 id="GC触发条件"><a href="#GC触发条件" class="headerlink" title="GC触发条件"></a>GC触发条件</h2><p>一般来说有三种情况会触发GC</p><ol><li> 辅助GC，在分配内存时，会判断当前的Heap内存分配量是否达到了触发GC的阈值，如果超过了阈值则启动一轮GC</li><li> 调用 <code>systeme.GC()</code> 来强制启动一轮GC</li><li> 当超过一定时间未运行GC的情况下会执行GC</li></ol><h2 id="为什么需要三色标记算法"><a href="#为什么需要三色标记算法" class="headerlink" title="为什么需要三色标记算法"></a>为什么需要三色标记算法</h2><p>相比之前的标记清除算法，其GC执行期间需要把整个程序完全暂停，不能异步执行GC操作。对实时性要求比较高的系统来说，这种需要长时间挂起的标记清除算法是不可接受的，而三色标记算法就很好的解决了这个问题。 <strong>三色标记最大的好处是可以异步执行</strong>，从而可以以中断时间极少的代价或者完全没有中断操作来进行整个GC。</p><p>三色指的是黑色、灰色、白色，</p><ol><li> 黑色：根对象，或者某对象和它的子对象都被扫描过</li><li> 灰色：某对象被扫描过，但是子对象未被扫描</li><li> 白色：未被扫描的对象，如果扫描完成所有对象之后，最终白色为不可达对象，即垃圾对象</li></ol><h2 id="读写屏障"><a href="#读写屏障" class="headerlink" title="读写屏障"></a>读写屏障</h2><p>所谓的读写屏障就是针对某个对象变量赋值、读取时做一些格外的操作</p><h2 id="垃圾回收的主要流程"><a href="#垃圾回收的主要流程" class="headerlink" title="垃圾回收的主要流程"></a>垃圾回收的主要流程</h2><ol><li> 初始化所有对象被标记为白色</li><li> 从root开始找到所有可达对象，标记为灰色，放入到待处理队列中</li><li> 遍历灰色对象队列，把其引用的对象标记为灰色放入到待处理队列中，自身标记为黑色</li><li> 处理完灰色对象队列，知道没有灰色对象为止</li><li> 其余白色为垃圾对象，执行清扫工作</li></ol><h2 id="三色标记法的引用消失问题"><a href="#三色标记法的引用消失问题" class="headerlink" title="三色标记法的引用消失问题"></a>三色标记法的引用消失问题</h2><p>什么是引用消失：即原本应该是黑色的对象被误标为白色。</p><h3 id="发生的条件"><a href="#发生的条件" class="headerlink" title="发生的条件"></a>发生的条件</h3><p>当且仅当一下两个条件同时满足的时候</p><ol><li> 赋值器插入了一条或多条从黑色对象到白色对象的新引用</li><li> 赋值器删除了全部从灰色对象到该白色对象的直接或间接引用。</li></ol><h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>只需要破坏成立的条件即可，有两种方案：增量更新和原始快照</p><ol><li> 增量更新，当一个白色对象被黑色对象引用时，把黑色对象重新标记为灰色，让垃圾回收算法重新扫描即可</li><li> 原始快照：原始快照要破坏的是第二个条件，当灰色对象要删除白色对象的引用关系时，就将这个要删除的引用记录下来，在并发扫描结束之后，再扫描这些灰色节点</li></ol><h3 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h3><p><strong>原始快照关注的是引用删除，增量更新关注的是引用增加</strong></p><p>因为增量更新算法还需要把原本为黑色的节点再次扫描一遍，效率有点低下</p><h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><blockquote><p>  2021-07-13 14:59</p><p>  哈哈哈,今天并没有日志</p></blockquote>]]></content>
     
@@ -469,31 +494,6 @@
     
     <summary type="html">&lt;blockquote&gt;
 &lt;p&gt;  消息队列的选择还是很重要的啊，不能脑子一热就拍板要使用什么技术，这个世界没有银弹。&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="RocketMQ" scheme="https://helloteemo.github.io/categories/RocketMQ/"/>
-    
-    <category term="基本理念" scheme="https://helloteemo.github.io/categories/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
-    
-    
-    <category term="RocketMQ" scheme="https://helloteemo.github.io/tags/RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>为什么要使用消息队列</title>
-    <link href="https://helloteemo.github.io/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/"/>
-    <id>https://helloteemo.github.io/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</id>
-    <published>2021-01-21T01:08:28.000Z</published>
-    <updated>2021-06-25T02:16:25.473Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>  为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p></blockquote><span id="more"></span><h1 id="为什么使用消息队列"><a href="#为什么使用消息队列" class="headerlink" title="为什么使用消息队列"></a>为什么使用消息队列</h1><h2 id="简答"><a href="#简答" class="headerlink" title="简答"></a>简答</h2><ol><li> 异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li><li> 应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li><li> 平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li><li> 日志处理：解决不同机器之间的日志输出问题</li><li> 消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li></ol><h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h3 id="异步处理"><a href="#异步处理" class="headerlink" title="异步处理"></a>异步处理</h3><p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p><h3 id="解除耦合"><a href="#解除耦合" class="headerlink" title="解除耦合"></a>解除耦合</h3><p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p><p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p><h3 id="平稳流量"><a href="#平稳流量" class="headerlink" title="平稳流量"></a>平稳流量</h3><p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p><h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><h3 id="系统可用性降低"><a href="#系统可用性降低" class="headerlink" title="系统可用性降低"></a>系统可用性降低</h3><p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p><h3 id="系统复杂度降低"><a href="#系统复杂度降低" class="headerlink" title="系统复杂度降低"></a>系统复杂度降低</h3><p>一个系统每新增一个组件就要增加十倍的复杂度</p><h3 id="一致性问题"><a href="#一致性问题" class="headerlink" title="一致性问题"></a>一致性问题</h3><p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>欲戴王冠，必承其重</p>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;  为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白&lt;strong&gt;需求驱动技术的发展&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
