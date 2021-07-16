@@ -298,13 +298,6 @@
 
   
   <url>
-    <loc>https://helloteemo.github.io/tags/JVM/</loc>
-    <lastmod>2021-07-16</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://helloteemo.github.io/tags/go/</loc>
     <lastmod>2021-07-16</lastmod>
     <changefreq>daily</changefreq>
@@ -313,6 +306,13 @@
   
   <url>
     <loc>https://helloteemo.github.io/tags/java/</loc>
+    <lastmod>2021-07-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/tags/JVM/</loc>
     <lastmod>2021-07-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -405,13 +405,6 @@
 
   
   <url>
-    <loc>https://helloteemo.github.io/categories/JVM/</loc>
-    <lastmod>2021-07-16</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://helloteemo.github.io/categories/Golang/</loc>
     <lastmod>2021-07-16</lastmod>
     <changefreq>daily</changefreq>
@@ -420,6 +413,13 @@
   
   <url>
     <loc>https://helloteemo.github.io/categories/Java/</loc>
+    <lastmod>2021-07-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/categories/JVM/</loc>
     <lastmod>2021-07-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
