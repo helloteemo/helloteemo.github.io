@@ -168,17 +168,17 @@
   </entry>
   
   <entry>
-    <title>消费者基本理念</title>
-    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
-    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
+    <title>消费者启动流程</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
     <published>2021-07-07T07:19:09.000Z</published>
-    <updated>2021-07-08T03:49:14.000Z</updated>
+    <updated>2021-07-09T15:53:44.637Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a class="markdownIt-Anchor" href="#消费者基本理念"></a> 消费者基本理念</h1><h2 id="消费者组"><a class="markdownIt-Anchor" href="#消费者组"></a> 消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>Q：为什么需要消费者组</p><p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a class="markdownIt-Anchor" href="#消息消费模式"></a> 消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a class="markdownIt-Anchor" href="#消息传送方式"></a> 消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li>推模式：消息到达Broker后，推送给消息消费者</li><li>拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a class="markdownIt-Anchor" href="#消息队列负载机制"></a> 消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p><ol><li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li><li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li></ol><h2 id="消息队列重平衡机制"><a class="markdownIt-Anchor" href="#消息队列重平衡机制"></a> 消息队列重平衡机制</h2><p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p><p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p><h2 id="消费模型"><a class="markdownIt-Anchor" href="#消费模型"></a> 消费模型</h2><p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p><ol><li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li><li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li></ol><h2 id="其它"><a class="markdownIt-Anchor" href="#其它"></a> 其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1><blockquote><p>2021-07-07 17:00</p><p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote><blockquote><p>2021-07-08 11:43</p><p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span><h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
+&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -193,17 +193,17 @@
   </entry>
   
   <entry>
-    <title>消费者启动流程</title>
-    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
-    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
+    <title>消费者基本理念</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
     <published>2021-07-07T07:19:09.000Z</published>
-    <updated>2021-07-09T15:53:44.637Z</updated>
+    <updated>2021-07-08T03:49:14.000Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span><h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a class="markdownIt-Anchor" href="#消费者基本理念"></a> 消费者基本理念</h1><h2 id="消费者组"><a class="markdownIt-Anchor" href="#消费者组"></a> 消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>Q：为什么需要消费者组</p><p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a class="markdownIt-Anchor" href="#消息消费模式"></a> 消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a class="markdownIt-Anchor" href="#消息传送方式"></a> 消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li>推模式：消息到达Broker后，推送给消息消费者</li><li>拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a class="markdownIt-Anchor" href="#消息队列负载机制"></a> 消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p><ol><li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li><li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li></ol><h2 id="消息队列重平衡机制"><a class="markdownIt-Anchor" href="#消息队列重平衡机制"></a> 消息队列重平衡机制</h2><p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p><p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p><h2 id="消费模型"><a class="markdownIt-Anchor" href="#消费模型"></a> 消费模型</h2><p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p><ol><li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li><li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li></ol><h2 id="其它"><a class="markdownIt-Anchor" href="#其它"></a> 其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1><blockquote><p>2021-07-07 17:00</p><p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote><blockquote><p>2021-07-08 11:43</p><p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p></blockquote>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
+&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -462,17 +462,17 @@
   </entry>
   
   <entry>
-    <title>关于代码和对接文档规范</title>
-    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
-    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</id>
+    <title>如何调试代码</title>
+    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/"/>
+    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</id>
     <published>2021-01-26T10:23:14.000Z</published>
-    <updated>2021-01-27T01:15:22.443Z</updated>
+    <updated>2021-06-28T03:58:04.540Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范"><a class="markdownIt-Anchor" href="#关于代码和对接文档规范"></a> 关于代码和对接文档规范</h1><ol><li><h2 id="日志"><a class="markdownIt-Anchor" href="#日志"></a> 日志</h2><ol><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码"><a class="markdownIt-Anchor" href="#错误码"></a> 错误码</h3><ol><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>一些关于调试的经验，更多的是如何找到BUG并修复</p></blockquote><span id="more"></span><h1 id="如何调试代码"><a class="markdownIt-Anchor" href="#如何调试代码"></a> 如何调试代码</h1><p>最重要的一点：<strong>放平心态，冷静对待</strong></p><p>在此给出调试代码3步曲</p><ol><li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li><li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li><li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li></ol>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范&lt;/p&gt;
+&lt;p&gt;一些关于调试的经验，更多的是如何找到BUG并修复&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -485,17 +485,17 @@
   </entry>
   
   <entry>
-    <title>如何调试代码</title>
-    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/"/>
-    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</id>
+    <title>关于代码和对接文档规范</title>
+    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
+    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</id>
     <published>2021-01-26T10:23:14.000Z</published>
-    <updated>2021-06-28T03:58:04.540Z</updated>
+    <updated>2021-01-27T01:15:22.443Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>一些关于调试的经验，更多的是如何找到BUG并修复</p></blockquote><span id="more"></span><h1 id="如何调试代码"><a class="markdownIt-Anchor" href="#如何调试代码"></a> 如何调试代码</h1><p>最重要的一点：<strong>放平心态，冷静对待</strong></p><p>在此给出调试代码3步曲</p><ol><li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li><li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li><li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li></ol>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范"><a class="markdownIt-Anchor" href="#关于代码和对接文档规范"></a> 关于代码和对接文档规范</h1><ol><li><h2 id="日志"><a class="markdownIt-Anchor" href="#日志"></a> 日志</h2><ol><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码"><a class="markdownIt-Anchor" href="#错误码"></a> 错误码</h3><ol><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;一些关于调试的经验，更多的是如何找到BUG并修复&lt;/p&gt;
+&lt;p&gt;本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
