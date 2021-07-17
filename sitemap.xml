@@ -305,13 +305,6 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/tags/go/</loc>
-    <lastmod>2021-07-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://helloteemo.github.io/tags/java/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
@@ -326,14 +319,7 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/tags/sql/</loc>
-    <lastmod>2021-07-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/tags/leetcode/</loc>
+    <loc>https://helloteemo.github.io/tags/go/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -348,6 +334,20 @@
   
   <url>
     <loc>https://helloteemo.github.io/tags/Spring/</loc>
+    <lastmod>2021-07-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/tags/sql/</loc>
+    <lastmod>2021-07-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/tags/leetcode/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -405,21 +405,7 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/categories/Golang/</loc>
-    <lastmod>2021-07-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://helloteemo.github.io/categories/Java/</loc>
-    <lastmod>2021-07-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://helloteemo.github.io/categories/SQL/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -433,7 +419,21 @@
   </url>
   
   <url>
+    <loc>https://helloteemo.github.io/categories/Golang/</loc>
+    <lastmod>2021-07-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://helloteemo.github.io/categories/Spring/</loc>
+    <lastmod>2021-07-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/categories/SQL/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -468,13 +468,6 @@
   </url>
   
   <url>
-    <loc>https://helloteemo.github.io/categories/Golang/%E5%9F%BA%E7%A1%80/</loc>
-    <lastmod>2021-07-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://helloteemo.github.io/categories/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
@@ -497,6 +490,13 @@
   
   <url>
     <loc>https://helloteemo.github.io/categories/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/</loc>
+    <lastmod>2021-07-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://helloteemo.github.io/categories/Golang/%E5%9F%BA%E7%A1%80/</loc>
     <lastmod>2021-07-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

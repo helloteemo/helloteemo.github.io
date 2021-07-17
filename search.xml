@@ -64,6 +64,316 @@
       </tags>
   </entry>
   <entry>
+    <title>判断某一天是今年的第几天</title>
+    <url>/2020/12/19/Java/%E5%88%A4%E6%96%AD%E6%9F%90%E4%B8%80%E5%A4%A9%E6%98%AF%E4%BB%8A%E5%B9%B4%E7%9A%84%E7%AC%AC%E5%87%A0%E5%A4%A9/</url>
+    <content><![CDATA[<p>如题。。。</p>
+<span id="more"></span>
+<h1 id="判断某一天是今年的第几天"><a class="markdownIt-Anchor" href="#判断某一天是今年的第几天"></a> 判断某一天是今年的第几天</h1>
+<h2 id="解题思路"><a class="markdownIt-Anchor" href="#解题思路"></a> 解题思路</h2>
+<ol>
+<li>先计算出当月月份之前的天数,因为根据年份和月份都可以确定每一个具体的天数</li>
+<li>把上一步计算出来值和天数相加即是答案</li>
+</ol>
+<h2 id="模块划分"><a class="markdownIt-Anchor" href="#模块划分"></a> 模块划分</h2>
+<ol>
+<li>获取某一个月份的天数的模块</li>
+<li>是否是论年的模块</li>
+<li>获取某一个月份之前月份的累积天数</li>
+</ol>
+<h2 id="函数实现"><a class="markdownIt-Anchor" href="#函数实现"></a> 函数实现</h2>
+<ol>
+<li>是否是论年的模块</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// isLeapYear 判断是否是润年</span>
+<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">isLeapYear</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	<span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>year <span class="token operator">%</span> <span class="token number">4</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> year <span class="token operator">%</span> <span class="token number">100</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">||</span> year <span class="token operator">%</span> <span class="token number">400</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="2">
+<li>获取某一个月份的天数的模块</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// getMonthDay 获取某一个月份的天数</span>
+<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">switch</span> <span class="token punctuation">(</span>month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">case</span> <span class="token number">1</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token number">3</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token number">5</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token number">7</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token number">8</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token number">10</span><span class="token operator">:</span>
+        <span class="token keyword">case</span> <span class="token number">12</span><span class="token operator">:</span>
+            <span class="token keyword">return</span> <span class="token number">31</span><span class="token punctuation">;</span>
+        <span class="token keyword">case</span> <span class="token number">2</span><span class="token operator">:</span>
+            <span class="token keyword">return</span> <span class="token number">28</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token function">isLeapYear</span><span class="token punctuation">(</span>year<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token number">1</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">default</span><span class="token operator">:</span>
+            <span class="token keyword">return</span> <span class="token number">30</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="3">
+<li>获取某一个月份之前月份的累积天数</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// getTotalDaySinceMonth 获取某一个月份之前月份的累积天数</span>
+<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getTotalDaySinceMonth</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">int</span> totalDay <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> month<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        totalDay <span class="token operator">+=</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span>year<span class="token punctuation">,</span> month<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> totalDay<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<h2 id="最后程序"><a class="markdownIt-Anchor" href="#最后程序"></a> 最后程序</h2>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">basic</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">Scanner</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// isLeapYear 判断是否是润年</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">isLeapYear</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>year <span class="token operator">%</span> <span class="token number">4</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> year <span class="token operator">%</span> <span class="token number">100</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">||</span> year <span class="token operator">%</span> <span class="token number">400</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// getMonthDay 获取某一个月份的天数</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">switch</span> <span class="token punctuation">(</span>month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">case</span> <span class="token number">1</span><span class="token operator">:</span>
+            <span class="token keyword">case</span> <span class="token number">3</span><span class="token operator">:</span>
+            <span class="token keyword">case</span> <span class="token number">5</span><span class="token operator">:</span>
+            <span class="token keyword">case</span> <span class="token number">7</span><span class="token operator">:</span>
+            <span class="token keyword">case</span> <span class="token number">8</span><span class="token operator">:</span>
+            <span class="token keyword">case</span> <span class="token number">10</span><span class="token operator">:</span>
+            <span class="token keyword">case</span> <span class="token number">12</span><span class="token operator">:</span>
+                <span class="token keyword">return</span> <span class="token number">31</span><span class="token punctuation">;</span>
+            <span class="token keyword">case</span> <span class="token number">2</span><span class="token operator">:</span>
+                <span class="token keyword">return</span> <span class="token number">28</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token function">isLeapYear</span><span class="token punctuation">(</span>year<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token number">1</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">default</span><span class="token operator">:</span>
+                <span class="token keyword">return</span> <span class="token number">30</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// getTotalDaySinceMonth 获取某一个月份之前月份的累积天数</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getTotalDaySinceMonth</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">int</span> totalDay <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> month<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            totalDay <span class="token operator">+=</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span>year<span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">return</span> totalDay<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">//</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">Scanner</span> in <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Scanner</span><span class="token punctuation">(</span><span class="token class-name">System</span><span class="token punctuation">.</span>in<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"请输入年月日(格式2020-01-02):"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span> str <span class="token operator">=</span> in<span class="token punctuation">.</span><span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> split <span class="token operator">=</span> str<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span><span class="token string">"-"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> year <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>split<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> month <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>split<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> day <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>split<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> totalDay <span class="token operator">=</span> <span class="token function">getTotalDaySinceMonth</span><span class="token punctuation">(</span>year<span class="token punctuation">,</span> month<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"总天数为："</span> <span class="token operator">+</span> <span class="token punctuation">(</span>totalDay <span class="token operator">+</span> day<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何使用SpringBoot完成毕业设计</title>
+    <url>/2020/12/19/Java/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-SpringBoot-%E5%AE%8C%E6%88%90%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<p>哈哈，这个实际上是一个很大的工程，因为在看这篇文章的读者应该很迷茫，不知道怎么入手一个项目</p>
+<p>本文主要简述了一个项目的开发流程(编码部分)，怎么一步一步从无到有</p>
+<p>Let Go!!!</p>
+<span id="more"></span>
+<h1 id="如何使用springboot完成毕业设计"><a class="markdownIt-Anchor" href="#如何使用springboot完成毕业设计"></a> 如何使用<strong>SpringBoot</strong>完成毕业设计</h1>
+<p>假设本博客课题：注册登入功能，这里只实现登入</p>
+<p>博客代码地址：<code>https://gitee.com/Frank__smile/springboot-demo.git</code></p>
+<p>GitEE平台有两个分支:<code>master、dev</code>，其中<code>master</code>分支有大致框架，默认配置了<code>jpa</code>、<code>redis</code>，本文默认使用数据库<code>mysql</code>，使用时只需要修改<code>application.properties</code>文件中的</p>
+<pre class="language-properties" data-language="properties"><code class="language-properties"><span class="token attr-name">spring.datasource.url</span><span class="token punctuation">=</span><span class="token attr-value">jdbc:mysql://127.0.0.1:3306/springboot_test?useSSL=false&amp;serverTimezone=UTC&amp;charset=utf8mb4</span>
+<span class="token attr-name">spring.datasource.username</span><span class="token punctuation">=</span><span class="token attr-value">root</span>
+<span class="token attr-name">spring.datasource.password</span><span class="token punctuation">=</span><span class="token attr-value">123456</span>
+
+<span class="token attr-name">spring.redis.host</span><span class="token punctuation">=</span><span class="token attr-value">127.0.0.1</span>
+<span class="token attr-name">spring.redis.password</span><span class="token punctuation">=</span><span class="token attr-value">123456</span></code></pre>
+<p>即可完成毕业设计大部分功能</p>
+<p>而<code>dev</code>分支则为本博客实现的代码，仅供参考</p>
+<blockquote>
+<p>毕业设计编码部分大致流程如下</p>
+<ol>
+<li>创建数据库表</li>
+<li>根据数据库表创建实体类</li>
+<li>编写基本SQL语言</li>
+<li>以此创建Service、Controller</li>
+<li>编写前端部分(不写)</li>
+</ol>
+</blockquote>
+<h3 id="一-创建数据库表"><a class="markdownIt-Anchor" href="#一-创建数据库表"></a> 一、 创建数据库表</h3>
+<p>由于实现的功能非常简单，我就写一张<code>user_user</code>表，<code>user_user</code>表有三个字段<code>id username password</code></p>
+<p>对应SQL语句如下：</p>
+<pre class="language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">DATABASE</span> springboot<span class="token operator">-</span>test <span class="token keyword">CHARACTER</span> <span class="token keyword">SET</span> utf8 <span class="token keyword">COLLATE</span> utf8_general_ci<span class="token punctuation">;</span>
+
+<span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token keyword">IF</span> <span class="token operator">NOT</span> EXIST <span class="token punctuation">`</span>user_user<span class="token punctuation">`</span><span class="token punctuation">(</span>
+    id <span class="token keyword">int</span> <span class="token keyword">primary</span> <span class="token keyword">key</span> <span class="token keyword">AUTO_INCREMENT</span><span class="token punctuation">,</span>
+    username <span class="token keyword">text</span> <span class="token operator">not</span> <span class="token boolean">null</span><span class="token punctuation">,</span>
+    password <span class="token keyword">text</span> <span class="token operator">not</span> <span class="token boolean">null</span>
+<span class="token punctuation">)</span><span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span>
+
+<span class="token keyword">insert</span> <span class="token keyword">into</span> user_user<span class="token punctuation">(</span>username<span class="token punctuation">,</span>password<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">"frank"</span><span class="token punctuation">,</span><span class="token string">"123456"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">insert</span> <span class="token keyword">into</span> user_user<span class="token punctuation">(</span>username<span class="token punctuation">,</span>password<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">"狗头狗LJH"</span><span class="token punctuation">,</span><span class="token string">"123456"</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<h3 id="二-根据数据库表创建实体类"><a class="markdownIt-Anchor" href="#二-根据数据库表创建实体类"></a> 二、根据数据库表创建实体类</h3>
+<p>我们在<code>entity</code>包中创建一个<code>User</code>类，使用注解<code>@Entity</code>标记为一个实体类，使用<code>@Table</code>标注对应数据库的表名为<code>user_user</code>，生产<code>get set toString</code>方法</p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Entity</span>
+<span class="token annotation punctuation">@Table</span><span class="token punctuation">(</span><span class="token string">"user_user"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">User</span><span class="token punctuation">&#123;</span>
+     <span class="token annotation punctuation">@Id</span>
+    <span class="token keyword">private</span> <span class="token keyword">long</span> id<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Column</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"username"</span><span class="token punctuation">,</span> nullable <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> username<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Column</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"password"</span><span class="token punctuation">,</span> nullable <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+    <span class="token keyword">private</span> <span class="token class-name">String</span> password<span class="token punctuation">;</span>
+    
+    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<h3 id="三-编写基本sql语言"><a class="markdownIt-Anchor" href="#三-编写基本sql语言"></a> 三、编写基本SQL语言</h3>
+<p>由于我们使用的是<code>jpa</code>，所以只需要<code>jpa</code>标准就行，这里只做简单阐述，其余请自行查阅资料</p>
+<p>这个部分我们放在<code>models</code>包中，我们需要创建一个<code>UserRepository</code>接口，该接口需要继承<code>JpaRepository</code>，被继承的<code>JpaRepository</code>接口需要填入两个类型，第一个类型是实体类类型，第二个类型是主键类型。</p>
+<p>由于需要完成登入功能，所以我们检查账户密码是否正确，大致SQL如下</p>
+<pre class="language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> id <span class="token keyword">from</span> user_user <span class="token keyword">where</span> username <span class="token operator">=</span> ? <span class="token operator">and</span> passwrod<span class="token operator">=</span>?</code></pre>
+<p>其中</p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserRepository</span> <span class="token keyword">extends</span> <span class="token class-name">JpaRepository</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">User</span><span class="token punctuation">,</span> <span class="token class-name">Long</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
+     <span class="token class-name">User</span> <span class="token function">findByUsernameAndPassword</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token class-name">String</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<p>到这里我们就已经完成了SQL语句的编写</p>
+<h3 id="创建service-controller"><a class="markdownIt-Anchor" href="#创建service-controller"></a> 创建Service、Controller</h3>
+<p><code>service</code>包中添加一个<code>UserService</code>接口，用来定义用户的行为，目前只实现登入功能，</p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserService</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">userLogin</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token class-name">String</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<p>在<code>service</code>包中添加一个<code>impl</code>子包，用来实现<code>service</code>包中的方法，添加一个类<code>UserServiceImpl</code>类实现接口，</p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
+<span class="token comment">// 该注解表示这个类是一个组件@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">UserService</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token comment">// spring自动注入</span>
+    <span class="token class-name">UserRepository</span> userRepository<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">userLogin</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token class-name">String</span> password<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">User</span> user <span class="token operator">=</span> userRepository<span class="token punctuation">.</span><span class="token function">findByUsernameAndPassword</span><span class="token punctuation">(</span>username<span class="token punctuation">,</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>user <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">return</span> user<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<p><code>controller</code>包中添加一个<code>UserController</code>类，用来转发不同的请求,</p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Controller</span>
+<span class="token comment">// 功能同@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token class-name">UserService</span> userService<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">Logger</span> log <span class="token operator">=</span> <span class="token class-name">LoggerFactory</span><span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token class-name">UserController</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"login"</span><span class="token punctuation">)</span>
+    <span class="token annotation punctuation">@ResponseBody</span>
+    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">login</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">)</span> <span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"password"</span><span class="token punctuation">)</span> <span class="token class-name">String</span> password<span class="token punctuation">,</span> <span class="token class-name">HttpSession</span> session<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"username:"</span> <span class="token operator">+</span> username<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"password:"</span> <span class="token operator">+</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">// 一定，一定要记得写关键日志啊，同志们</span>
+        <span class="token class-name">User</span> currentUser <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">User</span><span class="token punctuation">)</span> session<span class="token punctuation">.</span><span class="token function">getAttribute</span><span class="token punctuation">(</span><span class="token string">"currentUser"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>currentUser <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token string">"you are login"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">boolean</span> flag <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">userLogin</span><span class="token punctuation">(</span>username<span class="token punctuation">,</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>flag<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">User</span> user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            user<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span>username<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            user<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span>password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            session<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">"currentUser"</span><span class="token punctuation">,</span> user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token string">"welcome"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token string">"error username or password"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+<span class="token punctuation">&#125;</span></code></pre>
+<p>如果有不同的地方可以加QQ:3075834432，答案<code>眼前人是心上人</code></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>消息队列目录</title>
+    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="目录"><a class="markdownIt-Anchor" href="#目录"></a> 目录</h1>
+<h2 id="基本理念"><a class="markdownIt-Anchor" href="#基本理念"></a> 基本理念</h2>
+<ol>
+<li>
+<a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a>
+</li>
+<li>
+<a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a>
+</li>
+<li>
+<a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a>
+</li>
+<li>
+<a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a>
+</li>
+</ol>
+<hr />
+<h2 id="rocketmq生产者"><a class="markdownIt-Anchor" href="#rocketmq生产者"></a> RocketMQ生产者</h2>
+<ol>
+<li>
+<a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a>
+</li>
+<li>
+<a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a>
+</li>
+<li>
+<a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a>
+</li>
+<li>
+<a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a>
+</li>
+</ol>
+<h2 id="存储"><a class="markdownIt-Anchor" href="#存储"></a> 存储</h2>
+<ol>
+<li>
+<a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a>
+</li>
+</ol>
+<h2 id="消息消费"><a class="markdownIt-Anchor" href="#消息消费"></a> 消息消费</h2>
+<ol>
+<li>
+<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a>
+</li>
+<li>
+<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>gin c.Request.PostForm为空问题原理已经解决方法</title>
     <url>/2020/12/22/Golang/gin-c-Request-PostForm%E4%B8%BA%E7%A9%BA%E9%97%AE%E9%A2%98%E5%8E%9F%E7%90%86%E5%B7%B2%E7%BB%8F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
     <content><![CDATA[<blockquote>
@@ -511,251 +821,163 @@ func main() &#123;
       </tags>
   </entry>
   <entry>
-    <title>判断某一天是今年的第几天</title>
-    <url>/2020/12/19/Java/%E5%88%A4%E6%96%AD%E6%9F%90%E4%B8%80%E5%A4%A9%E6%98%AF%E4%BB%8A%E5%B9%B4%E7%9A%84%E7%AC%AC%E5%87%A0%E5%A4%A9/</url>
-    <content><![CDATA[<p>如题。。。</p>
+    <title>SpringMVC Controller书写</title>
+    <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
+    <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
 <span id="more"></span>
-<h1 id="判断某一天是今年的第几天"><a class="markdownIt-Anchor" href="#判断某一天是今年的第几天"></a> 判断某一天是今年的第几天</h1>
-<h2 id="解题思路"><a class="markdownIt-Anchor" href="#解题思路"></a> 解题思路</h2>
+<h1 id="spring-mvc-controller书写"><a class="markdownIt-Anchor" href="#spring-mvc-controller书写"></a> <code>Spring MVC Controller</code>书写</h1>
+<p><code>Spring MVC</code>是一个<code>MVC</code>的<code>WEB</code>框架，它建立在一个中央前端控制器Servlet(DispatcherServlter)，它负责发送每一个请求到合适的处理程序，使用视图或者其他方式来返回响应结果。<code>SpringMVC</code>是<code>Spring</code>产品组合的一部分，它享有<code>Spring Ioc</code>容器来紧密结合<code>Spring</code>松耦合等特点。</p>
+<p><img src="https://helloteemo.com.cn/2021.06/Spring%20MVC%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="SpringMVC架构图" /></p>
+<h2 id="如何确定一个controller"><a class="markdownIt-Anchor" href="#如何确定一个controller"></a> 如何确定一个<code>Controller</code></h2>
+<h3 id="步骤"><a class="markdownIt-Anchor" href="#步骤"></a> 步骤</h3>
 <ol>
-<li>先计算出当月月份之前的天数,因为根据年份和月份都可以确定每一个具体的天数</li>
-<li>把上一步计算出来值和天数相加即是答案</li>
+<li>确定请求的请求方法，如果可以请遵从<code>RESTful</code>规范</li>
+<li>确定请求的<code>URL</code>，<code>url</code>可以随意命名，但是尽量可以一眼就能看到表达的意思</li>
+<li>确定请求参数传参的方式，一般在请求体、路径、QueryString，一般来说请求体的参数类型会比较丰富</li>
+<li>确定请求参数，这里一般包括字段、字段类型、是否必传、备注构成</li>
 </ol>
-<h2 id="模块划分"><a class="markdownIt-Anchor" href="#模块划分"></a> 模块划分</h2>
+<h3 id="示例"><a class="markdownIt-Anchor" href="#示例"></a> 示例</h3>
+<p>我需要获取一个用户的信息</p>
 <ol>
-<li>获取某一个月份的天数的模块</li>
-<li>是否是论年的模块</li>
-<li>获取某一个月份之前月份的累积天数</li>
+<li>请求方法：GET</li>
+<li>url:<code>/user/&#123;user_id&#125;</code></li>
+<li>请求参数传参的方式:路径</li>
+<li>请求参数</li>
 </ol>
-<h2 id="函数实现"><a class="markdownIt-Anchor" href="#函数实现"></a> 函数实现</h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否必传</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>int</td>
+<td>是</td>
+<td>用户ID</td>
+</tr>
+</tbody>
+</table>
+<h2 id="如何书写一个controller"><a class="markdownIt-Anchor" href="#如何书写一个controller"></a> 如何书写一个<code>Controller</code></h2>
+<h3 id="步骤-2"><a class="markdownIt-Anchor" href="#步骤-2"></a> 步骤</h3>
 <ol>
-<li>是否是论年的模块</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// isLeapYear 判断是否是润年</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">isLeapYear</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-	<span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>year <span class="token operator">%</span> <span class="token number">4</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> year <span class="token operator">%</span> <span class="token number">100</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">||</span> year <span class="token operator">%</span> <span class="token number">400</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="2">
-<li>获取某一个月份的天数的模块</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// getMonthDay 获取某一个月份的天数</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">switch</span> <span class="token punctuation">(</span>month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">case</span> <span class="token number">1</span><span class="token operator">:</span>
-        <span class="token keyword">case</span> <span class="token number">3</span><span class="token operator">:</span>
-        <span class="token keyword">case</span> <span class="token number">5</span><span class="token operator">:</span>
-        <span class="token keyword">case</span> <span class="token number">7</span><span class="token operator">:</span>
-        <span class="token keyword">case</span> <span class="token number">8</span><span class="token operator">:</span>
-        <span class="token keyword">case</span> <span class="token number">10</span><span class="token operator">:</span>
-        <span class="token keyword">case</span> <span class="token number">12</span><span class="token operator">:</span>
-            <span class="token keyword">return</span> <span class="token number">31</span><span class="token punctuation">;</span>
-        <span class="token keyword">case</span> <span class="token number">2</span><span class="token operator">:</span>
-            <span class="token keyword">return</span> <span class="token number">28</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token function">isLeapYear</span><span class="token punctuation">(</span>year<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token number">1</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">default</span><span class="token operator">:</span>
-            <span class="token keyword">return</span> <span class="token number">30</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="3">
-<li>获取某一个月份之前月份的累积天数</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// getTotalDaySinceMonth 获取某一个月份之前月份的累积天数</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getTotalDaySinceMonth</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">int</span> totalDay <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
-    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> month<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        totalDay <span class="token operator">+=</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span>year<span class="token punctuation">,</span> month<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-    <span class="token keyword">return</span> totalDay<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<h2 id="最后程序"><a class="markdownIt-Anchor" href="#最后程序"></a> 最后程序</h2>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">basic</span><span class="token punctuation">;</span>
-
-<span class="token keyword">import</span> <span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">Scanner</span><span class="token punctuation">;</span>
-
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">&#123;</span>
-    <span class="token comment">// isLeapYear 判断是否是润年</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">isLeapYear</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>year <span class="token operator">%</span> <span class="token number">4</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> year <span class="token operator">%</span> <span class="token number">100</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">||</span> year <span class="token operator">%</span> <span class="token number">400</span> <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token comment">// getMonthDay 获取某一个月份的天数</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">switch</span> <span class="token punctuation">(</span>month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">case</span> <span class="token number">1</span><span class="token operator">:</span>
-            <span class="token keyword">case</span> <span class="token number">3</span><span class="token operator">:</span>
-            <span class="token keyword">case</span> <span class="token number">5</span><span class="token operator">:</span>
-            <span class="token keyword">case</span> <span class="token number">7</span><span class="token operator">:</span>
-            <span class="token keyword">case</span> <span class="token number">8</span><span class="token operator">:</span>
-            <span class="token keyword">case</span> <span class="token number">10</span><span class="token operator">:</span>
-            <span class="token keyword">case</span> <span class="token number">12</span><span class="token operator">:</span>
-                <span class="token keyword">return</span> <span class="token number">31</span><span class="token punctuation">;</span>
-            <span class="token keyword">case</span> <span class="token number">2</span><span class="token operator">:</span>
-                <span class="token keyword">return</span> <span class="token number">28</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token function">isLeapYear</span><span class="token punctuation">(</span>year<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token number">1</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">default</span><span class="token operator">:</span>
-                <span class="token keyword">return</span> <span class="token number">30</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token comment">// getTotalDaySinceMonth 获取某一个月份之前月份的累积天数</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">getTotalDaySinceMonth</span><span class="token punctuation">(</span><span class="token keyword">int</span> year<span class="token punctuation">,</span> <span class="token keyword">int</span> month<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">int</span> totalDay <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
-        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> month<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            totalDay <span class="token operator">+=</span> <span class="token function">getMonthDay</span><span class="token punctuation">(</span>year<span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">return</span> totalDay<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token comment">//</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">Scanner</span> in <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Scanner</span><span class="token punctuation">(</span><span class="token class-name">System</span><span class="token punctuation">.</span>in<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"请输入年月日(格式2020-01-02):"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token class-name">String</span> str <span class="token operator">=</span> in<span class="token punctuation">.</span><span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> split <span class="token operator">=</span> str<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span><span class="token string">"-"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">int</span> year <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>split<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">int</span> month <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>split<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">int</span> day <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>split<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">int</span> totalDay <span class="token operator">=</span> <span class="token function">getTotalDaySinceMonth</span><span class="token punctuation">(</span>year<span class="token punctuation">,</span> month<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"总天数为："</span> <span class="token operator">+</span> <span class="token punctuation">(</span>totalDay <span class="token operator">+</span> day<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何使用SpringBoot完成毕业设计</title>
-    <url>/2020/12/19/Java/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-SpringBoot-%E5%AE%8C%E6%88%90%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<p>哈哈，这个实际上是一个很大的工程，因为在看这篇文章的读者应该很迷茫，不知道怎么入手一个项目</p>
-<p>本文主要简述了一个项目的开发流程(编码部分)，怎么一步一步从无到有</p>
-<p>Let Go!!!</p>
-<span id="more"></span>
-<h1 id="如何使用springboot完成毕业设计"><a class="markdownIt-Anchor" href="#如何使用springboot完成毕业设计"></a> 如何使用<strong>SpringBoot</strong>完成毕业设计</h1>
-<p>假设本博客课题：注册登入功能，这里只实现登入</p>
-<p>博客代码地址：<code>https://gitee.com/Frank__smile/springboot-demo.git</code></p>
-<p>GitEE平台有两个分支:<code>master、dev</code>，其中<code>master</code>分支有大致框架，默认配置了<code>jpa</code>、<code>redis</code>，本文默认使用数据库<code>mysql</code>，使用时只需要修改<code>application.properties</code>文件中的</p>
-<pre class="language-properties" data-language="properties"><code class="language-properties"><span class="token attr-name">spring.datasource.url</span><span class="token punctuation">=</span><span class="token attr-value">jdbc:mysql://127.0.0.1:3306/springboot_test?useSSL=false&amp;serverTimezone=UTC&amp;charset=utf8mb4</span>
-<span class="token attr-name">spring.datasource.username</span><span class="token punctuation">=</span><span class="token attr-value">root</span>
-<span class="token attr-name">spring.datasource.password</span><span class="token punctuation">=</span><span class="token attr-value">123456</span>
-
-<span class="token attr-name">spring.redis.host</span><span class="token punctuation">=</span><span class="token attr-value">127.0.0.1</span>
-<span class="token attr-name">spring.redis.password</span><span class="token punctuation">=</span><span class="token attr-value">123456</span></code></pre>
-<p>即可完成毕业设计大部分功能</p>
-<p>而<code>dev</code>分支则为本博客实现的代码，仅供参考</p>
+<li>
+<p>新建一个<code>Controller</code>，实际上就是新建一个类，并给它加上<code>Controller</code>、<code>RestController</code>注解</p>
 <blockquote>
-<p>毕业设计编码部分大致流程如下</p>
-<ol>
-<li>创建数据库表</li>
-<li>根据数据库表创建实体类</li>
-<li>编写基本SQL语言</li>
-<li>以此创建Service、Controller</li>
-<li>编写前端部分(不写)</li>
-</ol>
+<p>新建一个类，给类加上<code>Controller</code>注解，这个注解会使<code>Spring</code>加载这个类为一个Bean，也可以使用<code>RestController</code>来表示这个<code>Controller</code>是一个符合<code>RESTful</code>规范的<code>Controller</code></p>
+<p><code>@RestController</code>和<code>@Controller</code>的区别</p>
+<p><code>@RestController</code>注解等价于<code>@ResponseBody</code> ＋ <code>@Controller</code>。<code>@RestController</code>和<code>@Controller</code>的共同点是都用来表示<code>Spring</code>某个类是否可以接收<code>HTTP</code>请求，<strong>二者区别： @RestController无法返回指定页面，而@Controller可以</strong>；前者可以直接返回数据，后者需要@ResponseBody辅助</p>
+<p><code>File</code>:<code>org.springframework.web.bind.annotation.RestController</code></p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Documented</span>
+<span class="token annotation punctuation">@Controller</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token annotation punctuation">@interface</span> <span class="token class-name">RestController</span> <span class="token punctuation">&#123;</span>
+ <span class="token annotation punctuation">@AliasFor</span><span class="token punctuation">(</span>
+     annotation <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span><span class="token keyword">class</span>
+ <span class="token punctuation">)</span>
+ <span class="token class-name">String</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token string">""</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
 </blockquote>
-<h3 id="一-创建数据库表"><a class="markdownIt-Anchor" href="#一-创建数据库表"></a> 一、 创建数据库表</h3>
-<p>由于实现的功能非常简单，我就写一张<code>user_user</code>表，<code>user_user</code>表有三个字段<code>id username password</code></p>
-<p>对应SQL语句如下：</p>
-<pre class="language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">DATABASE</span> springboot<span class="token operator">-</span>test <span class="token keyword">CHARACTER</span> <span class="token keyword">SET</span> utf8 <span class="token keyword">COLLATE</span> utf8_general_ci<span class="token punctuation">;</span>
-
-<span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token keyword">IF</span> <span class="token operator">NOT</span> EXIST <span class="token punctuation">`</span>user_user<span class="token punctuation">`</span><span class="token punctuation">(</span>
-    id <span class="token keyword">int</span> <span class="token keyword">primary</span> <span class="token keyword">key</span> <span class="token keyword">AUTO_INCREMENT</span><span class="token punctuation">,</span>
-    username <span class="token keyword">text</span> <span class="token operator">not</span> <span class="token boolean">null</span><span class="token punctuation">,</span>
-    password <span class="token keyword">text</span> <span class="token operator">not</span> <span class="token boolean">null</span>
-<span class="token punctuation">)</span><span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span>
-
-<span class="token keyword">insert</span> <span class="token keyword">into</span> user_user<span class="token punctuation">(</span>username<span class="token punctuation">,</span>password<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">"frank"</span><span class="token punctuation">,</span><span class="token string">"123456"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token keyword">insert</span> <span class="token keyword">into</span> user_user<span class="token punctuation">(</span>username<span class="token punctuation">,</span>password<span class="token punctuation">)</span> <span class="token keyword">values</span><span class="token punctuation">(</span><span class="token string">"狗头狗LJH"</span><span class="token punctuation">,</span><span class="token string">"123456"</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<h3 id="二-根据数据库表创建实体类"><a class="markdownIt-Anchor" href="#二-根据数据库表创建实体类"></a> 二、根据数据库表创建实体类</h3>
-<p>我们在<code>entity</code>包中创建一个<code>User</code>类，使用注解<code>@Entity</code>标记为一个实体类，使用<code>@Table</code>标注对应数据库的表名为<code>user_user</code>，生产<code>get set toString</code>方法</p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Entity</span>
-<span class="token annotation punctuation">@Table</span><span class="token punctuation">(</span><span class="token string">"user_user"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">User</span><span class="token punctuation">&#123;</span>
-     <span class="token annotation punctuation">@Id</span>
-    <span class="token keyword">private</span> <span class="token keyword">long</span> id<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Column</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"username"</span><span class="token punctuation">,</span> nullable <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
-    <span class="token keyword">private</span> <span class="token class-name">String</span> username<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Column</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"password"</span><span class="token punctuation">,</span> nullable <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
-    <span class="token keyword">private</span> <span class="token class-name">String</span> password<span class="token punctuation">;</span>
-    
-    <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<h3 id="三-编写基本sql语言"><a class="markdownIt-Anchor" href="#三-编写基本sql语言"></a> 三、编写基本SQL语言</h3>
-<p>由于我们使用的是<code>jpa</code>，所以只需要<code>jpa</code>标准就行，这里只做简单阐述，其余请自行查阅资料</p>
-<p>这个部分我们放在<code>models</code>包中，我们需要创建一个<code>UserRepository</code>接口，该接口需要继承<code>JpaRepository</code>，被继承的<code>JpaRepository</code>接口需要填入两个类型，第一个类型是实体类类型，第二个类型是主键类型。</p>
-<p>由于需要完成登入功能，所以我们检查账户密码是否正确，大致SQL如下</p>
-<pre class="language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">select</span> id <span class="token keyword">from</span> user_user <span class="token keyword">where</span> username <span class="token operator">=</span> ? <span class="token operator">and</span> passwrod<span class="token operator">=</span>?</code></pre>
-<p>其中</p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserRepository</span> <span class="token keyword">extends</span> <span class="token class-name">JpaRepository</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">User</span><span class="token punctuation">,</span> <span class="token class-name">Long</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
-     <span class="token class-name">User</span> <span class="token function">findByUsernameAndPassword</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token class-name">String</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<p>到这里我们就已经完成了SQL语句的编写</p>
-<h3 id="创建service-controller"><a class="markdownIt-Anchor" href="#创建service-controller"></a> 创建Service、Controller</h3>
-<p><code>service</code>包中添加一个<code>UserService</code>接口，用来定义用户的行为，目前只实现登入功能，</p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserService</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">userLogin</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token class-name">String</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<p>在<code>service</code>包中添加一个<code>impl</code>子包，用来实现<code>service</code>包中的方法，添加一个类<code>UserServiceImpl</code>类实现接口，</p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
-<span class="token comment">// 该注解表示这个类是一个组件@Component</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">UserService</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token comment">// spring自动注入</span>
-    <span class="token class-name">UserRepository</span> userRepository<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">userLogin</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token class-name">String</span> password<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">User</span> user <span class="token operator">=</span> userRepository<span class="token punctuation">.</span><span class="token function">findByUsernameAndPassword</span><span class="token punctuation">(</span>username<span class="token punctuation">,</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>user <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">return</span> user<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<p><code>controller</code>包中添加一个<code>UserController</code>类，用来转发不同的请求,</p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Controller</span>
-<span class="token comment">// 功能同@Component</span>
+</li>
+<li>
+<p>书写具体的方法</p>
+<ol>
+<li>书写注解，需要接受<code>HTTP</code>请求的方法需要加入<code>@RequestMapping</code>注解
+<ol>
+<li>确定请求方法，在<code>@RequestMapping</code>注解中的<code>method</code>中确定，不书写则默认为<code>GET</code>请求</li>
+<li>确定<code>URL</code>以及其它一些东西，<code>URL</code>由<code>value</code>确定，如果只有一个字段的话可以不用熟悉<code>value</code></li>
+</ol>
+</li>
+<li>确定返回值
+<ol>
+<li>如果返回值为<code>JSON</code>类型，则应该返回一个对象，并且要加上<code>@ResponseBody</code>注解</li>
+<li>如果返回的是一个页面，则需要配置视图解析器，并返回值为<code>String</code></li>
+</ol>
+</li>
+<li>确定参数
+<ol>
+<li>如果参数在Path中,则<code>URL</code>中应该由<code>&#123;&#125;</code>来确定参数位置，使用<code>@PathVariable</code>确定绑定到何处</li>
+<li>如果参数在请求体中，可以使用<code>@RequestBody</code>解析到对象中</li>
+<li>如果参数在<code>QueryString</code>中，可以使用<code>@RequestParam</code>绑定到何处</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="示例-2"><a class="markdownIt-Anchor" href="#示例-2"></a> 示例</h3>
+<p>我需要获取一个用户的信息</p>
+<ol>
+<li>新建一个<code>Controller</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
 
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token class-name">UserService</span> userService<span class="token punctuation">;</span>
-
-    <span class="token keyword">private</span> <span class="token class-name">Logger</span> log <span class="token operator">=</span> <span class="token class-name">LoggerFactory</span><span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token class-name">UserController</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"login"</span><span class="token punctuation">)</span>
-    <span class="token annotation punctuation">@ResponseBody</span>
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">login</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"username"</span><span class="token punctuation">)</span> <span class="token class-name">String</span> username<span class="token punctuation">,</span> <span class="token annotation punctuation">@Param</span><span class="token punctuation">(</span><span class="token string">"password"</span><span class="token punctuation">)</span> <span class="token class-name">String</span> password<span class="token punctuation">,</span> <span class="token class-name">HttpSession</span> session<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"username:"</span> <span class="token operator">+</span> username<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"password:"</span> <span class="token operator">+</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment">// 一定，一定要记得写关键日志啊，同志们</span>
-        <span class="token class-name">User</span> currentUser <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">User</span><span class="token punctuation">)</span> session<span class="token punctuation">.</span><span class="token function">getAttribute</span><span class="token punctuation">(</span><span class="token string">"currentUser"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>currentUser <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">return</span> <span class="token string">"you are login"</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">boolean</span> flag <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">userLogin</span><span class="token punctuation">(</span>username<span class="token punctuation">,</span> password<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>flag<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token class-name">User</span> user <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            user<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span>username<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            user<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span>password<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            session<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">"currentUser"</span><span class="token punctuation">,</span> user<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span> <span class="token string">"welcome"</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">return</span> <span class="token string">"error username or password"</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-
 <span class="token punctuation">&#125;</span></code></pre>
-<p>如果有不同的地方可以加QQ:3075834432，答案<code>眼前人是心上人</code></p>
-]]></content>
+<ol start="2">
+<li>确定方法，为GET，这里</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="3">
+<li>确定<code>URL</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="4">
+<li>确定返回值，因为我们要返回<code>JSON</code>，所以应该返回一个对象，如果注解不是<code>@RestController</code>，那么还应该在方法中加入<code>@ResponseBody</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+</code></pre>
+<ol start="4">
+<li>确定参数，因为使用路径作为参数，则使用<code>@PathVariable</code>注解</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">)</span> <span class="token keyword">int</span> userID<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>]]></content>
       <categories>
-        <category>Java</category>
+        <category>Spring</category>
       </categories>
       <tags>
-        <tag>java</tag>
+        <tag>Java</tag>
+        <tag>Spring</tag>
       </tags>
   </entry>
   <entry>
@@ -765,68 +987,6 @@ func main() &#123;
       <categories>
         <category>SQL</category>
       </categories>
-  </entry>
-  <entry>
-    <title>消息队列目录</title>
-    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="目录"><a class="markdownIt-Anchor" href="#目录"></a> 目录</h1>
-<h2 id="基本理念"><a class="markdownIt-Anchor" href="#基本理念"></a> 基本理念</h2>
-<ol>
-<li>
-<a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a>
-</li>
-<li>
-<a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a>
-</li>
-<li>
-<a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a>
-</li>
-<li>
-<a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a>
-</li>
-</ol>
-<hr />
-<h2 id="rocketmq生产者"><a class="markdownIt-Anchor" href="#rocketmq生产者"></a> RocketMQ生产者</h2>
-<ol>
-<li>
-<a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a>
-</li>
-<li>
-<a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a>
-</li>
-<li>
-<a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a>
-</li>
-<li>
-<a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a>
-</li>
-</ol>
-<h2 id="存储"><a class="markdownIt-Anchor" href="#存储"></a> 存储</h2>
-<ol>
-<li>
-<a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a>
-</li>
-</ol>
-<h2 id="消息消费"><a class="markdownIt-Anchor" href="#消息消费"></a> 消息消费</h2>
-<ol>
-<li>
-<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a>
-</li>
-<li>
-<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
   </entry>
   <entry>
     <title>SQL优化</title>
@@ -1059,166 +1219,6 @@ where
       </categories>
       <tags>
         <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringMVC Controller书写</title>
-    <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
-    <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
-<span id="more"></span>
-<h1 id="spring-mvc-controller书写"><a class="markdownIt-Anchor" href="#spring-mvc-controller书写"></a> <code>Spring MVC Controller</code>书写</h1>
-<p><code>Spring MVC</code>是一个<code>MVC</code>的<code>WEB</code>框架，它建立在一个中央前端控制器Servlet(DispatcherServlter)，它负责发送每一个请求到合适的处理程序，使用视图或者其他方式来返回响应结果。<code>SpringMVC</code>是<code>Spring</code>产品组合的一部分，它享有<code>Spring Ioc</code>容器来紧密结合<code>Spring</code>松耦合等特点。</p>
-<p><img src="https://helloteemo.com.cn/2021.06/Spring%20MVC%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="SpringMVC架构图" /></p>
-<h2 id="如何确定一个controller"><a class="markdownIt-Anchor" href="#如何确定一个controller"></a> 如何确定一个<code>Controller</code></h2>
-<h3 id="步骤"><a class="markdownIt-Anchor" href="#步骤"></a> 步骤</h3>
-<ol>
-<li>确定请求的请求方法，如果可以请遵从<code>RESTful</code>规范</li>
-<li>确定请求的<code>URL</code>，<code>url</code>可以随意命名，但是尽量可以一眼就能看到表达的意思</li>
-<li>确定请求参数传参的方式，一般在请求体、路径、QueryString，一般来说请求体的参数类型会比较丰富</li>
-<li>确定请求参数，这里一般包括字段、字段类型、是否必传、备注构成</li>
-</ol>
-<h3 id="示例"><a class="markdownIt-Anchor" href="#示例"></a> 示例</h3>
-<p>我需要获取一个用户的信息</p>
-<ol>
-<li>请求方法：GET</li>
-<li>url:<code>/user/&#123;user_id&#125;</code></li>
-<li>请求参数传参的方式:路径</li>
-<li>请求参数</li>
-</ol>
-<table>
-<thead>
-<tr>
-<th>字段</th>
-<th>类型</th>
-<th>是否必传</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>user_id</code></td>
-<td>int</td>
-<td>是</td>
-<td>用户ID</td>
-</tr>
-</tbody>
-</table>
-<h2 id="如何书写一个controller"><a class="markdownIt-Anchor" href="#如何书写一个controller"></a> 如何书写一个<code>Controller</code></h2>
-<h3 id="步骤-2"><a class="markdownIt-Anchor" href="#步骤-2"></a> 步骤</h3>
-<ol>
-<li>
-<p>新建一个<code>Controller</code>，实际上就是新建一个类，并给它加上<code>Controller</code>、<code>RestController</code>注解</p>
-<blockquote>
-<p>新建一个类，给类加上<code>Controller</code>注解，这个注解会使<code>Spring</code>加载这个类为一个Bean，也可以使用<code>RestController</code>来表示这个<code>Controller</code>是一个符合<code>RESTful</code>规范的<code>Controller</code></p>
-<p><code>@RestController</code>和<code>@Controller</code>的区别</p>
-<p><code>@RestController</code>注解等价于<code>@ResponseBody</code> ＋ <code>@Controller</code>。<code>@RestController</code>和<code>@Controller</code>的共同点是都用来表示<code>Spring</code>某个类是否可以接收<code>HTTP</code>请求，<strong>二者区别： @RestController无法返回指定页面，而@Controller可以</strong>；前者可以直接返回数据，后者需要@ResponseBody辅助</p>
-<p><code>File</code>:<code>org.springframework.web.bind.annotation.RestController</code></p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Documented</span>
-<span class="token annotation punctuation">@Controller</span>
-<span class="token annotation punctuation">@ResponseBody</span>
-<span class="token keyword">public</span> <span class="token annotation punctuation">@interface</span> <span class="token class-name">RestController</span> <span class="token punctuation">&#123;</span>
- <span class="token annotation punctuation">@AliasFor</span><span class="token punctuation">(</span>
-     annotation <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span><span class="token keyword">class</span>
- <span class="token punctuation">)</span>
- <span class="token class-name">String</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token string">""</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-</blockquote>
-</li>
-<li>
-<p>书写具体的方法</p>
-<ol>
-<li>书写注解，需要接受<code>HTTP</code>请求的方法需要加入<code>@RequestMapping</code>注解
-<ol>
-<li>确定请求方法，在<code>@RequestMapping</code>注解中的<code>method</code>中确定，不书写则默认为<code>GET</code>请求</li>
-<li>确定<code>URL</code>以及其它一些东西，<code>URL</code>由<code>value</code>确定，如果只有一个字段的话可以不用熟悉<code>value</code></li>
-</ol>
-</li>
-<li>确定返回值
-<ol>
-<li>如果返回值为<code>JSON</code>类型，则应该返回一个对象，并且要加上<code>@ResponseBody</code>注解</li>
-<li>如果返回的是一个页面，则需要配置视图解析器，并返回值为<code>String</code></li>
-</ol>
-</li>
-<li>确定参数
-<ol>
-<li>如果参数在Path中,则<code>URL</code>中应该由<code>&#123;&#125;</code>来确定参数位置，使用<code>@PathVariable</code>确定绑定到何处</li>
-<li>如果参数在请求体中，可以使用<code>@RequestBody</code>解析到对象中</li>
-<li>如果参数在<code>QueryString</code>中，可以使用<code>@RequestParam</code>绑定到何处</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<h3 id="示例-2"><a class="markdownIt-Anchor" href="#示例-2"></a> 示例</h3>
-<p>我需要获取一个用户的信息</p>
-<ol>
-<li>新建一个<code>Controller</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="2">
-<li>确定方法，为GET，这里</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="3">
-<li>确定<code>URL</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="4">
-<li>确定返回值，因为我们要返回<code>JSON</code>，所以应该返回一个对象，如果注解不是<code>@RestController</code>，那么还应该在方法中加入<code>@ResponseBody</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span>
-</code></pre>
-<ol start="4">
-<li>确定参数，因为使用路径作为参数，则使用<code>@PathVariable</code>注解</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">)</span> <span class="token keyword">int</span> userID<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span></code></pre>]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
       </tags>
   </entry>
   <entry>
@@ -1652,213 +1652,6 @@ Web服务器软件：<code>Apache2</code></p>
       </categories>
       <tags>
         <tag>运维</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GC</title>
-    <url>/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/</url>
-    <content><![CDATA[<blockquote>
-<p>这里只是简单介绍一下GC，我本人对于GC的了解并不是特别深入</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="gc"><a class="markdownIt-Anchor" href="#gc"></a> GC</h1>
-<h2 id="垃圾回收算法"><a class="markdownIt-Anchor" href="#垃圾回收算法"></a> 垃圾回收算法</h2>
-<p>首先我们来介绍一下GC算法的大致思路。</p>
-<ol>
-<li>引用计数：每个对象维护一个域，其中保存其它对象指向它的引用数量，当引用数量为零时该对象为垃圾</li>
-<li>标记-清除：首先使用标记算法标记一些对象为不可达对象，之后在达到某个阈值或者固定时间的话，这个时候系统会挂起用户程序，也就是SWT，转而执行垃圾回收算法</li>
-<li>节点复制</li>
-<li>分代收集：分代垃圾回收算法将对象按生命周期长短存放到堆上的两个（或者更多）区域，这些区域就是分代（generation）。之后再进行垃圾回收</li>
-</ol>
-<p>这里 <code>Golang</code> 使用的是基于 标记-清除 法的三色标记算法</p>
-<h2 id="gc触发条件"><a class="markdownIt-Anchor" href="#gc触发条件"></a> GC触发条件</h2>
-<p>一般来说有三种情况会触发GC</p>
-<ol>
-<li>辅助GC，在分配内存时，会判断当前的Heap内存分配量是否达到了触发GC的阈值，如果超过了阈值则启动一轮GC</li>
-<li>调用 <code>systeme.GC()</code> 来强制启动一轮GC</li>
-<li>当超过一定时间未运行GC的情况下会执行GC</li>
-</ol>
-<h2 id="为什么需要三色标记算法"><a class="markdownIt-Anchor" href="#为什么需要三色标记算法"></a> 为什么需要三色标记算法</h2>
-<p>相比之前的标记清除算法，其GC执行期间需要把整个程序完全暂停，不能异步执行GC操作。对实时性要求比较高的系统来说，这种需要长时间挂起的标记清除算法是不可接受的，而三色标记算法就很好的解决了这个问题。 <strong>三色标记最大的好处是可以异步执行</strong>，从而可以以中断时间极少的代价或者完全没有中断操作来进行整个GC。</p>
-<p>三色指的是黑色、灰色、白色，</p>
-<ol>
-<li>黑色：根对象，或者某对象和它的子对象都被扫描过</li>
-<li>灰色：某对象被扫描过，但是子对象未被扫描</li>
-<li>白色：未被扫描的对象，如果扫描完成所有对象之后，最终白色为不可达对象，即垃圾对象</li>
-</ol>
-<h2 id="读写屏障"><a class="markdownIt-Anchor" href="#读写屏障"></a> 读写屏障</h2>
-<p>所谓的读写屏障就是针对某个对象变量赋值、读取时做一些格外的操作</p>
-<h2 id="垃圾回收的主要流程"><a class="markdownIt-Anchor" href="#垃圾回收的主要流程"></a> 垃圾回收的主要流程</h2>
-<ol>
-<li>初始化所有对象被标记为白色</li>
-<li>从root开始找到所有可达对象，标记为灰色，放入到待处理队列中</li>
-<li>遍历灰色对象队列，把其引用的对象标记为灰色放入到待处理队列中，自身标记为黑色</li>
-<li>处理完灰色对象队列，知道没有灰色对象为止</li>
-<li>其余白色为垃圾对象，执行清扫工作</li>
-</ol>
-<h2 id="三色标记法的引用消失问题"><a class="markdownIt-Anchor" href="#三色标记法的引用消失问题"></a> 三色标记法的引用消失问题</h2>
-<p>什么是引用消失：即原本应该是黑色的对象被误标为白色。</p>
-<h3 id="发生的条件"><a class="markdownIt-Anchor" href="#发生的条件"></a> 发生的条件</h3>
-<p>当且仅当一下两个条件同时满足的时候</p>
-<ol>
-<li>赋值器插入了一条或多条从黑色对象到白色对象的新引用</li>
-<li>赋值器删除了全部从灰色对象到该白色对象的直接或间接引用。</li>
-</ol>
-<h3 id="解决办法"><a class="markdownIt-Anchor" href="#解决办法"></a> 解决办法</h3>
-<p>只需要破坏成立的条件即可，有两种方案：增量更新和原始快照</p>
-<ol>
-<li>增量更新，当一个白色对象被黑色对象引用时，把黑色对象重新标记为灰色，让垃圾回收算法重新扫描即可</li>
-<li>原始快照：原始快照要破坏的是第二个条件，当灰色对象要删除白色对象的引用关系时，就将这个要删除的引用记录下来，在并发扫描结束之后，再扫描这些灰色节点</li>
-</ol>
-<h3 id="对比"><a class="markdownIt-Anchor" href="#对比"></a> 对比</h3>
-<p><strong>原始快照关注的是引用删除，增量更新关注的是引用增加</strong></p>
-<p>因为增量更新算法还需要把原本为黑色的节点再次扫描一遍，效率有点低下</p>
-<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
-<blockquote>
-<p>2021-07-13 14:59</p>
-<p>哈哈哈,今天并没有日志</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>Golang</category>
-        <category>基础</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GMP调度模型</title>
-    <url>/2021/07/09/Golang/%E5%9F%BA%E7%A1%80/GMP%E8%B0%83%E5%BA%A6%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>开坑，今天太晚明天写</p>
-<hr />
-<p>2021-07-12 09:14</p>
-<p>这就是假期后遗症和懒。。。。。根本腾不出手来写东西</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="gmp调度模型"><a class="markdownIt-Anchor" href="#gmp调度模型"></a> GMP调度模型</h1>
-<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
-<p>这里还是不介绍并发、并行的区别了，我们先从多线程到多协程的转化开始吧。</p>
-<p>现在绝大部分的开发语言都支持线程级别的并发，最典型的就是 <code>Java</code> 了，多线程尽管一定程度上提高了并发能力，但是在现如今高并发的场景，为每一个任务创建一个线程是不现实的，因为会消耗大量的资源（在32位操作系统中进程虚拟空间会占用4GB，线程会占用大约4MB的空间）。而且大量的线程会出现的问题：高内存占用、调度的高CPU消耗，高内存占用我们可以使用线程池技术来进行缓解，但是高CPU调度问题我们就得另寻他法了。</p>
-<p>我们重新认识一下线程，一个线程实际分为了用户态线程和内核态线程，一个用户态线程必须绑定一个内核态线程，但是CPU不清楚用户态线程的存在，它只知道运行的是一个内核态的线程。这里我们可以把内核态的线程依然叫做<code>线程(thread)</code>，而用户态的线程我们可以称其为<code>协程(co-routine)</code> 。</p>
-<p>看到这里，我们就很容易理解到，既然一个协程必须绑定一个线程，那么是不是意味着多个协程可以绑定同一个线程呢。答案是可以的。此时协程在用户态即可完成切换工作，不会陷入内核态切换，这种切换是非常快捷的。现在我们就得到了协程调度模型图</p>
-<img src="https://helloteemo.com.cn/2021.07/image-20210712094815441.png" alt="image-20210712094815441" style="zoom:50%;" />
-<h2 id="goroutine"><a class="markdownIt-Anchor" href="#goroutine"></a> Goroutine</h2>
-<p><code>Gotoutine</code> 来自协程概念，它是用户态的线程，可以让一组可服用的函数运行在一组内核态的线程中。一个 <code>Goroutine</code>的初始空间大概只有4KB左右，并且在这4KB内存就足够一个函数完成运行，当然 <code>Goroutine</code> 的内存也是可以扩容的，最大可以扩容到1GB。</p>
-<h2 id="gm模型"><a class="markdownIt-Anchor" href="#gm模型"></a> GM模型</h2>
-<blockquote>
-<p>GM模型早在很久之前就被废弃了，没有撑到正式版本，接下来我们来了解一下GM模型是什么，</p>
-<p>本文使用G来表示 <code>Goroutine</code>，使用M来表示线程</p>
-</blockquote>
-<p>首先Go底层维护一个全局的协程队列，所有的G都会被放在这个全局队列中，同时多个M从全局队列中获取和放回G，也正因为如此，我们可以知道有多个线程访问同一个临界资源，这时候就需要对这个临界资源加锁，不然就会出现脏读等一系列问题。因此我们可以得出如下图</p>
-<img src="https://helloteemo.com.cn/2021.07/image-20210712140525051.png" alt="image-20210712140525051" style="zoom:50%;" />
-<p>该调度模型有几个缺点</p>
-<ol>
-<li>多个M同时访问全局队列，无论是调度、放回、销毁一个 <code>Goroutine</code> 都需要获取锁，这样会形成激烈的锁竞争问题</li>
-<li>M移交G会照成延迟和额外的系统负载。比如当 G 中包含创建新协程的时候，M 创建了 G’，为了继续执行 G，需要把 G’交给 M’执行，也造成了<strong>很差的局部性</strong>，因为 G’和 G 是相关的，最好放在 M 上执行，而不是其他 M’</li>
-<li>系统调用 (CPU 在 M 之间的切换) 导致频繁的线程阻塞和取消阻塞操作增加了系统开销</li>
-</ol>
-<h2 id="gmp模型"><a class="markdownIt-Anchor" href="#gmp模型"></a> GMP模型</h2>
-<p>面对之前的GM调度模型的一些问题，Go设计了新的调度器。在新调度器中，除了M和G，我们新引入了P。P中包含了运行<code>Goroutine</code> 的资源，如果线程M想要执行G，就必须要先获取P，P中还包含了可运行的G队列。</p>
-<h3 id="框架"><a class="markdownIt-Anchor" href="#框架"></a> 框架</h3>
-<p>在GMP模型中，G是协程实体，线程M是运行G的实体，而调度器P的功能是把可以运行的G分配到工作线程中。接下来我们来看下GMP模型的整体运行图</p>
-<p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/Ugu3C2WSpM.jpeg!large" alt="假装有图片" /></p>
-<p>我们来一一介绍一下图中的内容</p>
-<ol>
-<li>G全局队列：存放着等待运行的所有G</li>
-<li>P的本地队列：同G全局队列，存放的是P的待运行队列，可以存放的最大容量为256个。在G需要新建协程G’时，会优先加入本地队列中，如果发现本地队列已满则会放回一半到全局队列中</li>
-<li>P：所有的P会在程序启动时创建，最多存在 <code>GOAXPROCS</code> 个</li>
-<li>M：线程想要运行任务就需要获取P，从P的本地列表中取出G，如果发现本地列表为空，则优先偷取其余P的本地列表的一半，如果无法偷取则从全局列表中获取G，M 运行 G，G 执行之后，M 会从 P 获取下一个 G，不断重复下去</li>
-</ol>
-<h3 id="pm创建问题"><a class="markdownIt-Anchor" href="#pm创建问题"></a> PM创建问题</h3>
-<p>P何时创建： 在程序启动的时候创建</p>
-<p>M何时创建：当没有足够的M来关联P的时候，比如当前所有的M都阻塞了</p>
-<h3 id="调度策略"><a class="markdownIt-Anchor" href="#调度策略"></a> 调度策略</h3>
-<p>调度器的设计主要从 <code>线程复用</code> 和 <code>并行利用</code> 两个方面来优化调度</p>
-<ol>
-<li>线程复用：避免对M的频繁创建、销毁。
-<ol>
-<li>work stealing 机制：当本线程无可以运行的G时，尝试从其余P对立中偷取G，而不是销毁线程</li>
-<li>hand off 机制：当线程M因为G进行系统调用阻塞时，线程会主动释放当前的P，把P交由其余M执行，如果没有多余的M的话会创建新线程M。</li>
-</ol>
-</li>
-<li>并行利用
-<ol>
-<li>多调度器：最多有 <code>GOMAXPROCS</code> 个P。</li>
-<li>抢占：在Go中，一个<code>Goroutine</code>最多占用CPU10ms的时间，防止其余<code>Goroutine</code>被饿死，</li>
-<li>全局G队列：在新的GMP模型中依然保留了全局队列，但是作用被大大削弱</li>
-</ol>
-</li>
-</ol>
-<h3 id="调度过程"><a class="markdownIt-Anchor" href="#调度过程"></a> 调度过程</h3>
-<p>这里介绍一下GMP的调度过程，主要是我们在运行<code>go func()&#123;&#125;</code>的是否发生了什么。</p>
-<ol>
-<li><code>go func()&#123;&#125;</code>执行</li>
-<li>尝试直接加入P的局部队列，如果发现局部队列已满则加入全局G队列</li>
-<li>P尝试从局部队列中获取一个G执行，如果发现局部队列为空，则尝试从其余P中偷取一部分G或者直接从全局G队列中获取一批G</li>
-<li>M获取P</li>
-<li>M执行P中的函数，如果运行结束就销毁G</li>
-<li>如果在执行期间发生了系统调用阻塞，则尝试用休眠M队列中获取一个M，如果未能获取到则会新增一个M</li>
-<li>新建的M会接管当前阻塞的P。</li>
-<li>当系统调用阻塞结束之后，这个G会尝试获取一个空闲P执行，并放入到这个P的本地队列中。如果获取不到P，那么M就会变成休眠状态，加入到空闲线程队列中，G会被放入到全局队列中</li>
-</ol>
-<h3 id="调度器的生命周期"><a class="markdownIt-Anchor" href="#调度器的生命周期"></a> 调度器的生命周期</h3>
-<ol>
-<li>创建第一个线程M0</li>
-<li>创建第一个<code>Goroutine</code> G0</li>
-<li>关联M0和G0</li>
-<li>调度初始化，包括创建P等</li>
-<li>创建main()函数中的 <code>Goroutine</code></li>
-<li>M绑定P</li>
-<li>M是否可以通过P获取到一个G，如果不能获取的话则休眠当前M，等待唤醒到第六步</li>
-<li>M设置环境变量，包括栈、程序计数器等</li>
-<li>M执行G</li>
-<li>G退出，此时M重新跳到第7步</li>
-</ol>
-<p>这里说一下特殊的M0和G0。</p>
-<ol>
-<li>M0：M0是启动程序后的编号为0的主线程，这个 M 对应的实例会在全局变量 runtime.m0 中，不需要在 heap 上分配，M0 负责执行初始化操作和启动第一个 G， 在之后 M0 就和其他的 M 一样了。</li>
-<li>G0：G0是每启动一个M都是第一个创建的 <code>Groutine</code>。<strong>G0仅用于负责调度的G，它不指向任何可以执行的函数</strong>，每一个M都拥有自身的G0，在调度或者系统调用时会使用G0的栈空间。全局变量的G0是M0的G0</li>
-</ol>
-<p>我们来跟踪一段代码</p>
-<pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
-
-<span class="token keyword">import</span> <span class="token string">"fmt"</span>
-
-<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Hello world"</span><span class="token punctuation">)</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<p>接下来我们来针对上面的代码对调度器里面的结构做一个分析。</p>
-<p>也会经历如上图所示的过程：</p>
-<ol>
-<li>runtime 创建最初的线程 m0 和 goroutine g0，并把 2 者关联。</li>
-<li>调度器初始化：初始化 m0、栈、垃圾回收，以及创建和初始化由 GOMAXPROCS 个 P 构成的 P 列表。</li>
-<li>示例代码中的 main 函数是 main.main，runtime 中也有 1 个 main 函数 ——runtime.main，代码经过编译后，runtime.main 会调用 main.main，程序启动时会为 runtime.main 创建 goroutine，称它为 main goroutine 吧，然后把 main goroutine 加入到 P 的本地队列。</li>
-<li>启动 m0，m0 已经绑定了 P，会从 P 的本地队列获取 G，获取到 main goroutine。</li>
-<li>G 拥有栈，M 根据 G 中的栈信息和调度信息设置运行环境</li>
-<li>M 运行 G</li>
-<li>G 退出，再次回到 M 获取可运行的 G，这样重复下去，直到 main.main 退出，runtime.main 执行 Defer 和 Panic 处理，或调用 runtime.exit 退出程序。</li>
-</ol>
-<h2 id="说在最后"><a class="markdownIt-Anchor" href="#说在最后"></a> 说在最后</h2>
-<p>Go 调度器很轻量也很简单，足以撑起 goroutine 的调度工作，并且让 Go 具有了原生（强大）并发的能力。Go 调度本质是把大量的 goroutine 分配到少量线程上去执行，并利用多核并行，实现更强大的并发。</p>
-<p>本文大量参考了Aceld的文章并进行个人总结，下面是作者的原文信息，写的非常精彩。</p>
-<hr />
-<p>原文作者：Aceld<br />
-转自链接：<a href="https://learnku.com/articles/41728">https://learnku.com/articles/41728</a><br />
-版权声明：著作权归作者所有。商业转载请联系作者获得授权，非商业转载请保留以上作者信息和原文链接。</p>
-<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
-<blockquote>
-<p>2021-07-12 16:31</p>
-<p>没想到上周五开篇的现在才写完，懒死我自己。。。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>Golang</category>
-        <category>基础</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
       </tags>
   </entry>
   <entry>
@@ -2823,6 +2616,213 @@ if (startFactory) &#123;
       </categories>
       <tags>
         <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GC</title>
+    <url>/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/</url>
+    <content><![CDATA[<blockquote>
+<p>这里只是简单介绍一下GC，我本人对于GC的了解并不是特别深入</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="gc"><a class="markdownIt-Anchor" href="#gc"></a> GC</h1>
+<h2 id="垃圾回收算法"><a class="markdownIt-Anchor" href="#垃圾回收算法"></a> 垃圾回收算法</h2>
+<p>首先我们来介绍一下GC算法的大致思路。</p>
+<ol>
+<li>引用计数：每个对象维护一个域，其中保存其它对象指向它的引用数量，当引用数量为零时该对象为垃圾</li>
+<li>标记-清除：首先使用标记算法标记一些对象为不可达对象，之后在达到某个阈值或者固定时间的话，这个时候系统会挂起用户程序，也就是SWT，转而执行垃圾回收算法</li>
+<li>节点复制</li>
+<li>分代收集：分代垃圾回收算法将对象按生命周期长短存放到堆上的两个（或者更多）区域，这些区域就是分代（generation）。之后再进行垃圾回收</li>
+</ol>
+<p>这里 <code>Golang</code> 使用的是基于 标记-清除 法的三色标记算法</p>
+<h2 id="gc触发条件"><a class="markdownIt-Anchor" href="#gc触发条件"></a> GC触发条件</h2>
+<p>一般来说有三种情况会触发GC</p>
+<ol>
+<li>辅助GC，在分配内存时，会判断当前的Heap内存分配量是否达到了触发GC的阈值，如果超过了阈值则启动一轮GC</li>
+<li>调用 <code>systeme.GC()</code> 来强制启动一轮GC</li>
+<li>当超过一定时间未运行GC的情况下会执行GC</li>
+</ol>
+<h2 id="为什么需要三色标记算法"><a class="markdownIt-Anchor" href="#为什么需要三色标记算法"></a> 为什么需要三色标记算法</h2>
+<p>相比之前的标记清除算法，其GC执行期间需要把整个程序完全暂停，不能异步执行GC操作。对实时性要求比较高的系统来说，这种需要长时间挂起的标记清除算法是不可接受的，而三色标记算法就很好的解决了这个问题。 <strong>三色标记最大的好处是可以异步执行</strong>，从而可以以中断时间极少的代价或者完全没有中断操作来进行整个GC。</p>
+<p>三色指的是黑色、灰色、白色，</p>
+<ol>
+<li>黑色：根对象，或者某对象和它的子对象都被扫描过</li>
+<li>灰色：某对象被扫描过，但是子对象未被扫描</li>
+<li>白色：未被扫描的对象，如果扫描完成所有对象之后，最终白色为不可达对象，即垃圾对象</li>
+</ol>
+<h2 id="读写屏障"><a class="markdownIt-Anchor" href="#读写屏障"></a> 读写屏障</h2>
+<p>所谓的读写屏障就是针对某个对象变量赋值、读取时做一些格外的操作</p>
+<h2 id="垃圾回收的主要流程"><a class="markdownIt-Anchor" href="#垃圾回收的主要流程"></a> 垃圾回收的主要流程</h2>
+<ol>
+<li>初始化所有对象被标记为白色</li>
+<li>从root开始找到所有可达对象，标记为灰色，放入到待处理队列中</li>
+<li>遍历灰色对象队列，把其引用的对象标记为灰色放入到待处理队列中，自身标记为黑色</li>
+<li>处理完灰色对象队列，知道没有灰色对象为止</li>
+<li>其余白色为垃圾对象，执行清扫工作</li>
+</ol>
+<h2 id="三色标记法的引用消失问题"><a class="markdownIt-Anchor" href="#三色标记法的引用消失问题"></a> 三色标记法的引用消失问题</h2>
+<p>什么是引用消失：即原本应该是黑色的对象被误标为白色。</p>
+<h3 id="发生的条件"><a class="markdownIt-Anchor" href="#发生的条件"></a> 发生的条件</h3>
+<p>当且仅当一下两个条件同时满足的时候</p>
+<ol>
+<li>赋值器插入了一条或多条从黑色对象到白色对象的新引用</li>
+<li>赋值器删除了全部从灰色对象到该白色对象的直接或间接引用。</li>
+</ol>
+<h3 id="解决办法"><a class="markdownIt-Anchor" href="#解决办法"></a> 解决办法</h3>
+<p>只需要破坏成立的条件即可，有两种方案：增量更新和原始快照</p>
+<ol>
+<li>增量更新，当一个白色对象被黑色对象引用时，把黑色对象重新标记为灰色，让垃圾回收算法重新扫描即可</li>
+<li>原始快照：原始快照要破坏的是第二个条件，当灰色对象要删除白色对象的引用关系时，就将这个要删除的引用记录下来，在并发扫描结束之后，再扫描这些灰色节点</li>
+</ol>
+<h3 id="对比"><a class="markdownIt-Anchor" href="#对比"></a> 对比</h3>
+<p><strong>原始快照关注的是引用删除，增量更新关注的是引用增加</strong></p>
+<p>因为增量更新算法还需要把原本为黑色的节点再次扫描一遍，效率有点低下</p>
+<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
+<blockquote>
+<p>2021-07-13 14:59</p>
+<p>哈哈哈,今天并没有日志</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Golang</category>
+        <category>基础</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GMP调度模型</title>
+    <url>/2021/07/09/Golang/%E5%9F%BA%E7%A1%80/GMP%E8%B0%83%E5%BA%A6%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>开坑，今天太晚明天写</p>
+<hr />
+<p>2021-07-12 09:14</p>
+<p>这就是假期后遗症和懒。。。。。根本腾不出手来写东西</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="gmp调度模型"><a class="markdownIt-Anchor" href="#gmp调度模型"></a> GMP调度模型</h1>
+<h2 id="背景"><a class="markdownIt-Anchor" href="#背景"></a> 背景</h2>
+<p>这里还是不介绍并发、并行的区别了，我们先从多线程到多协程的转化开始吧。</p>
+<p>现在绝大部分的开发语言都支持线程级别的并发，最典型的就是 <code>Java</code> 了，多线程尽管一定程度上提高了并发能力，但是在现如今高并发的场景，为每一个任务创建一个线程是不现实的，因为会消耗大量的资源（在32位操作系统中进程虚拟空间会占用4GB，线程会占用大约4MB的空间）。而且大量的线程会出现的问题：高内存占用、调度的高CPU消耗，高内存占用我们可以使用线程池技术来进行缓解，但是高CPU调度问题我们就得另寻他法了。</p>
+<p>我们重新认识一下线程，一个线程实际分为了用户态线程和内核态线程，一个用户态线程必须绑定一个内核态线程，但是CPU不清楚用户态线程的存在，它只知道运行的是一个内核态的线程。这里我们可以把内核态的线程依然叫做<code>线程(thread)</code>，而用户态的线程我们可以称其为<code>协程(co-routine)</code> 。</p>
+<p>看到这里，我们就很容易理解到，既然一个协程必须绑定一个线程，那么是不是意味着多个协程可以绑定同一个线程呢。答案是可以的。此时协程在用户态即可完成切换工作，不会陷入内核态切换，这种切换是非常快捷的。现在我们就得到了协程调度模型图</p>
+<img src="https://helloteemo.com.cn/2021.07/image-20210712094815441.png" alt="image-20210712094815441" style="zoom:50%;" />
+<h2 id="goroutine"><a class="markdownIt-Anchor" href="#goroutine"></a> Goroutine</h2>
+<p><code>Gotoutine</code> 来自协程概念，它是用户态的线程，可以让一组可服用的函数运行在一组内核态的线程中。一个 <code>Goroutine</code>的初始空间大概只有4KB左右，并且在这4KB内存就足够一个函数完成运行，当然 <code>Goroutine</code> 的内存也是可以扩容的，最大可以扩容到1GB。</p>
+<h2 id="gm模型"><a class="markdownIt-Anchor" href="#gm模型"></a> GM模型</h2>
+<blockquote>
+<p>GM模型早在很久之前就被废弃了，没有撑到正式版本，接下来我们来了解一下GM模型是什么，</p>
+<p>本文使用G来表示 <code>Goroutine</code>，使用M来表示线程</p>
+</blockquote>
+<p>首先Go底层维护一个全局的协程队列，所有的G都会被放在这个全局队列中，同时多个M从全局队列中获取和放回G，也正因为如此，我们可以知道有多个线程访问同一个临界资源，这时候就需要对这个临界资源加锁，不然就会出现脏读等一系列问题。因此我们可以得出如下图</p>
+<img src="https://helloteemo.com.cn/2021.07/image-20210712140525051.png" alt="image-20210712140525051" style="zoom:50%;" />
+<p>该调度模型有几个缺点</p>
+<ol>
+<li>多个M同时访问全局队列，无论是调度、放回、销毁一个 <code>Goroutine</code> 都需要获取锁，这样会形成激烈的锁竞争问题</li>
+<li>M移交G会照成延迟和额外的系统负载。比如当 G 中包含创建新协程的时候，M 创建了 G’，为了继续执行 G，需要把 G’交给 M’执行，也造成了<strong>很差的局部性</strong>，因为 G’和 G 是相关的，最好放在 M 上执行，而不是其他 M’</li>
+<li>系统调用 (CPU 在 M 之间的切换) 导致频繁的线程阻塞和取消阻塞操作增加了系统开销</li>
+</ol>
+<h2 id="gmp模型"><a class="markdownIt-Anchor" href="#gmp模型"></a> GMP模型</h2>
+<p>面对之前的GM调度模型的一些问题，Go设计了新的调度器。在新调度器中，除了M和G，我们新引入了P。P中包含了运行<code>Goroutine</code> 的资源，如果线程M想要执行G，就必须要先获取P，P中还包含了可运行的G队列。</p>
+<h3 id="框架"><a class="markdownIt-Anchor" href="#框架"></a> 框架</h3>
+<p>在GMP模型中，G是协程实体，线程M是运行G的实体，而调度器P的功能是把可以运行的G分配到工作线程中。接下来我们来看下GMP模型的整体运行图</p>
+<p><img src="https://cdn.learnku.com/uploads/images/202003/11/58489/Ugu3C2WSpM.jpeg!large" alt="假装有图片" /></p>
+<p>我们来一一介绍一下图中的内容</p>
+<ol>
+<li>G全局队列：存放着等待运行的所有G</li>
+<li>P的本地队列：同G全局队列，存放的是P的待运行队列，可以存放的最大容量为256个。在G需要新建协程G’时，会优先加入本地队列中，如果发现本地队列已满则会放回一半到全局队列中</li>
+<li>P：所有的P会在程序启动时创建，最多存在 <code>GOAXPROCS</code> 个</li>
+<li>M：线程想要运行任务就需要获取P，从P的本地列表中取出G，如果发现本地列表为空，则优先偷取其余P的本地列表的一半，如果无法偷取则从全局列表中获取G，M 运行 G，G 执行之后，M 会从 P 获取下一个 G，不断重复下去</li>
+</ol>
+<h3 id="pm创建问题"><a class="markdownIt-Anchor" href="#pm创建问题"></a> PM创建问题</h3>
+<p>P何时创建： 在程序启动的时候创建</p>
+<p>M何时创建：当没有足够的M来关联P的时候，比如当前所有的M都阻塞了</p>
+<h3 id="调度策略"><a class="markdownIt-Anchor" href="#调度策略"></a> 调度策略</h3>
+<p>调度器的设计主要从 <code>线程复用</code> 和 <code>并行利用</code> 两个方面来优化调度</p>
+<ol>
+<li>线程复用：避免对M的频繁创建、销毁。
+<ol>
+<li>work stealing 机制：当本线程无可以运行的G时，尝试从其余P对立中偷取G，而不是销毁线程</li>
+<li>hand off 机制：当线程M因为G进行系统调用阻塞时，线程会主动释放当前的P，把P交由其余M执行，如果没有多余的M的话会创建新线程M。</li>
+</ol>
+</li>
+<li>并行利用
+<ol>
+<li>多调度器：最多有 <code>GOMAXPROCS</code> 个P。</li>
+<li>抢占：在Go中，一个<code>Goroutine</code>最多占用CPU10ms的时间，防止其余<code>Goroutine</code>被饿死，</li>
+<li>全局G队列：在新的GMP模型中依然保留了全局队列，但是作用被大大削弱</li>
+</ol>
+</li>
+</ol>
+<h3 id="调度过程"><a class="markdownIt-Anchor" href="#调度过程"></a> 调度过程</h3>
+<p>这里介绍一下GMP的调度过程，主要是我们在运行<code>go func()&#123;&#125;</code>的是否发生了什么。</p>
+<ol>
+<li><code>go func()&#123;&#125;</code>执行</li>
+<li>尝试直接加入P的局部队列，如果发现局部队列已满则加入全局G队列</li>
+<li>P尝试从局部队列中获取一个G执行，如果发现局部队列为空，则尝试从其余P中偷取一部分G或者直接从全局G队列中获取一批G</li>
+<li>M获取P</li>
+<li>M执行P中的函数，如果运行结束就销毁G</li>
+<li>如果在执行期间发生了系统调用阻塞，则尝试用休眠M队列中获取一个M，如果未能获取到则会新增一个M</li>
+<li>新建的M会接管当前阻塞的P。</li>
+<li>当系统调用阻塞结束之后，这个G会尝试获取一个空闲P执行，并放入到这个P的本地队列中。如果获取不到P，那么M就会变成休眠状态，加入到空闲线程队列中，G会被放入到全局队列中</li>
+</ol>
+<h3 id="调度器的生命周期"><a class="markdownIt-Anchor" href="#调度器的生命周期"></a> 调度器的生命周期</h3>
+<ol>
+<li>创建第一个线程M0</li>
+<li>创建第一个<code>Goroutine</code> G0</li>
+<li>关联M0和G0</li>
+<li>调度初始化，包括创建P等</li>
+<li>创建main()函数中的 <code>Goroutine</code></li>
+<li>M绑定P</li>
+<li>M是否可以通过P获取到一个G，如果不能获取的话则休眠当前M，等待唤醒到第六步</li>
+<li>M设置环境变量，包括栈、程序计数器等</li>
+<li>M执行G</li>
+<li>G退出，此时M重新跳到第7步</li>
+</ol>
+<p>这里说一下特殊的M0和G0。</p>
+<ol>
+<li>M0：M0是启动程序后的编号为0的主线程，这个 M 对应的实例会在全局变量 runtime.m0 中，不需要在 heap 上分配，M0 负责执行初始化操作和启动第一个 G， 在之后 M0 就和其他的 M 一样了。</li>
+<li>G0：G0是每启动一个M都是第一个创建的 <code>Groutine</code>。<strong>G0仅用于负责调度的G，它不指向任何可以执行的函数</strong>，每一个M都拥有自身的G0，在调度或者系统调用时会使用G0的栈空间。全局变量的G0是M0的G0</li>
+</ol>
+<p>我们来跟踪一段代码</p>
+<pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token string">"fmt"</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Hello world"</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<p>接下来我们来针对上面的代码对调度器里面的结构做一个分析。</p>
+<p>也会经历如上图所示的过程：</p>
+<ol>
+<li>runtime 创建最初的线程 m0 和 goroutine g0，并把 2 者关联。</li>
+<li>调度器初始化：初始化 m0、栈、垃圾回收，以及创建和初始化由 GOMAXPROCS 个 P 构成的 P 列表。</li>
+<li>示例代码中的 main 函数是 main.main，runtime 中也有 1 个 main 函数 ——runtime.main，代码经过编译后，runtime.main 会调用 main.main，程序启动时会为 runtime.main 创建 goroutine，称它为 main goroutine 吧，然后把 main goroutine 加入到 P 的本地队列。</li>
+<li>启动 m0，m0 已经绑定了 P，会从 P 的本地队列获取 G，获取到 main goroutine。</li>
+<li>G 拥有栈，M 根据 G 中的栈信息和调度信息设置运行环境</li>
+<li>M 运行 G</li>
+<li>G 退出，再次回到 M 获取可运行的 G，这样重复下去，直到 main.main 退出，runtime.main 执行 Defer 和 Panic 处理，或调用 runtime.exit 退出程序。</li>
+</ol>
+<h2 id="说在最后"><a class="markdownIt-Anchor" href="#说在最后"></a> 说在最后</h2>
+<p>Go 调度器很轻量也很简单，足以撑起 goroutine 的调度工作，并且让 Go 具有了原生（强大）并发的能力。Go 调度本质是把大量的 goroutine 分配到少量线程上去执行，并利用多核并行，实现更强大的并发。</p>
+<p>本文大量参考了Aceld的文章并进行个人总结，下面是作者的原文信息，写的非常精彩。</p>
+<hr />
+<p>原文作者：Aceld<br />
+转自链接：<a href="https://learnku.com/articles/41728">https://learnku.com/articles/41728</a><br />
+版权声明：著作权归作者所有。商业转载请联系作者获得授权，非商业转载请保留以上作者信息和原文链接。</p>
+<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
+<blockquote>
+<p>2021-07-12 16:31</p>
+<p>没想到上周五开篇的现在才写完，懒死我自己。。。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Golang</category>
+        <category>基础</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
       </tags>
   </entry>
   <entry>
