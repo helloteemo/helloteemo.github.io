@@ -120,6 +120,60 @@ Content-Length: 46
       </tags>
   </entry>
   <entry>
+    <title>go时间段分周</title>
+    <url>/2021/01/19/Golang/%E6%8C%89%E5%91%A8%E5%B9%B3%E5%88%86%E6%97%B6%E9%97%B4Go%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<p>这段程序是受困于当初写数据统计时有个非常变态的周统计需求，所以做了一个关于ISO周划分的函数</p>
+<span id="more"></span>
+<pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> awesome
+
+<span class="token keyword">import</span> <span class="token string">"time"</span>
+
+<span class="token keyword">type</span> WeekDate <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>
+	ISOYear   <span class="token builtin">int</span>
+	ISOWeek   <span class="token builtin">int</span>
+	StartTime time<span class="token punctuation">.</span>Time
+	EndTime   time<span class="token punctuation">.</span>Time
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">func</span> <span class="token function">groupByWeekDate</span><span class="token punctuation">(</span>startTime<span class="token punctuation">,</span> endTime time<span class="token punctuation">.</span>Time<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>WeekDate <span class="token punctuation">&#123;</span>
+	<span class="token comment">// Sunday -> Saturday  0,1,2,3,4,5,6</span>
+	startOffset <span class="token operator">:=</span> <span class="token function">int</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span>Monday <span class="token operator">-</span> startTime<span class="token punctuation">.</span><span class="token function">Weekday</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+	<span class="token comment">// 只有Monday减去Sunday的时候是正数</span>
+	<span class="token keyword">if</span> startOffset <span class="token operator">></span> <span class="token number">0</span> <span class="token punctuation">&#123;</span>
+		startOffset <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">6</span>
+	<span class="token punctuation">&#125;</span>
+	startMonday <span class="token operator">:=</span> startTime<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> startOffset<span class="token punctuation">)</span>
+
+	endOffset <span class="token operator">:=</span> <span class="token function">int</span><span class="token punctuation">(</span><span class="token number">7</span> <span class="token operator">-</span> endTime<span class="token punctuation">.</span><span class="token function">Weekday</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+	<span class="token keyword">if</span> endOffset <span class="token operator">==</span> <span class="token number">7</span> <span class="token punctuation">&#123;</span>
+		endOffset <span class="token operator">=</span> <span class="token number">0</span>
+	<span class="token punctuation">&#125;</span>
+	endSunday <span class="token operator">:=</span> endTime<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> endOffset<span class="token punctuation">)</span>
+
+	<span class="token keyword">var</span> res <span class="token operator">=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>WeekDate<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+	<span class="token keyword">for</span> i <span class="token operator">:=</span> startMonday<span class="token punctuation">;</span> i<span class="token punctuation">.</span><span class="token function">Before</span><span class="token punctuation">(</span>endSunday<span class="token punctuation">)</span> <span class="token operator">||</span> i<span class="token punctuation">.</span><span class="token function">Equal</span><span class="token punctuation">(</span>endSunday<span class="token punctuation">)</span><span class="token punctuation">;</span> i <span class="token operator">=</span> i<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		iISOYear<span class="token punctuation">,</span> iISOWeek <span class="token operator">:=</span> i<span class="token punctuation">.</span><span class="token function">ISOWeek</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+		<span class="token keyword">var</span> tmp <span class="token operator">=</span> WeekDate<span class="token punctuation">&#123;</span>
+			ISOYear<span class="token punctuation">:</span>   iISOYear<span class="token punctuation">,</span>
+			ISOWeek<span class="token punctuation">:</span>   iISOWeek<span class="token punctuation">,</span>
+			StartTime<span class="token punctuation">:</span> i<span class="token punctuation">,</span>
+			EndTime<span class="token punctuation">:</span>   i<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+		<span class="token punctuation">&#125;</span>
+		res <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>res<span class="token punctuation">,</span> tmp<span class="token punctuation">)</span>
+	<span class="token punctuation">&#125;</span>
+
+	<span class="token keyword">return</span> res
+<span class="token punctuation">&#125;</span></code></pre>
+<p>y</p>
+]]></content>
+      <categories>
+        <category>Golang</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>协程与并发</title>
     <url>/2020/12/25/Golang/%E5%8D%8F%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/</url>
     <content><![CDATA[<blockquote>
@@ -385,60 +439,6 @@ func main() &#123;
 &#125;</code></pre>
 <p>这个时候无论怎么运行都会得到正确的结果:100000。</p>
 <p><strong>思考：有没有更优的方案？使用一个重量级的互斥锁有没有必要？</strong></p>
-]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>go时间段分周</title>
-    <url>/2021/01/19/Golang/%E6%8C%89%E5%91%A8%E5%B9%B3%E5%88%86%E6%97%B6%E9%97%B4Go%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<p>这段程序是受困于当初写数据统计时有个非常变态的周统计需求，所以做了一个关于ISO周划分的函数</p>
-<span id="more"></span>
-<pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">package</span> awesome
-
-<span class="token keyword">import</span> <span class="token string">"time"</span>
-
-<span class="token keyword">type</span> WeekDate <span class="token keyword">struct</span> <span class="token punctuation">&#123;</span>
-	ISOYear   <span class="token builtin">int</span>
-	ISOWeek   <span class="token builtin">int</span>
-	StartTime time<span class="token punctuation">.</span>Time
-	EndTime   time<span class="token punctuation">.</span>Time
-<span class="token punctuation">&#125;</span>
-
-<span class="token keyword">func</span> <span class="token function">groupByWeekDate</span><span class="token punctuation">(</span>startTime<span class="token punctuation">,</span> endTime time<span class="token punctuation">.</span>Time<span class="token punctuation">)</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>WeekDate <span class="token punctuation">&#123;</span>
-	<span class="token comment">// Sunday -> Saturday  0,1,2,3,4,5,6</span>
-	startOffset <span class="token operator">:=</span> <span class="token function">int</span><span class="token punctuation">(</span>time<span class="token punctuation">.</span>Monday <span class="token operator">-</span> startTime<span class="token punctuation">.</span><span class="token function">Weekday</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-	<span class="token comment">// 只有Monday减去Sunday的时候是正数</span>
-	<span class="token keyword">if</span> startOffset <span class="token operator">></span> <span class="token number">0</span> <span class="token punctuation">&#123;</span>
-		startOffset <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">6</span>
-	<span class="token punctuation">&#125;</span>
-	startMonday <span class="token operator">:=</span> startTime<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> startOffset<span class="token punctuation">)</span>
-
-	endOffset <span class="token operator">:=</span> <span class="token function">int</span><span class="token punctuation">(</span><span class="token number">7</span> <span class="token operator">-</span> endTime<span class="token punctuation">.</span><span class="token function">Weekday</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-	<span class="token keyword">if</span> endOffset <span class="token operator">==</span> <span class="token number">7</span> <span class="token punctuation">&#123;</span>
-		endOffset <span class="token operator">=</span> <span class="token number">0</span>
-	<span class="token punctuation">&#125;</span>
-	endSunday <span class="token operator">:=</span> endTime<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> endOffset<span class="token punctuation">)</span>
-
-	<span class="token keyword">var</span> res <span class="token operator">=</span> <span class="token function">make</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>WeekDate<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
-	<span class="token keyword">for</span> i <span class="token operator">:=</span> startMonday<span class="token punctuation">;</span> i<span class="token punctuation">.</span><span class="token function">Before</span><span class="token punctuation">(</span>endSunday<span class="token punctuation">)</span> <span class="token operator">||</span> i<span class="token punctuation">.</span><span class="token function">Equal</span><span class="token punctuation">(</span>endSunday<span class="token punctuation">)</span><span class="token punctuation">;</span> i <span class="token operator">=</span> i<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-		iISOYear<span class="token punctuation">,</span> iISOWeek <span class="token operator">:=</span> i<span class="token punctuation">.</span><span class="token function">ISOWeek</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-		<span class="token keyword">var</span> tmp <span class="token operator">=</span> WeekDate<span class="token punctuation">&#123;</span>
-			ISOYear<span class="token punctuation">:</span>   iISOYear<span class="token punctuation">,</span>
-			ISOWeek<span class="token punctuation">:</span>   iISOWeek<span class="token punctuation">,</span>
-			StartTime<span class="token punctuation">:</span> i<span class="token punctuation">,</span>
-			EndTime<span class="token punctuation">:</span>   i<span class="token punctuation">.</span><span class="token function">AddDate</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
-		<span class="token punctuation">&#125;</span>
-		res <span class="token operator">=</span> <span class="token function">append</span><span class="token punctuation">(</span>res<span class="token punctuation">,</span> tmp<span class="token punctuation">)</span>
-	<span class="token punctuation">&#125;</span>
-
-	<span class="token keyword">return</span> res
-<span class="token punctuation">&#125;</span></code></pre>
-<p>y</p>
 ]]></content>
       <categories>
         <category>Golang</category>
@@ -821,166 +821,6 @@ func main() &#123;
       </tags>
   </entry>
   <entry>
-    <title>SpringMVC Controller书写</title>
-    <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
-    <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
-<span id="more"></span>
-<h1 id="spring-mvc-controller书写"><a class="markdownIt-Anchor" href="#spring-mvc-controller书写"></a> <code>Spring MVC Controller</code>书写</h1>
-<p><code>Spring MVC</code>是一个<code>MVC</code>的<code>WEB</code>框架，它建立在一个中央前端控制器Servlet(DispatcherServlter)，它负责发送每一个请求到合适的处理程序，使用视图或者其他方式来返回响应结果。<code>SpringMVC</code>是<code>Spring</code>产品组合的一部分，它享有<code>Spring Ioc</code>容器来紧密结合<code>Spring</code>松耦合等特点。</p>
-<p><img src="https://helloteemo.com.cn/2021.06/Spring%20MVC%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="SpringMVC架构图" /></p>
-<h2 id="如何确定一个controller"><a class="markdownIt-Anchor" href="#如何确定一个controller"></a> 如何确定一个<code>Controller</code></h2>
-<h3 id="步骤"><a class="markdownIt-Anchor" href="#步骤"></a> 步骤</h3>
-<ol>
-<li>确定请求的请求方法，如果可以请遵从<code>RESTful</code>规范</li>
-<li>确定请求的<code>URL</code>，<code>url</code>可以随意命名，但是尽量可以一眼就能看到表达的意思</li>
-<li>确定请求参数传参的方式，一般在请求体、路径、QueryString，一般来说请求体的参数类型会比较丰富</li>
-<li>确定请求参数，这里一般包括字段、字段类型、是否必传、备注构成</li>
-</ol>
-<h3 id="示例"><a class="markdownIt-Anchor" href="#示例"></a> 示例</h3>
-<p>我需要获取一个用户的信息</p>
-<ol>
-<li>请求方法：GET</li>
-<li>url:<code>/user/&#123;user_id&#125;</code></li>
-<li>请求参数传参的方式:路径</li>
-<li>请求参数</li>
-</ol>
-<table>
-<thead>
-<tr>
-<th>字段</th>
-<th>类型</th>
-<th>是否必传</th>
-<th>备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>user_id</code></td>
-<td>int</td>
-<td>是</td>
-<td>用户ID</td>
-</tr>
-</tbody>
-</table>
-<h2 id="如何书写一个controller"><a class="markdownIt-Anchor" href="#如何书写一个controller"></a> 如何书写一个<code>Controller</code></h2>
-<h3 id="步骤-2"><a class="markdownIt-Anchor" href="#步骤-2"></a> 步骤</h3>
-<ol>
-<li>
-<p>新建一个<code>Controller</code>，实际上就是新建一个类，并给它加上<code>Controller</code>、<code>RestController</code>注解</p>
-<blockquote>
-<p>新建一个类，给类加上<code>Controller</code>注解，这个注解会使<code>Spring</code>加载这个类为一个Bean，也可以使用<code>RestController</code>来表示这个<code>Controller</code>是一个符合<code>RESTful</code>规范的<code>Controller</code></p>
-<p><code>@RestController</code>和<code>@Controller</code>的区别</p>
-<p><code>@RestController</code>注解等价于<code>@ResponseBody</code> ＋ <code>@Controller</code>。<code>@RestController</code>和<code>@Controller</code>的共同点是都用来表示<code>Spring</code>某个类是否可以接收<code>HTTP</code>请求，<strong>二者区别： @RestController无法返回指定页面，而@Controller可以</strong>；前者可以直接返回数据，后者需要@ResponseBody辅助</p>
-<p><code>File</code>:<code>org.springframework.web.bind.annotation.RestController</code></p>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Documented</span>
-<span class="token annotation punctuation">@Controller</span>
-<span class="token annotation punctuation">@ResponseBody</span>
-<span class="token keyword">public</span> <span class="token annotation punctuation">@interface</span> <span class="token class-name">RestController</span> <span class="token punctuation">&#123;</span>
- <span class="token annotation punctuation">@AliasFor</span><span class="token punctuation">(</span>
-     annotation <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span><span class="token keyword">class</span>
- <span class="token punctuation">)</span>
- <span class="token class-name">String</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token string">""</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-</blockquote>
-</li>
-<li>
-<p>书写具体的方法</p>
-<ol>
-<li>书写注解，需要接受<code>HTTP</code>请求的方法需要加入<code>@RequestMapping</code>注解
-<ol>
-<li>确定请求方法，在<code>@RequestMapping</code>注解中的<code>method</code>中确定，不书写则默认为<code>GET</code>请求</li>
-<li>确定<code>URL</code>以及其它一些东西，<code>URL</code>由<code>value</code>确定，如果只有一个字段的话可以不用熟悉<code>value</code></li>
-</ol>
-</li>
-<li>确定返回值
-<ol>
-<li>如果返回值为<code>JSON</code>类型，则应该返回一个对象，并且要加上<code>@ResponseBody</code>注解</li>
-<li>如果返回的是一个页面，则需要配置视图解析器，并返回值为<code>String</code></li>
-</ol>
-</li>
-<li>确定参数
-<ol>
-<li>如果参数在Path中,则<code>URL</code>中应该由<code>&#123;&#125;</code>来确定参数位置，使用<code>@PathVariable</code>确定绑定到何处</li>
-<li>如果参数在请求体中，可以使用<code>@RequestBody</code>解析到对象中</li>
-<li>如果参数在<code>QueryString</code>中，可以使用<code>@RequestParam</code>绑定到何处</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-<h3 id="示例-2"><a class="markdownIt-Anchor" href="#示例-2"></a> 示例</h3>
-<p>我需要获取一个用户的信息</p>
-<ol>
-<li>新建一个<code>Controller</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="2">
-<li>确定方法，为GET，这里</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="3">
-<li>确定<code>URL</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<ol start="4">
-<li>确定返回值，因为我们要返回<code>JSON</code>，所以应该返回一个对象，如果注解不是<code>@RestController</code>，那么还应该在方法中加入<code>@ResponseBody</code></li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span>
-</code></pre>
-<ol start="4">
-<li>确定参数，因为使用路径作为参数，则使用<code>@PathVariable</code>注解</li>
-</ol>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">)</span> <span class="token keyword">int</span> userID<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-	<span class="token comment">// 或者使用</span>
-    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
-     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span></code></pre>]]></content>
-      <categories>
-        <category>Spring</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SQL中的时间类型</title>
     <url>/2021/01/12/SQL/SQL%E4%B8%AD%E7%9A%84%E6%97%B6%E9%97%B4%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[]]></content>
@@ -1219,6 +1059,166 @@ where
       </categories>
       <tags>
         <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringMVC Controller书写</title>
+    <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
+    <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
+<span id="more"></span>
+<h1 id="spring-mvc-controller书写"><a class="markdownIt-Anchor" href="#spring-mvc-controller书写"></a> <code>Spring MVC Controller</code>书写</h1>
+<p><code>Spring MVC</code>是一个<code>MVC</code>的<code>WEB</code>框架，它建立在一个中央前端控制器Servlet(DispatcherServlter)，它负责发送每一个请求到合适的处理程序，使用视图或者其他方式来返回响应结果。<code>SpringMVC</code>是<code>Spring</code>产品组合的一部分，它享有<code>Spring Ioc</code>容器来紧密结合<code>Spring</code>松耦合等特点。</p>
+<p><img src="https://helloteemo.com.cn/2021.06/Spring%20MVC%E6%9E%B6%E6%9E%84%E5%9B%BE.png" alt="SpringMVC架构图" /></p>
+<h2 id="如何确定一个controller"><a class="markdownIt-Anchor" href="#如何确定一个controller"></a> 如何确定一个<code>Controller</code></h2>
+<h3 id="步骤"><a class="markdownIt-Anchor" href="#步骤"></a> 步骤</h3>
+<ol>
+<li>确定请求的请求方法，如果可以请遵从<code>RESTful</code>规范</li>
+<li>确定请求的<code>URL</code>，<code>url</code>可以随意命名，但是尽量可以一眼就能看到表达的意思</li>
+<li>确定请求参数传参的方式，一般在请求体、路径、QueryString，一般来说请求体的参数类型会比较丰富</li>
+<li>确定请求参数，这里一般包括字段、字段类型、是否必传、备注构成</li>
+</ol>
+<h3 id="示例"><a class="markdownIt-Anchor" href="#示例"></a> 示例</h3>
+<p>我需要获取一个用户的信息</p>
+<ol>
+<li>请求方法：GET</li>
+<li>url:<code>/user/&#123;user_id&#125;</code></li>
+<li>请求参数传参的方式:路径</li>
+<li>请求参数</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>是否必传</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user_id</code></td>
+<td>int</td>
+<td>是</td>
+<td>用户ID</td>
+</tr>
+</tbody>
+</table>
+<h2 id="如何书写一个controller"><a class="markdownIt-Anchor" href="#如何书写一个controller"></a> 如何书写一个<code>Controller</code></h2>
+<h3 id="步骤-2"><a class="markdownIt-Anchor" href="#步骤-2"></a> 步骤</h3>
+<ol>
+<li>
+<p>新建一个<code>Controller</code>，实际上就是新建一个类，并给它加上<code>Controller</code>、<code>RestController</code>注解</p>
+<blockquote>
+<p>新建一个类，给类加上<code>Controller</code>注解，这个注解会使<code>Spring</code>加载这个类为一个Bean，也可以使用<code>RestController</code>来表示这个<code>Controller</code>是一个符合<code>RESTful</code>规范的<code>Controller</code></p>
+<p><code>@RestController</code>和<code>@Controller</code>的区别</p>
+<p><code>@RestController</code>注解等价于<code>@ResponseBody</code> ＋ <code>@Controller</code>。<code>@RestController</code>和<code>@Controller</code>的共同点是都用来表示<code>Spring</code>某个类是否可以接收<code>HTTP</code>请求，<strong>二者区别： @RestController无法返回指定页面，而@Controller可以</strong>；前者可以直接返回数据，后者需要@ResponseBody辅助</p>
+<p><code>File</code>:<code>org.springframework.web.bind.annotation.RestController</code></p>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Target</span><span class="token punctuation">(</span><span class="token punctuation">&#123;</span><span class="token class-name">ElementType</span><span class="token punctuation">.</span>TYPE<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Retention</span><span class="token punctuation">(</span><span class="token class-name">RetentionPolicy</span><span class="token punctuation">.</span>RUNTIME<span class="token punctuation">)</span>
+<span class="token annotation punctuation">@Documented</span>
+<span class="token annotation punctuation">@Controller</span>
+<span class="token annotation punctuation">@ResponseBody</span>
+<span class="token keyword">public</span> <span class="token annotation punctuation">@interface</span> <span class="token class-name">RestController</span> <span class="token punctuation">&#123;</span>
+ <span class="token annotation punctuation">@AliasFor</span><span class="token punctuation">(</span>
+     annotation <span class="token operator">=</span> <span class="token class-name">Controller</span><span class="token punctuation">.</span><span class="token keyword">class</span>
+ <span class="token punctuation">)</span>
+ <span class="token class-name">String</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">default</span> <span class="token string">""</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+</blockquote>
+</li>
+<li>
+<p>书写具体的方法</p>
+<ol>
+<li>书写注解，需要接受<code>HTTP</code>请求的方法需要加入<code>@RequestMapping</code>注解
+<ol>
+<li>确定请求方法，在<code>@RequestMapping</code>注解中的<code>method</code>中确定，不书写则默认为<code>GET</code>请求</li>
+<li>确定<code>URL</code>以及其它一些东西，<code>URL</code>由<code>value</code>确定，如果只有一个字段的话可以不用熟悉<code>value</code></li>
+</ol>
+</li>
+<li>确定返回值
+<ol>
+<li>如果返回值为<code>JSON</code>类型，则应该返回一个对象，并且要加上<code>@ResponseBody</code>注解</li>
+<li>如果返回的是一个页面，则需要配置视图解析器，并返回值为<code>String</code></li>
+</ol>
+</li>
+<li>确定参数
+<ol>
+<li>如果参数在Path中,则<code>URL</code>中应该由<code>&#123;&#125;</code>来确定参数位置，使用<code>@PathVariable</code>确定绑定到何处</li>
+<li>如果参数在请求体中，可以使用<code>@RequestBody</code>解析到对象中</li>
+<li>如果参数在<code>QueryString</code>中，可以使用<code>@RequestParam</code>绑定到何处</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="示例-2"><a class="markdownIt-Anchor" href="#示例-2"></a> 示例</h3>
+<p>我需要获取一个用户的信息</p>
+<ol>
+<li>新建一个<code>Controller</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="2">
+<li>确定方法，为GET，这里</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">)</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="3">
+<li>确定<code>URL</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<ol start="4">
+<li>确定返回值，因为我们要返回<code>JSON</code>，所以应该返回一个对象，如果注解不是<code>@RestController</code>，那么还应该在方法中加入<code>@ResponseBody</code></li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+</code></pre>
+<ol start="4">
+<li>确定参数，因为使用路径作为参数，则使用<code>@PathVariable</code>注解</li>
+</ol>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>method <span class="token operator">=</span> <span class="token class-name">RequestMethod</span><span class="token punctuation">.</span>GET<span class="token punctuation">,</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"user_id"</span><span class="token punctuation">)</span> <span class="token keyword">int</span> userID<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+	<span class="token comment">// 或者使用</span>
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span>value<span class="token operator">=</span><span class="token string">"/user/&#123;user_id&#125;"</span><span class="token punctuation">)</span>
+     <span class="token keyword">public</span> <span class="token class-name">User</span> <span class="token function">getIndexByID2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring</tag>
       </tags>
   </entry>
   <entry>
@@ -1885,6 +1885,48 @@ Web服务器软件：<code>Apache2</code></p>
       </tags>
   </entry>
   <entry>
+    <title>为什么要使用消息队列</title>
+    <url>/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<blockquote>
+<p>为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p>
+</blockquote>
+<span id="more"></span>
+<h1 id="为什么使用消息队列"><a class="markdownIt-Anchor" href="#为什么使用消息队列"></a> 为什么使用消息队列</h1>
+<h2 id="简答"><a class="markdownIt-Anchor" href="#简答"></a> 简答</h2>
+<ol>
+<li>异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li>
+<li>应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li>
+<li>平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li>
+<li>日志处理：解决不同机器之间的日志输出问题</li>
+<li>消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li>
+</ol>
+<h2 id="详解"><a class="markdownIt-Anchor" href="#详解"></a> 详解</h2>
+<h3 id="异步处理"><a class="markdownIt-Anchor" href="#异步处理"></a> 异步处理</h3>
+<p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p>
+<h3 id="解除耦合"><a class="markdownIt-Anchor" href="#解除耦合"></a> 解除耦合</h3>
+<p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p>
+<p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p>
+<h3 id="平稳流量"><a class="markdownIt-Anchor" href="#平稳流量"></a> 平稳流量</h3>
+<p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p>
+<h2 id="缺点"><a class="markdownIt-Anchor" href="#缺点"></a> 缺点</h2>
+<h3 id="系统可用性降低"><a class="markdownIt-Anchor" href="#系统可用性降低"></a> 系统可用性降低</h3>
+<p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p>
+<h3 id="系统复杂度降低"><a class="markdownIt-Anchor" href="#系统复杂度降低"></a> 系统复杂度降低</h3>
+<p>一个系统每新增一个组件就要增加十倍的复杂度</p>
+<h3 id="一致性问题"><a class="markdownIt-Anchor" href="#一致性问题"></a> 一致性问题</h3>
+<p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p>
+<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
+<p>欲戴王冠，必承其重</p>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>基本理念</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RocketMQ概念介绍</title>
     <url>/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/RocketMQ%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D/</url>
     <content><![CDATA[<blockquote>
@@ -1920,48 +1962,6 @@ Web服务器软件：<code>Apache2</code></p>
 <p>消息系统所传输信息的物理载体，生产和消费数据的最小单位，每条消息必须属于一个主题。RocketMQ中每个消息拥有唯一的Message ID，且可以携带具有业务标识的Key。系统提供了通过Message ID和Key查询消息的功能。</p>
 <h2 id="标签tag"><a class="markdownIt-Anchor" href="#标签tag"></a> 标签（Tag）</h2>
 <p>为消息设置的标志，用于同一主题下区分不同类型的消息。来自同一业务单元的消息，可以根据不同业务目的在同一主题下设置不同标签。标签能够有效地保持代码的清晰度和连贯性，并优化RocketMQ提供的查询系统。消费者可以根据Tag实现对不同子主题的不同消费逻辑，实现更好的扩展性。</p>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>基本理念</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>为什么要使用消息队列</title>
-    <url>/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</url>
-    <content><![CDATA[<blockquote>
-<p>为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p>
-</blockquote>
-<span id="more"></span>
-<h1 id="为什么使用消息队列"><a class="markdownIt-Anchor" href="#为什么使用消息队列"></a> 为什么使用消息队列</h1>
-<h2 id="简答"><a class="markdownIt-Anchor" href="#简答"></a> 简答</h2>
-<ol>
-<li>异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li>
-<li>应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li>
-<li>平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li>
-<li>日志处理：解决不同机器之间的日志输出问题</li>
-<li>消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li>
-</ol>
-<h2 id="详解"><a class="markdownIt-Anchor" href="#详解"></a> 详解</h2>
-<h3 id="异步处理"><a class="markdownIt-Anchor" href="#异步处理"></a> 异步处理</h3>
-<p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p>
-<h3 id="解除耦合"><a class="markdownIt-Anchor" href="#解除耦合"></a> 解除耦合</h3>
-<p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p>
-<p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p>
-<h3 id="平稳流量"><a class="markdownIt-Anchor" href="#平稳流量"></a> 平稳流量</h3>
-<p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p>
-<h2 id="缺点"><a class="markdownIt-Anchor" href="#缺点"></a> 缺点</h2>
-<h3 id="系统可用性降低"><a class="markdownIt-Anchor" href="#系统可用性降低"></a> 系统可用性降低</h3>
-<p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p>
-<h3 id="系统复杂度降低"><a class="markdownIt-Anchor" href="#系统复杂度降低"></a> 系统复杂度降低</h3>
-<p>一个系统每新增一个组件就要增加十倍的复杂度</p>
-<h3 id="一致性问题"><a class="markdownIt-Anchor" href="#一致性问题"></a> 一致性问题</h3>
-<p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p>
-<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
-<p>欲戴王冠，必承其重</p>
 ]]></content>
       <categories>
         <category>RocketMQ</category>
@@ -2203,6 +2203,86 @@ files &#x3D; &#x2F;etc&#x2F;supervisor.d&#x2F;*.ini</code></pre>
       </tags>
   </entry>
   <entry>
+    <title>消费者基本理念</title>
+    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</url>
+    <content><![CDATA[<blockquote>
+<p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="消费者基本理念"><a class="markdownIt-Anchor" href="#消费者基本理念"></a> 消费者基本理念</h1>
+<h2 id="消费者组"><a class="markdownIt-Anchor" href="#消费者组"></a> 消费者组</h2>
+<p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p>
+<blockquote>
+<p>Q：为什么需要消费者组</p>
+<p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p>
+</blockquote>
+<h2 id="消息消费模式"><a class="markdownIt-Anchor" href="#消息消费模式"></a> 消息消费模式</h2>
+<p>消费者组之间有集群模式和广播模式两种消费模式，</p>
+<ul>
+<li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li>
+<li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li>
+</ul>
+<h2 id="消息传送方式"><a class="markdownIt-Anchor" href="#消息传送方式"></a> 消息传送方式</h2>
+<p>消息传送方式有两种：推模式和拉模式</p>
+<ol>
+<li>推模式：消息到达Broker后，推送给消息消费者</li>
+<li>拉模式：消费端主动拉去消息请求</li>
+</ol>
+<h2 id="消息队列负载机制"><a class="markdownIt-Anchor" href="#消息队列负载机制"></a> 消息队列负载机制</h2>
+<p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p>
+<p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p>
+<ol>
+<li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li>
+<li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li>
+</ol>
+<h2 id="消息队列重平衡机制"><a class="markdownIt-Anchor" href="#消息队列重平衡机制"></a> 消息队列重平衡机制</h2>
+<p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p>
+<p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p>
+<h2 id="消费模型"><a class="markdownIt-Anchor" href="#消费模型"></a> 消费模型</h2>
+<p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p>
+<ol>
+<li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li>
+<li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li>
+</ol>
+<h2 id="其它"><a class="markdownIt-Anchor" href="#其它"></a> 其它</h2>
+<p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p>
+<p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p>
+<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
+<blockquote>
+<p>2021-07-07 17:00</p>
+<p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p>
+</blockquote>
+<blockquote>
+<p>2021-07-08 11:43</p>
+<p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>消息消费</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>消费者启动流程</title>
+    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>消息消费</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RocketMQ 生产者</title>
     <url>/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/</url>
     <content><![CDATA[<blockquote>
@@ -2306,6 +2386,34 @@ files &#x3D; &#x2F;etc&#x2F;supervisor.d&#x2F;*.ini</code></pre>
     <span class="token class-name">MessageQueue</span> queue <span class="token operator">=</span> queues<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>queues<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     producer<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span>message<span class="token punctuation">,</span> queue<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span></code></pre>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>生产者</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RocketMQ 生产者小结</title>
+    <url>/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/</url>
+    <content><![CDATA[<blockquote>
+<p>RocketMQ生产者小结</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="rocketmq生产者小结"><a class="markdownIt-Anchor" href="#rocketmq生产者小结"></a> RocketMQ生产者小结</h1>
+<ol>
+<li>
+<p>生产者启动流程。重点理解 <code>DefaultMQProducerImpl</code> 和 <code>MQClientInstance</code> 和 <code>DefaultMQProducer</code> 之间的关系和作用，实际上启动的流程主要就是围绕着这几个类来关联的。</p>
+</li>
+<li>
+<p>消息队列负载机制。理解路由查找算法</p>
+</li>
+<li>
+<p>生产者高可用。主要分为两个部分保障高可用：重试机制、路由查找算法。</p>
+</li>
+</ol>
 ]]></content>
       <categories>
         <category>RocketMQ</category>
@@ -2467,34 +2575,6 @@ if (startFactory) &#123;
 <p>讲道理写生产者启动流程还是蛮累的。本以为会比较轻松，因为相对于一些其他流程来说应该是相对比较简单的，没想到还是花了两天的时间陆陆续续的写完。</p>
 <p>现在是6月27日的晚上9点45分，周日，没想到一周唯一的休息日就这样在睡觉中度过去了(是真的睡了一天)，最后到了晚上吃完饭、吃完水果才想到博客没有写完，今天施队还说我吃饭吃的太少，水果吃的多，怕是会的糖尿病，整个人估计是废了吧。</p>
 <p><img src="https://helloteemo.com.cn/2021.06/image-20210627215117279.png" alt="image-20210627215117279" /></p>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>生产者</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RocketMQ 生产者小结</title>
-    <url>/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/</url>
-    <content><![CDATA[<blockquote>
-<p>RocketMQ生产者小结</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="rocketmq生产者小结"><a class="markdownIt-Anchor" href="#rocketmq生产者小结"></a> RocketMQ生产者小结</h1>
-<ol>
-<li>
-<p>生产者启动流程。重点理解 <code>DefaultMQProducerImpl</code> 和 <code>MQClientInstance</code> 和 <code>DefaultMQProducer</code> 之间的关系和作用，实际上启动的流程主要就是围绕着这几个类来关联的。</p>
-</li>
-<li>
-<p>消息队列负载机制。理解路由查找算法</p>
-</li>
-<li>
-<p>生产者高可用。主要分为两个部分保障高可用：重试机制、路由查找算法。</p>
-</li>
-</ol>
 ]]></content>
       <categories>
         <category>RocketMQ</category>
@@ -2740,86 +2820,6 @@ if (startFactory) &#123;
       <categories>
         <category>RocketMQ</category>
         <category>生产者</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>消费者启动流程</title>
-    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>消息消费</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>消费者基本理念</title>
-    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</url>
-    <content><![CDATA[<blockquote>
-<p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="消费者基本理念"><a class="markdownIt-Anchor" href="#消费者基本理念"></a> 消费者基本理念</h1>
-<h2 id="消费者组"><a class="markdownIt-Anchor" href="#消费者组"></a> 消费者组</h2>
-<p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p>
-<blockquote>
-<p>Q：为什么需要消费者组</p>
-<p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p>
-</blockquote>
-<h2 id="消息消费模式"><a class="markdownIt-Anchor" href="#消息消费模式"></a> 消息消费模式</h2>
-<p>消费者组之间有集群模式和广播模式两种消费模式，</p>
-<ul>
-<li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li>
-<li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li>
-</ul>
-<h2 id="消息传送方式"><a class="markdownIt-Anchor" href="#消息传送方式"></a> 消息传送方式</h2>
-<p>消息传送方式有两种：推模式和拉模式</p>
-<ol>
-<li>推模式：消息到达Broker后，推送给消息消费者</li>
-<li>拉模式：消费端主动拉去消息请求</li>
-</ol>
-<h2 id="消息队列负载机制"><a class="markdownIt-Anchor" href="#消息队列负载机制"></a> 消息队列负载机制</h2>
-<p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p>
-<p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p>
-<ol>
-<li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li>
-<li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li>
-</ol>
-<h2 id="消息队列重平衡机制"><a class="markdownIt-Anchor" href="#消息队列重平衡机制"></a> 消息队列重平衡机制</h2>
-<p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p>
-<p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p>
-<h2 id="消费模型"><a class="markdownIt-Anchor" href="#消费模型"></a> 消费模型</h2>
-<p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p>
-<ol>
-<li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li>
-<li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li>
-</ol>
-<h2 id="其它"><a class="markdownIt-Anchor" href="#其它"></a> 其它</h2>
-<p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p>
-<p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p>
-<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
-<blockquote>
-<p>2021-07-07 17:00</p>
-<p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p>
-</blockquote>
-<blockquote>
-<p>2021-07-08 11:43</p>
-<p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>消息消费</category>
       </categories>
       <tags>
         <tag>RocketMQ</tag>
