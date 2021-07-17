@@ -462,17 +462,17 @@
   </entry>
   
   <entry>
-    <title>如何调试代码</title>
-    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/"/>
-    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</id>
+    <title>关于代码和对接文档规范</title>
+    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
+    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</id>
     <published>2021-01-26T10:23:14.000Z</published>
-    <updated>2021-06-28T03:58:04.540Z</updated>
+    <updated>2021-01-27T01:15:22.443Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>一些关于调试的经验，更多的是如何找到BUG并修复</p></blockquote><span id="more"></span><h1 id="如何调试代码"><a class="markdownIt-Anchor" href="#如何调试代码"></a> 如何调试代码</h1><p>最重要的一点：<strong>放平心态，冷静对待</strong></p><p>在此给出调试代码3步曲</p><ol><li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li><li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li><li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li></ol>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范"><a class="markdownIt-Anchor" href="#关于代码和对接文档规范"></a> 关于代码和对接文档规范</h1><ol><li><h2 id="日志"><a class="markdownIt-Anchor" href="#日志"></a> 日志</h2><ol><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码"><a class="markdownIt-Anchor" href="#错误码"></a> 错误码</h3><ol><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;一些关于调试的经验，更多的是如何找到BUG并修复&lt;/p&gt;
+&lt;p&gt;本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -485,17 +485,17 @@
   </entry>
   
   <entry>
-    <title>关于代码和对接文档规范</title>
-    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
-    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</id>
+    <title>如何调试代码</title>
+    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/"/>
+    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</id>
     <published>2021-01-26T10:23:14.000Z</published>
-    <updated>2021-01-27T01:15:22.443Z</updated>
+    <updated>2021-06-28T03:58:04.540Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范"><a class="markdownIt-Anchor" href="#关于代码和对接文档规范"></a> 关于代码和对接文档规范</h1><ol><li><h2 id="日志"><a class="markdownIt-Anchor" href="#日志"></a> 日志</h2><ol><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码"><a class="markdownIt-Anchor" href="#错误码"></a> 错误码</h3><ol><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>一些关于调试的经验，更多的是如何找到BUG并修复</p></blockquote><span id="more"></span><h1 id="如何调试代码"><a class="markdownIt-Anchor" href="#如何调试代码"></a> 如何调试代码</h1><p>最重要的一点：<strong>放平心态，冷静对待</strong></p><p>在此给出调试代码3步曲</p><ol><li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li><li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li><li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li></ol>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范&lt;/p&gt;
+&lt;p&gt;一些关于调试的经验，更多的是如何找到BUG并修复&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
