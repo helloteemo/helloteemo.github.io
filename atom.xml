@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-07-16T07:00:22.121Z</updated>
+  <updated>2021-07-19T07:32:15.010Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>select、epoll模式</title>
+    <link href="https://helloteemo.github.io/2021/07/17/Golang/%E5%9F%BA%E7%A1%80/select%E3%80%81epoll%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://helloteemo.github.io/2021/07/17/Golang/%E5%9F%BA%E7%A1%80/select%E3%80%81epoll%E6%A8%A1%E5%BC%8F/</id>
+    <published>2021-07-17T08:15:16.000Z</published>
+    <updated>2021-07-19T07:32:15.010Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>复习一下IO多路复用吧，</p><p>本文会先解释什么是 用户空间和内核空间、进程切换、阻塞、文件描述符</p></blockquote><span id="more"></span><h1 id="select-epoll模式"><a class="markdownIt-Anchor" href="#select-epoll模式"></a> select、epoll模式</h1><h2 id="概念说明"><a class="markdownIt-Anchor" href="#概念说明"></a> 概念说明</h2><h3 id="用户空间和内核空间"><a class="markdownIt-Anchor" href="#用户空间和内核空间"></a> 用户空间和内核空间</h3><p>为了保证用户进程不能直接操作内核，保护内核安全，操作系统会把虚拟内存分为两个部分：内核空间、用户空间。其中内核使用的空间就叫内核空间，同时进程在内核空间我们叫内核态，在用户空间运行叫用户态</p><h3 id="进程切换"><a class="markdownIt-Anchor" href="#进程切换"></a> 进程切换</h3><p>为了控制进程的执行和获得并发执行的能力，内核需要挂起正在运行在CPU的进程，并且恢复挂起的进程，这种行为被称为进程切换，从一个进程的运行切换到另外一个进程运行是很耗资源的（需要保存更新上下文数据、内存管理的数据结构等）。</p><h3 id="阻塞"><a class="markdownIt-Anchor" href="#阻塞"></a> 阻塞</h3><p>正在执行的进程，由于期待的某些事情未发生，如请求系统资源失败、等待某些操作的完成、新数据尚未到达或无新工作等，由系统主动执行阻塞原语（Block），使自身转为阻塞状态。</p><h3 id="文件描述符"><a class="markdownIt-Anchor" href="#文件描述符"></a> 文件描述符</h3><p>文件描述符（File Descriptor）是一个用于表述指向文件引用的一个抽象化概念</p><h3 id="缓存io"><a class="markdownIt-Anchor" href="#缓存io"></a> 缓存IO</h3><p>缓存IO又被称为标准IO，大多数文件系统的默认IO操作都是缓存IO。在Linux的缓存IO机制中，操作系统会把IO的数据缓存在文件系统中页缓存中(page cache)中，也就是说，数据会被先拷贝到操作系统内核的缓存区中，然后才会从操作系统内核的缓冲区拷贝到引用程序的地址空间。</p><h2 id="io模式"><a class="markdownIt-Anchor" href="#io模式"></a> IO模式</h2><h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1><p><strong>永远相信美好的事情即将发生</strong></p>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;复习一下IO多路复用吧，&lt;/p&gt;
+&lt;p&gt;本文会先解释什么是 用户空间和内核空间、进程切换、阻塞、文件描述符&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="Golang" scheme="https://helloteemo.github.io/categories/Golang/"/>
+    
+    <category term="基础" scheme="https://helloteemo.github.io/categories/Golang/%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="go" scheme="https://helloteemo.github.io/tags/go/"/>
+    
+  </entry>
   
   <entry>
     <title>TCP篇3</title>
@@ -473,29 +499,6 @@
     
     <summary type="html">&lt;blockquote&gt;
 &lt;p&gt;本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="不知道怎么分类" scheme="https://helloteemo.github.io/categories/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/"/>
-    
-    
-    <category term="没有标签" scheme="https://helloteemo.github.io/tags/%E6%B2%A1%E6%9C%89%E6%A0%87%E7%AD%BE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>如何调试代码</title>
-    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/"/>
-    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</id>
-    <published>2021-01-26T10:23:14.000Z</published>
-    <updated>2021-06-28T03:58:04.540Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>一些关于调试的经验，更多的是如何找到BUG并修复</p></blockquote><span id="more"></span><h1 id="如何调试代码"><a class="markdownIt-Anchor" href="#如何调试代码"></a> 如何调试代码</h1><p>最重要的一点：<strong>放平心态，冷静对待</strong></p><p>在此给出调试代码3步曲</p><ol><li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li><li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li><li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li></ol>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;一些关于调试的经验，更多的是如何找到BUG并修复&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
