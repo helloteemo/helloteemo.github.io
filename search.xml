@@ -448,6 +448,69 @@ func main() &#123;
       </tags>
   </entry>
   <entry>
+    <title>Java内存区域</title>
+    <url>/2021/02/20/JVM/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/</url>
+    <content><![CDATA[<p>相对于C、C++程序员来说Java程序员应该是很幸福的，他们不需要管理自己的内存，而全部交由JVM来控制，它使得我们能够更加专注于程序功能点的开发而不去维护内存，天下苦NPE久矣，但是一旦出现内存泄漏和溢出方面的问题，如果你不了解JVM具体的运行原理，那么排查错误将是一个非常非常艰难的任务，并且如果你在书写Java程序的时候不知道它一个底层的运行原理，那么你很难书写良好的代码。</p>
+<span id="more"></span>
+<h1 id="运行时数据区域"><a class="markdownIt-Anchor" href="#运行时数据区域"></a> 运行时数据区域</h1>
+<p>Java虚拟机咋执行Java程序的时候会把它管理的内存划分为若干个不同的数据区域</p>
+<blockquote>
+<p>无特殊说明介绍的都是<code>HotSpot</code>虚拟机<br />
+并且JDK版本默认是1.8及以上</p>
+</blockquote>
+<p><img src="https://helloteemo.com.cn/2021.06/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E6%A6%82%E6%8B%AC.png" alt="JVM运行时数据区域示意图" /></p>
+<p>其中线程私有的有</p>
+<ol>
+<li>程序计数器</li>
+<li>虚拟机栈</li>
+<li>本地方法栈</li>
+</ol>
+<p>线程共享的的有</p>
+<ol>
+<li>堆</li>
+<li>方法区</li>
+<li>直接内存(即非运行时数据区的一部分)</li>
+</ol>
+<p>下面让我们来针对这些内存一个一个的分析</p>
+<h2 id="程序计数器"><a class="markdownIt-Anchor" href="#程序计数器"></a> 程序计数器</h2>
+<ol>
+<li>什么是程序计数器</li>
+</ol>
+<p>程序计数器是<strong>当前线程</strong>正在执行的字节码的地址，它是线程隔离的，其执行原理为字节码解释器读取内存中的字节码，按照顺序读取字节码指令，读取一个指令就把它翻译为一个固定的操作。</p>
+<ol start="2">
+<li>为什么需要程序计数器</li>
+</ol>
+<p>在单线程来看可有可无，但是在多线程看来需要保存当前线程所执行的位置</p>
+<ol start="3">
+<li>程序计数器的特点
+<ol>
+<li>程序计数器是线程隔离的</li>
+<li>程序计数器占用的内存空间非常小，可以忽略不计</li>
+<li>程序计数器是java虚拟机规范中唯一一个没有规定任何<strong>OutOfMemoryError</strong>的区域</li>
+<li>执行native本地方法时，程序计数器的值为空。原因是native方法是java通过jni调用本地C/C++库来实现，非java字节码实现，所以无法统计</li>
+</ol>
+</li>
+</ol>
+<h2 id="java虚拟机栈"><a class="markdownIt-Anchor" href="#java虚拟机栈"></a> Java虚拟机栈</h2>
+<p>Java虚拟机栈也是线程私有的，它的生命周期和线程周期相同，它描述了Java方法执行时的内存模型，每一次方法的调用的数据都是通过栈传递的。</p>
+<p>Java虚拟机栈是有一个一个的栈帧组成，每个栈帧都拥有局部变量表、操作数栈、动态链接、方法出口信息。</p>
+<p>Java虚拟机栈会出现两种错误:<code>StackOverFlowError</code>和<code>OutOfMemoryError</code></p>
+<ul>
+<li><code>StackOverFlowError</code>：如果Java虚拟机栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前Java虚拟机最大深度的时候就会报错</li>
+<li><code>OutOfMemoryError</code>：如果Java虚拟机堆没有空闲内存，并且垃圾回收器也无法提供更多内存的话，就会抛出<code>OutOfMemoryError</code>错误</li>
+</ul>
+<h2 id="本地方法栈"><a class="markdownIt-Anchor" href="#本地方法栈"></a> 本地方法栈</h2>
+<p>本地方法栈和Java虚拟机栈的作用相似，区别为：<strong>Java虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则为虚拟机使用到的Native方法服务</strong>，在HotSpot虚拟机中，Java虚拟机栈和本地方法栈合二为一。</p>
+<h2 id="堆"><a class="markdownIt-Anchor" href="#堆"></a> 堆</h2>
+]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>判断某一天是今年的第几天</title>
     <url>/2020/12/19/Java/%E5%88%A4%E6%96%AD%E6%9F%90%E4%B8%80%E5%A4%A9%E6%98%AF%E4%BB%8A%E5%B9%B4%E7%9A%84%E7%AC%AC%E5%87%A0%E5%A4%A9/</url>
     <content><![CDATA[<p>如题。。。</p>
@@ -696,66 +759,246 @@ func main() &#123;
       </tags>
   </entry>
   <entry>
-    <title>Java内存区域</title>
-    <url>/2021/02/20/JVM/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/</url>
-    <content><![CDATA[<p>相对于C、C++程序员来说Java程序员应该是很幸福的，他们不需要管理自己的内存，而全部交由JVM来控制，它使得我们能够更加专注于程序功能点的开发而不去维护内存，天下苦NPE久矣，但是一旦出现内存泄漏和溢出方面的问题，如果你不了解JVM具体的运行原理，那么排查错误将是一个非常非常艰难的任务，并且如果你在书写Java程序的时候不知道它一个底层的运行原理，那么你很难书写良好的代码。</p>
-<span id="more"></span>
-<h1 id="运行时数据区域"><a class="markdownIt-Anchor" href="#运行时数据区域"></a> 运行时数据区域</h1>
-<p>Java虚拟机咋执行Java程序的时候会把它管理的内存划分为若干个不同的数据区域</p>
-<blockquote>
-<p>无特殊说明介绍的都是<code>HotSpot</code>虚拟机<br />
-并且JDK版本默认是1.8及以上</p>
+    <title>Reids大key</title>
+    <url>/2021/07/20/Redis/Reids%E5%A4%A7key/</url>
+    <content><![CDATA[<blockquote>
+<p>介绍了Redis的大key标准</p>
 </blockquote>
-<p><img src="https://helloteemo.com.cn/2021.06/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E6%A6%82%E6%8B%AC.png" alt="JVM运行时数据区域示意图" /></p>
-<p>其中线程私有的有</p>
-<ol>
-<li>程序计数器</li>
-<li>虚拟机栈</li>
-<li>本地方法栈</li>
-</ol>
-<p>线程共享的的有</p>
-<ol>
-<li>堆</li>
-<li>方法区</li>
-<li>直接内存(即非运行时数据区的一部分)</li>
-</ol>
-<p>下面让我们来针对这些内存一个一个的分析</p>
-<h2 id="程序计数器"><a class="markdownIt-Anchor" href="#程序计数器"></a> 程序计数器</h2>
-<ol>
-<li>什么是程序计数器</li>
-</ol>
-<p>程序计数器是<strong>当前线程</strong>正在执行的字节码的地址，它是线程隔离的，其执行原理为字节码解释器读取内存中的字节码，按照顺序读取字节码指令，读取一个指令就把它翻译为一个固定的操作。</p>
-<ol start="2">
-<li>为什么需要程序计数器</li>
-</ol>
-<p>在单线程来看可有可无，但是在多线程看来需要保存当前线程所执行的位置</p>
-<ol start="3">
-<li>程序计数器的特点
-<ol>
-<li>程序计数器是线程隔离的</li>
-<li>程序计数器占用的内存空间非常小，可以忽略不计</li>
-<li>程序计数器是java虚拟机规范中唯一一个没有规定任何<strong>OutOfMemoryError</strong>的区域</li>
-<li>执行native本地方法时，程序计数器的值为空。原因是native方法是java通过jni调用本地C/C++库来实现，非java字节码实现，所以无法统计</li>
-</ol>
-</li>
-</ol>
-<h2 id="java虚拟机栈"><a class="markdownIt-Anchor" href="#java虚拟机栈"></a> Java虚拟机栈</h2>
-<p>Java虚拟机栈也是线程私有的，它的生命周期和线程周期相同，它描述了Java方法执行时的内存模型，每一次方法的调用的数据都是通过栈传递的。</p>
-<p>Java虚拟机栈是有一个一个的栈帧组成，每个栈帧都拥有局部变量表、操作数栈、动态链接、方法出口信息。</p>
-<p>Java虚拟机栈会出现两种错误:<code>StackOverFlowError</code>和<code>OutOfMemoryError</code></p>
-<ul>
-<li><code>StackOverFlowError</code>：如果Java虚拟机栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前Java虚拟机最大深度的时候就会报错</li>
-<li><code>OutOfMemoryError</code>：如果Java虚拟机堆没有空闲内存，并且垃圾回收器也无法提供更多内存的话，就会抛出<code>OutOfMemoryError</code>错误</li>
-</ul>
-<h2 id="本地方法栈"><a class="markdownIt-Anchor" href="#本地方法栈"></a> 本地方法栈</h2>
-<p>本地方法栈和Java虚拟机栈的作用相似，区别为：<strong>Java虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则为虚拟机使用到的Native方法服务</strong>，在HotSpot虚拟机中，Java虚拟机栈和本地方法栈合二为一。</p>
-<h2 id="堆"><a class="markdownIt-Anchor" href="#堆"></a> 堆</h2>
+<span id="more"></span>
 ]]></content>
       <categories>
-        <category>JVM</category>
+        <category>Redis</category>
       </categories>
       <tags>
-        <tag>JVM</tag>
+        <tag>Redis</tag>
+        <tag>基础知识</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis目录</title>
+    <url>/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>此文为Redis的目录</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="目录"><a class="markdownIt-Anchor" href="#目录"></a> 目录</h1>
+<h2 id="基本理念"><a class="markdownIt-Anchor" href="#基本理念"></a> 基本理念</h2>
+<ol>
+<li>
+<a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a>
+</li>
+<li>
+<a href="/2021/07/20/Redis/Reids%E5%A4%A7key/" title="[Reids大key]">[Reids大key]</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>基础知识</title>
+    <url>/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<blockquote>
+<p>介绍了Redis的基础知识，这应该是每个人都会的，不会有什么高深的东西，也不会介绍底层原理</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="基础知识"><a class="markdownIt-Anchor" href="#基础知识"></a> 基础知识</h1>
+<h2 id="如何安装redis"><a class="markdownIt-Anchor" href="#如何安装redis"></a> 如何安装Redis</h2>
+<p>见<a href="https://www.runoob.com/redis/redis-install.html">菜鸟教程Redis安装</a></p>
+<h2 id="为什么需要使用reids"><a class="markdownIt-Anchor" href="#为什么需要使用reids"></a> 为什么需要使用Reids</h2>
+<p>因为传统的关系型数据库以及不能适用于所有场景了，比如APP首页的访问流量高峰场景，这种流量的并发级别很容易把数据库打穿，所以我们需要引入缓存中间件，市面上主要有两种缓存中间件：<code>Redis</code> 和 <code>Memcached</code></p>
+<h2 id="为什么使用redis"><a class="markdownIt-Anchor" href="#为什么使用redis"></a> 为什么使用Redis</h2>
+<p>我们来介绍一下 <code>Redis</code> 和 <code>Memcached</code>。</p>
+<h3 id="memcached"><a class="markdownIt-Anchor" href="#memcached"></a> <code>Memcached</code></h3>
+<p>特点</p>
+<ul>
+<li>在处理请求时采用多线程异步IO的方式，可以合理利用多核CPU的优势</li>
+<li>功能简单，使用内存存储数据</li>
+<li>失效的策略采用延迟失效，就是当再次使用数据时检查是否失效；</li>
+<li>当容量存满时，会对缓存中的数据进行剔除，剔除时除了会对过期 key 进行清理，还会按 LRU 策略对数据进行剔除。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>key 不能超过 250 个字节；</li>
+<li>value 不能超过 1M 字节；</li>
+<li>key 的最大失效时间是 30 天；</li>
+<li>只支持 K-V 结构，不提供持久化和主从同步功能。</li>
+</ul>
+<h3 id="reids"><a class="markdownIt-Anchor" href="#reids"></a> <code>Reids</code></h3>
+<ul>
+<li>与 MC 不同的是，Redis 采用单线程模式处理请求。这样做的原因有 2 个：一个是因为采用了非阻塞的异步事件处理机制；另一个是缓存数据都是内存操作 IO 时间不会太长，单线程可以避免线程上下文切换产生的代价。</li>
+<li><strong>Redis</strong> 支持持久化，所以 Redis 不仅仅可以用作缓存，也可以用作 NoSQL 数据库。</li>
+<li>相比 MC，<strong>Redis</strong> 还有一个非常大的优势，就是除了 K-V 之外，还支持多种数据格式，例如 list、set、sorted set、hash 等。</li>
+<li><strong>Redis</strong> 提供主从同步机制，以及 <strong>Cluster</strong> 集群部署能力，能够提供高可用服务。</li>
+</ul>
+<h2 id="redis基础功能"><a class="markdownIt-Anchor" href="#redis基础功能"></a> Redis基础功能</h2>
+<p>我们从以下几个方面来介绍Redis的基础功能</p>
+<ol>
+<li>基础数据结构</li>
+<li>扩展功能</li>
+<li>数据持久化方式</li>
+<li>key失效机制</li>
+<li>淘汰策略</li>
+</ol>
+<h3 id="基础数据结构"><a class="markdownIt-Anchor" href="#基础数据结构"></a> 基础数据结构</h3>
+<p>Redis提供了一下五种基础数据结构：<code>String</code> 、<code>List</code> 、 <code>Set</code> 、 <code>Hash</code> 、 <code>SortedSet</code>，下面我们来分别介绍这几种数据结构吧</p>
+<h4 id="string"><a class="markdownIt-Anchor" href="#string"></a> String</h4>
+<p>string就是最基本的k-v结构，在Redis的实现中直接存放在DB结构中的数据部分，如果直接使用String就可以实现绝大部份功能，甚至说所有功能，在真实开发环境中就有很多同事喜欢把数据Json格式话之后直接存放在Redis中，这里不说对错，每个团队都有每个团队的规范。</p>
+<p>下面我们来看下Redis的适用场景：</p>
+<ul>
+<li>计数器</li>
+<li>共享用户Session</li>
+</ul>
+<h4 id="list"><a class="markdownIt-Anchor" href="#list"></a> List</h4>
+<p>List是有序列表，比如通过List存储一些列表行为的数据，比如说文章列表等，基于Redis还可以实现简单的分页功能。</p>
+<p>适用场景</p>
+<ul>
+<li>简单的消息队列</li>
+<li>文章列表或者分页数据的展示</li>
+</ul>
+<h4 id="set"><a class="markdownIt-Anchor" href="#set"></a> Set</h4>
+<p>Set是无序集合，并且集合元素是不重复的。并且Set支持查询交集、并集、差集等操作。比如说我们来尝试一下查询共同好友</p>
+<p><img src="https://helloteemo.com.cn/2021.07/image-20210720095105144.png" alt="image-20210720095105144" /></p>
+<h4 id="hash"><a class="markdownIt-Anchor" href="#hash"></a> hash</h4>
+<p>hash是类似与Map的一种结构</p>
+<h4 id="sortedset"><a class="markdownIt-Anchor" href="#sortedset"></a> SortedSet</h4>
+<p><strong>Sorted set</strong> 是排序的 <strong>Set</strong>，去重但可以排序，写进去的时候给一个分数，自动根据分数排序。</p>
+<p>有序集合的使用场景与集合类似，但是set集合不是自动有序的，而<strong>Sorted set</strong>可以利用分数进行成员间的排序，而且是插入时就排序好。所以当你需要一个有序且不重复的集合列表时，就可以选择<strong>Sorted set</strong>数据结构作为选择方案。</p>
+<ul>
+<li>排行榜：有序集合经典使用场景。例如视频网站需要对用户上传的视频做排行榜，榜单维护可能是多方面：按照时间、按照播放量、按照获得的赞数等。</li>
+<li>用<strong>Sorted Sets</strong>来做带权重的队列，比如普通消息的score为1，重要消息的score为2，然后工作线程可以选择按score的倒序来获取工作任务。让重要的任务优先执行。</li>
+</ul>
+<h3 id="扩展功能"><a class="markdownIt-Anchor" href="#扩展功能"></a> 扩展功能</h3>
+<h4 id="bitmap"><a class="markdownIt-Anchor" href="#bitmap"></a> <strong>Bitmap</strong> :</h4>
+<p>位图是支持按 bit 位来存储信息，可以用来实现 <strong>布隆过滤器（BloomFilter）</strong>；</p>
+<h4 id="hyperloglog"><a class="markdownIt-Anchor" href="#hyperloglog"></a> <strong>HyperLogLog:</strong></h4>
+<p>供不精确的去重计数功能，比较适合用来做大规模数据的去重统计，例如统计 UV；</p>
+<h4 id="geospatial"><a class="markdownIt-Anchor" href="#geospatial"></a> <strong>Geospatial:</strong></h4>
+<p>可以用来保存地理位置，并作位置距离计算或者根据半径计算位置等。有没有想过用Redis来实现附近的人？或者计算最优地图路径？</p>
+<p>这三个其实也可以算作一种数据结构，不知道还有多少朋友记得，我在梦开始的地方，Redis基础中提到过，你如果只知道五种基础类型那只能拿60分，如果你能讲出高级用法，那就觉得你<strong>有点东西</strong>。</p>
+<h4 id="pubsub"><a class="markdownIt-Anchor" href="#pubsub"></a> <strong>pub/sub：</strong></h4>
+<p>功能是订阅发布功能，可以用作简单的消息队列。</p>
+<h4 id="pipeline"><a class="markdownIt-Anchor" href="#pipeline"></a> <strong>Pipeline：</strong></h4>
+<p>可以批量执行一组指令，一次性返回全部结果，可以减少频繁的请求应答。</p>
+<h4 id="lua"><a class="markdownIt-Anchor" href="#lua"></a> <strong>Lua：</strong></h4>
+<p><strong>Redis</strong> 支持提交 <strong>Lua</strong> 脚本来执行一系列的功能。</p>
+<h4 id="事务"><a class="markdownIt-Anchor" href="#事务"></a> <strong>事务：</strong></h4>
+<p>最后一个功能是事务，但 <strong>Redis</strong> 提供的不是严格的事务，<strong>Redis</strong> 只保证串行执行命令，并且能保证全部执行，但是执行命令失败时并不会回滚，而是会继续执行下去。</p>
+<h4 id="stream"><a class="markdownIt-Anchor" href="#stream"></a> Stream：</h4>
+<p>Redis Stream 是 Redis 5.0 版本新增加的数据结构。</p>
+<p>Redis Stream 主要用于消息队列（MQ，Message Queue），Redis 本身是有一个 Redis 发布订阅 (pub/sub) 来实现消息队列的功能，但它有个缺点就是消息无法持久化，如果出现网络断开、Redis 宕机等，消息就会被丢弃。</p>
+<p>简单来说发布订阅 (pub/sub) 可以分发消息，但无法记录历史消息。</p>
+<p>而 Redis Stream 提供了消息的持久化和主备复制功能，可以让任何客户端访问任何时刻的数据，并且能记住每一个客户端的访问位置，还能保证消息不丢失。</p>
+<h3 id="数据持久化方式"><a class="markdownIt-Anchor" href="#数据持久化方式"></a> 数据持久化方式</h3>
+<p>Redis提供了AOF和RDB两种数据持久化方式，RDB是把内存中的数据集以快照的方式来写入磁盘，实际操作是使用 <code>fork</code> 子进程执行，采用二进制压缩存储，而AOF则是以文本日志的方式记录Redis处理的每一个写入或者删除操作。</p>
+<p><strong>RDB</strong> 把整个 Redis 的数据保存在单一文件中，比较适合用来做灾备，但缺点是快照保存完成之前如果宕机，这段时间的数据将会丢失，另外保存快照时可能导致服务短时间不可用。</p>
+<p><strong>AOF</strong> 对日志文件的写入操作使用的追加模式，有灵活的同步策略，支持每秒同步、每次修改同步和不同步，缺点就是相同规模的数据集，AOF 要大于 RDB，AOF 在运行效率上往往会慢于 RDB。</p>
+<h3 id="key失效机制"><a class="markdownIt-Anchor" href="#key失效机制"></a> Key失效机制</h3>
+<p>Reids的key可以设置过期时间，采用主动、被动删除策略，主动即定期随机删除一些过期key，被动则是每次访问的时候删除。</p>
+<h3 id="淘汰策略"><a class="markdownIt-Anchor" href="#淘汰策略"></a> 淘汰策略</h3>
+<p><a href="https://www.huaweicloud.com/articles/articles-A-1.html">精选文章</a> Redis的内存淘汰策略</p>
+<h1 id="redis的内存淘汰策略"><a class="markdownIt-Anchor" href="#redis的内存淘汰策略"></a> Redis的内存淘汰策略</h1>
+<p><em><a href="https://www.huaweicloud.com/articles/024db393ba02005fae9c780ccba95bf3.html#">作者：emprere</a></em> 时间: 2021-02-05 10:02:28</p>
+<p><a href="https://www.huaweicloud.com/articles/topic-A-1.html">标签：</a><a href="https://www.huaweicloud.com/articles/topic_8078bf4f0d9d073c57f982b17be178aa.html">标签打印软件</a></p>
+<pre class="language-none"><code class="language-none">【摘要】作者：千山qiansan来源：juejin.im&#x2F;post&#x2F;5d674ac2e51d4557ca7fdd70我们知道Redis是基于内存的key-value数据库，因为系统的内存大小有限，所以我们在使用Redis的时候可以配置Redis能使用的最大的内存大小。1、通过配置文件配置通过在Redis安装目录下面的redis.conf配置文件中添加以下配置设置内存大小。&#x2F;&#x2F;设置Redis最大占用内...</code></pre>
+<p>作者：千山qiansan</p>
+<p>来源：<a href="http://juejin.im/post/5d674ac2e51d4557ca7fdd70">juejin.im/post/5d674ac2e51d4557ca7fdd70</a></p>
+<p>我们知道Redis是基于内存的key-value数据库，因为系统的内存大小有限，所以我们在使用Redis的时候可以配置Redis能使用的最大的内存大小。</p>
+<h3 id="1-通过配置文件配置"><a class="markdownIt-Anchor" href="#1-通过配置文件配置"></a> <strong>1、通过配置文件配置</strong></h3>
+<p>通过在Redis安装目录下面的redis.conf配置文件中添加以下配置设置内存大小。</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">//设置Redis最大占用内存大小为100M</span>
+maxmemory <span class="token number">100</span>mb</code></pre>
+<p>redis的配置文件不一定使用的是安装目录下面的redis.conf文件，启动redis服务的时候是可以传一个参数指定redis的配置文件的。</p>
+<h3 id="2-通过命令修改"><a class="markdownIt-Anchor" href="#2-通过命令修改"></a> <strong>2、通过命令修改</strong></h3>
+<p>Redis支持运行时通过命令动态修改内存大小</p>
+<pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">//设置Redis最大占用内存大小为100M</span>
+<span class="token number">127.0</span><span class="token number">.0</span><span class="token number">.1</span><span class="token operator">:</span><span class="token number">6379</span><span class="token operator">></span> config <span class="token keyword">set</span> maxmemory <span class="token number">100</span>mb
+<span class="token comment">//获取设置的Redis能使用的最大内存大小</span>
+<span class="token number">127.0</span><span class="token number">.0</span><span class="token number">.1</span><span class="token operator">:</span><span class="token number">6379</span><span class="token operator">></span> config <span class="token keyword">get</span> maxmemory</code></pre>
+<p>如果不设置最大内存大小或者设置最大内存大小为0，在64位操作系统下不限制内存大小，在32位操作系统下最多使用3GB内存</p>
+<h2 id="redis的内存淘汰"><a class="markdownIt-Anchor" href="#redis的内存淘汰"></a> <strong>Redis的内存淘汰</strong></h2>
+<p>Redis定义了几种策略用来处理这种情况：</p>
+<ul>
+<li>noeviction(默认策略)：对于写请求不再提供服务，直接返回错误（DEL请求和部分特殊请求除外）</li>
+<li>allkeys-lru：从所有key中使用LRU算法进行淘汰</li>
+<li>volatile-lru：从设置了过期时间的key中使用LRU算法进行淘汰</li>
+<li>allkeys-random：从所有key中随机淘汰数据</li>
+<li>volatile-random：从设置了过期时间的key中随机淘汰</li>
+<li>volatile-ttl：在设置了过期时间的key中，根据key的过期时间进行淘汰，越早过期的越优先被淘汰</li>
+</ul>
+<p>当使用volatile-lru、volatile-random、volatile-ttl这三种策略时，如果没有key可以被淘汰，则和noeviction一样返回错误。</p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>基础知识</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>消息队列目录</title>
+    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="目录"><a class="markdownIt-Anchor" href="#目录"></a> 目录</h1>
+<h2 id="基本理念"><a class="markdownIt-Anchor" href="#基本理念"></a> 基本理念</h2>
+<ol>
+<li>
+<a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a>
+</li>
+<li>
+<a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a>
+</li>
+<li>
+<a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a>
+</li>
+<li>
+<a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a>
+</li>
+</ol>
+<hr />
+<h2 id="rocketmq生产者"><a class="markdownIt-Anchor" href="#rocketmq生产者"></a> RocketMQ生产者</h2>
+<ol>
+<li>
+<a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a>
+</li>
+<li>
+<a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a>
+</li>
+<li>
+<a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a>
+</li>
+<li>
+<a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a>
+</li>
+</ol>
+<h2 id="存储"><a class="markdownIt-Anchor" href="#存储"></a> 存储</h2>
+<ol>
+<li>
+<a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a>
+</li>
+</ol>
+<h2 id="消息消费"><a class="markdownIt-Anchor" href="#消息消费"></a> 消息消费</h2>
+<ol>
+<li>
+<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a>
+</li>
+<li>
+<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
       </tags>
   </entry>
   <entry>
@@ -1000,68 +1243,6 @@ where
       </tags>
   </entry>
   <entry>
-    <title>消息队列目录</title>
-    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
-    <content><![CDATA[<blockquote>
-<p>此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="目录"><a class="markdownIt-Anchor" href="#目录"></a> 目录</h1>
-<h2 id="基本理念"><a class="markdownIt-Anchor" href="#基本理念"></a> 基本理念</h2>
-<ol>
-<li>
-<a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a>
-</li>
-<li>
-<a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a>
-</li>
-<li>
-<a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a>
-</li>
-<li>
-<a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a>
-</li>
-</ol>
-<hr />
-<h2 id="rocketmq生产者"><a class="markdownIt-Anchor" href="#rocketmq生产者"></a> RocketMQ生产者</h2>
-<ol>
-<li>
-<a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a>
-</li>
-<li>
-<a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a>
-</li>
-<li>
-<a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a>
-</li>
-<li>
-<a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a>
-</li>
-</ol>
-<h2 id="存储"><a class="markdownIt-Anchor" href="#存储"></a> 存储</h2>
-<ol>
-<li>
-<a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a>
-</li>
-</ol>
-<h2 id="消息消费"><a class="markdownIt-Anchor" href="#消息消费"></a> 消息消费</h2>
-<ol>
-<li>
-<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a>
-</li>
-<li>
-<a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SpringMVC Controller书写</title>
     <url>/2020/12/19/Spring/SpringMVC-Controller%E4%B9%A6%E5%86%99/</url>
     <content><![CDATA[<p>不知道要写什么了，写什么简介的最烦了</p>
@@ -1219,6 +1400,80 @@ where
       <tags>
         <tag>Java</tag>
         <tag>Spring</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二叉树的遍历</title>
+    <url>/2021/04/13/leetcode/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/</url>
+    <content><![CDATA[<p>代码小抄</p>
+<span id="more"></span>
+<h2 id="前序遍历"><a class="markdownIt-Anchor" href="#前序遍历"></a> 前序遍历</h2>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token function">preorderTraversal</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> s <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">TreeNode</span> cur <span class="token operator">=</span> root<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token operator">!</span>s<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            res<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>cur<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// root</span>
+            s<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>left<span class="token punctuation">;</span> <span class="token comment">// left</span>
+        <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+            cur <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>right<span class="token punctuation">;</span> <span class="token comment">// right</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<h2 id="中序遍历"><a class="markdownIt-Anchor" href="#中序遍历"></a> 中序遍历</h2>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token function">inorderTraversal</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> stack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">TreeNode</span> cur <span class="token operator">=</span> root<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token operator">!</span>stack<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span> 
+            stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>left<span class="token punctuation">;</span> <span class="token comment">// left</span>
+        <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+            cur <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            res<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>cur<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// root</span>
+            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>right<span class="token punctuation">;</span> <span class="token comment">// right</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+<h2 id="后序遍历"><a class="markdownIt-Anchor" href="#后序遍历"></a> 后序遍历</h2>
+<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// 前序遍历顺序为：根 -> 左 -> 右</span>
+<span class="token comment">// 后序遍历顺序为：左 -> 右 -> 根</span>
+<span class="token comment">// 所以, 我们可以把前序遍历的稍作修改: 根 -> 右 -> 左, </span>
+<span class="token comment">// 然后结果存放到栈里进行倒序, 之后再遍历结果栈就可以输出后序遍历了</span>
+<span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token function">postorderTraversal</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> s <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> resStack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">TreeNode</span> cur <span class="token operator">=</span> root<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token operator">!</span>s<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            resStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// root</span>
+            s<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>right<span class="token punctuation">;</span> <span class="token comment">// right</span>
+        <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
+            cur <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>left<span class="token punctuation">;</span> <span class="token comment">// left</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token operator">!</span>resStack<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        res<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>resStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+</code></pre>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
       </tags>
   </entry>
   <entry>
@@ -1413,80 +1668,6 @@ func Add(a, b int) int &#123;
       </tags>
   </entry>
   <entry>
-    <title>二叉树的遍历</title>
-    <url>/2021/04/13/leetcode/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/</url>
-    <content><![CDATA[<p>代码小抄</p>
-<span id="more"></span>
-<h2 id="前序遍历"><a class="markdownIt-Anchor" href="#前序遍历"></a> 前序遍历</h2>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token function">preorderTraversal</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> s <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">TreeNode</span> cur <span class="token operator">=</span> root<span class="token punctuation">;</span>
-    <span class="token keyword">while</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token operator">!</span>s<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-            res<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>cur<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// root</span>
-            s<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span> 
-            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>left<span class="token punctuation">;</span> <span class="token comment">// left</span>
-        <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
-            cur <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>right<span class="token punctuation">;</span> <span class="token comment">// right</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<h2 id="中序遍历"><a class="markdownIt-Anchor" href="#中序遍历"></a> 中序遍历</h2>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token function">inorderTraversal</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> stack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">TreeNode</span> cur <span class="token operator">=</span> root<span class="token punctuation">;</span>
-    <span class="token keyword">while</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token operator">!</span>stack<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span> 
-            stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>left<span class="token punctuation">;</span> <span class="token comment">// left</span>
-        <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
-            cur <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            res<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>cur<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// root</span>
-            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>right<span class="token punctuation">;</span> <span class="token comment">// right</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span></code></pre>
-<h2 id="后序遍历"><a class="markdownIt-Anchor" href="#后序遍历"></a> 后序遍历</h2>
-<pre class="language-java" data-language="java"><code class="language-java"><span class="token comment">// 前序遍历顺序为：根 -> 左 -> 右</span>
-<span class="token comment">// 后序遍历顺序为：左 -> 右 -> 根</span>
-<span class="token comment">// 所以, 我们可以把前序遍历的稍作修改: 根 -> 右 -> 左, </span>
-<span class="token comment">// 然后结果存放到栈里进行倒序, 之后再遍历结果栈就可以输出后序遍历了</span>
-<span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token function">postorderTraversal</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> s <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">TreeNode</span><span class="token punctuation">></span></span> resStack <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Stack</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">TreeNode</span> cur <span class="token operator">=</span> root<span class="token punctuation">;</span>
-    <span class="token keyword">while</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token operator">!</span>s<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>cur <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-            resStack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// root</span>
-            s<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cur<span class="token punctuation">)</span><span class="token punctuation">;</span> 
-            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>right<span class="token punctuation">;</span> <span class="token comment">// right</span>
-        <span class="token punctuation">&#125;</span><span class="token keyword">else</span><span class="token punctuation">&#123;</span>
-            cur <span class="token operator">=</span> s<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            cur <span class="token operator">=</span> cur<span class="token punctuation">.</span>left<span class="token punctuation">;</span> <span class="token comment">// left</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token operator">!</span>resStack<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        res<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>resStack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span>
-</code></pre>
-]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>TCP篇</title>
     <url>/2021/07/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP/</url>
     <content><![CDATA[<blockquote>
@@ -1593,79 +1774,6 @@ func Add(a, b int) int &#123;
       <tags>
         <tag>计算机网络</tag>
         <tag>TCP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GC</title>
-    <url>/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/</url>
-    <content><![CDATA[<blockquote>
-<p>这里只是简单介绍一下GC，我本人对于GC的了解并不是特别深入</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="gc"><a class="markdownIt-Anchor" href="#gc"></a> GC</h1>
-<h2 id="垃圾回收算法"><a class="markdownIt-Anchor" href="#垃圾回收算法"></a> 垃圾回收算法</h2>
-<p>首先我们来介绍一下GC算法的大致思路。</p>
-<ol>
-<li>引用计数：每个对象维护一个域，其中保存其它对象指向它的引用数量，当引用数量为零时该对象为垃圾</li>
-<li>标记-清除：首先使用标记算法标记一些对象为不可达对象，之后在达到某个阈值或者固定时间的话，这个时候系统会挂起用户程序，也就是SWT，转而执行垃圾回收算法</li>
-<li>节点复制</li>
-<li>分代收集：分代垃圾回收算法将对象按生命周期长短存放到堆上的两个（或者更多）区域，这些区域就是分代（generation）。之后再进行垃圾回收</li>
-</ol>
-<p>这里 <code>Golang</code> 使用的是基于 标记-清除 法的三色标记算法</p>
-<h2 id="gc触发条件"><a class="markdownIt-Anchor" href="#gc触发条件"></a> GC触发条件</h2>
-<p>一般来说有三种情况会触发GC</p>
-<ol>
-<li>辅助GC，在分配内存时，会判断当前的Heap内存分配量是否达到了触发GC的阈值，如果超过了阈值则启动一轮GC</li>
-<li>调用 <code>systeme.GC()</code> 来强制启动一轮GC</li>
-<li>当超过一定时间未运行GC的情况下会执行GC</li>
-</ol>
-<h2 id="为什么需要三色标记算法"><a class="markdownIt-Anchor" href="#为什么需要三色标记算法"></a> 为什么需要三色标记算法</h2>
-<p>相比之前的标记清除算法，其GC执行期间需要把整个程序完全暂停，不能异步执行GC操作。对实时性要求比较高的系统来说，这种需要长时间挂起的标记清除算法是不可接受的，而三色标记算法就很好的解决了这个问题。 <strong>三色标记最大的好处是可以异步执行</strong>，从而可以以中断时间极少的代价或者完全没有中断操作来进行整个GC。</p>
-<p>三色指的是黑色、灰色、白色，</p>
-<ol>
-<li>黑色：根对象，或者某对象和它的子对象都被扫描过</li>
-<li>灰色：某对象被扫描过，但是子对象未被扫描</li>
-<li>白色：未被扫描的对象，如果扫描完成所有对象之后，最终白色为不可达对象，即垃圾对象</li>
-</ol>
-<h2 id="读写屏障"><a class="markdownIt-Anchor" href="#读写屏障"></a> 读写屏障</h2>
-<p>所谓的读写屏障就是针对某个对象变量赋值、读取时做一些格外的操作</p>
-<h2 id="垃圾回收的主要流程"><a class="markdownIt-Anchor" href="#垃圾回收的主要流程"></a> 垃圾回收的主要流程</h2>
-<ol>
-<li>初始化所有对象被标记为白色</li>
-<li>从root开始找到所有可达对象，标记为灰色，放入到待处理队列中</li>
-<li>遍历灰色对象队列，把其引用的对象标记为灰色放入到待处理队列中，自身标记为黑色</li>
-<li>处理完灰色对象队列，知道没有灰色对象为止</li>
-<li>其余白色为垃圾对象，执行清扫工作</li>
-</ol>
-<h2 id="三色标记法的引用消失问题"><a class="markdownIt-Anchor" href="#三色标记法的引用消失问题"></a> 三色标记法的引用消失问题</h2>
-<p>什么是引用消失：即原本应该是黑色的对象被误标为白色。</p>
-<h3 id="发生的条件"><a class="markdownIt-Anchor" href="#发生的条件"></a> 发生的条件</h3>
-<p>当且仅当一下两个条件同时满足的时候</p>
-<ol>
-<li>赋值器插入了一条或多条从黑色对象到白色对象的新引用</li>
-<li>赋值器删除了全部从灰色对象到该白色对象的直接或间接引用。</li>
-</ol>
-<h3 id="解决办法"><a class="markdownIt-Anchor" href="#解决办法"></a> 解决办法</h3>
-<p>只需要破坏成立的条件即可，有两种方案：增量更新和原始快照</p>
-<ol>
-<li>增量更新，当一个白色对象被黑色对象引用时，把黑色对象重新标记为灰色，让垃圾回收算法重新扫描即可</li>
-<li>原始快照：原始快照要破坏的是第二个条件，当灰色对象要删除白色对象的引用关系时，就将这个要删除的引用记录下来，在并发扫描结束之后，再扫描这些灰色节点</li>
-</ol>
-<h3 id="对比"><a class="markdownIt-Anchor" href="#对比"></a> 对比</h3>
-<p><strong>原始快照关注的是引用删除，增量更新关注的是引用增加</strong></p>
-<p>因为增量更新算法还需要把原本为黑色的节点再次扫描一遍，效率有点低下</p>
-<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
-<blockquote>
-<p>2021-07-13 14:59</p>
-<p>哈哈哈,今天并没有日志</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>Golang</category>
-        <category>基础</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
       </tags>
   </entry>
   <entry>
@@ -1851,6 +1959,79 @@ Web服务器软件：<code>Apache2</code></p>
 <blockquote>
 <p>2021-07-12 16:31</p>
 <p>没想到上周五开篇的现在才写完，懒死我自己。。。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Golang</category>
+        <category>基础</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GC</title>
+    <url>/2021/07/13/Golang/%E5%9F%BA%E7%A1%80/GC/</url>
+    <content><![CDATA[<blockquote>
+<p>这里只是简单介绍一下GC，我本人对于GC的了解并不是特别深入</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="gc"><a class="markdownIt-Anchor" href="#gc"></a> GC</h1>
+<h2 id="垃圾回收算法"><a class="markdownIt-Anchor" href="#垃圾回收算法"></a> 垃圾回收算法</h2>
+<p>首先我们来介绍一下GC算法的大致思路。</p>
+<ol>
+<li>引用计数：每个对象维护一个域，其中保存其它对象指向它的引用数量，当引用数量为零时该对象为垃圾</li>
+<li>标记-清除：首先使用标记算法标记一些对象为不可达对象，之后在达到某个阈值或者固定时间的话，这个时候系统会挂起用户程序，也就是SWT，转而执行垃圾回收算法</li>
+<li>节点复制</li>
+<li>分代收集：分代垃圾回收算法将对象按生命周期长短存放到堆上的两个（或者更多）区域，这些区域就是分代（generation）。之后再进行垃圾回收</li>
+</ol>
+<p>这里 <code>Golang</code> 使用的是基于 标记-清除 法的三色标记算法</p>
+<h2 id="gc触发条件"><a class="markdownIt-Anchor" href="#gc触发条件"></a> GC触发条件</h2>
+<p>一般来说有三种情况会触发GC</p>
+<ol>
+<li>辅助GC，在分配内存时，会判断当前的Heap内存分配量是否达到了触发GC的阈值，如果超过了阈值则启动一轮GC</li>
+<li>调用 <code>systeme.GC()</code> 来强制启动一轮GC</li>
+<li>当超过一定时间未运行GC的情况下会执行GC</li>
+</ol>
+<h2 id="为什么需要三色标记算法"><a class="markdownIt-Anchor" href="#为什么需要三色标记算法"></a> 为什么需要三色标记算法</h2>
+<p>相比之前的标记清除算法，其GC执行期间需要把整个程序完全暂停，不能异步执行GC操作。对实时性要求比较高的系统来说，这种需要长时间挂起的标记清除算法是不可接受的，而三色标记算法就很好的解决了这个问题。 <strong>三色标记最大的好处是可以异步执行</strong>，从而可以以中断时间极少的代价或者完全没有中断操作来进行整个GC。</p>
+<p>三色指的是黑色、灰色、白色，</p>
+<ol>
+<li>黑色：根对象，或者某对象和它的子对象都被扫描过</li>
+<li>灰色：某对象被扫描过，但是子对象未被扫描</li>
+<li>白色：未被扫描的对象，如果扫描完成所有对象之后，最终白色为不可达对象，即垃圾对象</li>
+</ol>
+<h2 id="读写屏障"><a class="markdownIt-Anchor" href="#读写屏障"></a> 读写屏障</h2>
+<p>所谓的读写屏障就是针对某个对象变量赋值、读取时做一些格外的操作</p>
+<h2 id="垃圾回收的主要流程"><a class="markdownIt-Anchor" href="#垃圾回收的主要流程"></a> 垃圾回收的主要流程</h2>
+<ol>
+<li>初始化所有对象被标记为白色</li>
+<li>从root开始找到所有可达对象，标记为灰色，放入到待处理队列中</li>
+<li>遍历灰色对象队列，把其引用的对象标记为灰色放入到待处理队列中，自身标记为黑色</li>
+<li>处理完灰色对象队列，知道没有灰色对象为止</li>
+<li>其余白色为垃圾对象，执行清扫工作</li>
+</ol>
+<h2 id="三色标记法的引用消失问题"><a class="markdownIt-Anchor" href="#三色标记法的引用消失问题"></a> 三色标记法的引用消失问题</h2>
+<p>什么是引用消失：即原本应该是黑色的对象被误标为白色。</p>
+<h3 id="发生的条件"><a class="markdownIt-Anchor" href="#发生的条件"></a> 发生的条件</h3>
+<p>当且仅当一下两个条件同时满足的时候</p>
+<ol>
+<li>赋值器插入了一条或多条从黑色对象到白色对象的新引用</li>
+<li>赋值器删除了全部从灰色对象到该白色对象的直接或间接引用。</li>
+</ol>
+<h3 id="解决办法"><a class="markdownIt-Anchor" href="#解决办法"></a> 解决办法</h3>
+<p>只需要破坏成立的条件即可，有两种方案：增量更新和原始快照</p>
+<ol>
+<li>增量更新，当一个白色对象被黑色对象引用时，把黑色对象重新标记为灰色，让垃圾回收算法重新扫描即可</li>
+<li>原始快照：原始快照要破坏的是第二个条件，当灰色对象要删除白色对象的引用关系时，就将这个要删除的引用记录下来，在并发扫描结束之后，再扫描这些灰色节点</li>
+</ol>
+<h3 id="对比"><a class="markdownIt-Anchor" href="#对比"></a> 对比</h3>
+<p><strong>原始快照关注的是引用删除，增量更新关注的是引用增加</strong></p>
+<p>因为增量更新算法还需要把原本为黑色的节点再次扫描一遍，效率有点低下</p>
+<h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1>
+<blockquote>
+<p>2021-07-13 14:59</p>
+<p>哈哈哈,今天并没有日志</p>
 </blockquote>
 ]]></content>
       <categories>
@@ -2235,23 +2416,6 @@ files &#x3D; &#x2F;etc&#x2F;supervisor.d&#x2F;*.ini</code></pre>
       </tags>
   </entry>
   <entry>
-    <title>消费者启动流程</title>
-    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>消息消费</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>消费者基本理念</title>
     <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</url>
     <content><![CDATA[<blockquote>
@@ -2305,6 +2469,23 @@ files &#x3D; &#x2F;etc&#x2F;supervisor.d&#x2F;*.ini</code></pre>
 <p>2021-07-08 11:43</p>
 <p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p>
 </blockquote>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>消息消费</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>消费者启动流程</title>
+    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>
 ]]></content>
       <categories>
         <category>RocketMQ</category>

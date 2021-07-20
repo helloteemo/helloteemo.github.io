@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-07-19T07:32:15.010Z</updated>
+  <updated>2021-07-20T08:05:58.178Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -15,6 +15,79 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Reids大key</title>
+    <link href="https://helloteemo.github.io/2021/07/20/Redis/Reids%E5%A4%A7key/"/>
+    <id>https://helloteemo.github.io/2021/07/20/Redis/Reids%E5%A4%A7key/</id>
+    <published>2021-07-20T03:39:09.000Z</published>
+    <updated>2021-07-20T08:05:58.178Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>介绍了Redis的大key标准</p></blockquote><span id="more"></span>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;介绍了Redis的大key标准&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/categories/Redis/"/>
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/tags/Redis/"/>
+    
+    <category term="基础知识" scheme="https://helloteemo.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis目录</title>
+    <link href="https://helloteemo.github.io/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/"/>
+    <id>https://helloteemo.github.io/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</id>
+    <published>2021-07-20T01:05:09.000Z</published>
+    <updated>2021-07-20T03:40:05.925Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>此文为Redis的目录</p></blockquote><span id="more"></span><h1 id="目录"><a class="markdownIt-Anchor" href="#目录"></a> 目录</h1><h2 id="基本理念"><a class="markdownIt-Anchor" href="#基本理念"></a> 基本理念</h2><ol><li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li><li><a href="/2021/07/20/Redis/Reids%E5%A4%A7key/" title="[Reids大key]">[Reids大key]</a></li></ol>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;此文为Redis的目录&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/categories/Redis/"/>
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/tags/Redis/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基础知识</title>
+    <link href="https://helloteemo.github.io/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <id>https://helloteemo.github.io/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</id>
+    <published>2021-07-20T01:05:09.000Z</published>
+    <updated>2021-07-20T02:27:14.837Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>介绍了Redis的基础知识，这应该是每个人都会的，不会有什么高深的东西，也不会介绍底层原理</p></blockquote><span id="more"></span><h1 id="基础知识"><a class="markdownIt-Anchor" href="#基础知识"></a> 基础知识</h1><h2 id="如何安装redis"><a class="markdownIt-Anchor" href="#如何安装redis"></a> 如何安装Redis</h2><p>见<a href="https://www.runoob.com/redis/redis-install.html">菜鸟教程Redis安装</a></p><h2 id="为什么需要使用reids"><a class="markdownIt-Anchor" href="#为什么需要使用reids"></a> 为什么需要使用Reids</h2><p>因为传统的关系型数据库以及不能适用于所有场景了，比如APP首页的访问流量高峰场景，这种流量的并发级别很容易把数据库打穿，所以我们需要引入缓存中间件，市面上主要有两种缓存中间件：<code>Redis</code> 和 <code>Memcached</code></p><h2 id="为什么使用redis"><a class="markdownIt-Anchor" href="#为什么使用redis"></a> 为什么使用Redis</h2><p>我们来介绍一下 <code>Redis</code> 和 <code>Memcached</code>。</p><h3 id="memcached"><a class="markdownIt-Anchor" href="#memcached"></a> <code>Memcached</code></h3><p>特点</p><ul><li>在处理请求时采用多线程异步IO的方式，可以合理利用多核CPU的优势</li><li>功能简单，使用内存存储数据</li><li>失效的策略采用延迟失效，就是当再次使用数据时检查是否失效；</li><li>当容量存满时，会对缓存中的数据进行剔除，剔除时除了会对过期 key 进行清理，还会按 LRU 策略对数据进行剔除。</li></ul><p>缺点：</p><ul><li>key 不能超过 250 个字节；</li><li>value 不能超过 1M 字节；</li><li>key 的最大失效时间是 30 天；</li><li>只支持 K-V 结构，不提供持久化和主从同步功能。</li></ul><h3 id="reids"><a class="markdownIt-Anchor" href="#reids"></a> <code>Reids</code></h3><ul><li>与 MC 不同的是，Redis 采用单线程模式处理请求。这样做的原因有 2 个：一个是因为采用了非阻塞的异步事件处理机制；另一个是缓存数据都是内存操作 IO 时间不会太长，单线程可以避免线程上下文切换产生的代价。</li><li><strong>Redis</strong> 支持持久化，所以 Redis 不仅仅可以用作缓存，也可以用作 NoSQL 数据库。</li><li>相比 MC，<strong>Redis</strong> 还有一个非常大的优势，就是除了 K-V 之外，还支持多种数据格式，例如 list、set、sorted set、hash 等。</li><li><strong>Redis</strong> 提供主从同步机制，以及 <strong>Cluster</strong> 集群部署能力，能够提供高可用服务。</li></ul><h2 id="redis基础功能"><a class="markdownIt-Anchor" href="#redis基础功能"></a> Redis基础功能</h2><p>我们从以下几个方面来介绍Redis的基础功能</p><ol><li>基础数据结构</li><li>扩展功能</li><li>数据持久化方式</li><li>key失效机制</li><li>淘汰策略</li></ol><h3 id="基础数据结构"><a class="markdownIt-Anchor" href="#基础数据结构"></a> 基础数据结构</h3><p>Redis提供了一下五种基础数据结构：<code>String</code> 、<code>List</code> 、 <code>Set</code> 、 <code>Hash</code> 、 <code>SortedSet</code>，下面我们来分别介绍这几种数据结构吧</p><h4 id="string"><a class="markdownIt-Anchor" href="#string"></a> String</h4><p>string就是最基本的k-v结构，在Redis的实现中直接存放在DB结构中的数据部分，如果直接使用String就可以实现绝大部份功能，甚至说所有功能，在真实开发环境中就有很多同事喜欢把数据Json格式话之后直接存放在Redis中，这里不说对错，每个团队都有每个团队的规范。</p><p>下面我们来看下Redis的适用场景：</p><ul><li>计数器</li><li>共享用户Session</li></ul><h4 id="list"><a class="markdownIt-Anchor" href="#list"></a> List</h4><p>List是有序列表，比如通过List存储一些列表行为的数据，比如说文章列表等，基于Redis还可以实现简单的分页功能。</p><p>适用场景</p><ul><li>简单的消息队列</li><li>文章列表或者分页数据的展示</li></ul><h4 id="set"><a class="markdownIt-Anchor" href="#set"></a> Set</h4><p>Set是无序集合，并且集合元素是不重复的。并且Set支持查询交集、并集、差集等操作。比如说我们来尝试一下查询共同好友</p><p><img src="https://helloteemo.com.cn/2021.07/image-20210720095105144.png" alt="image-20210720095105144" /></p><h4 id="hash"><a class="markdownIt-Anchor" href="#hash"></a> hash</h4><p>hash是类似与Map的一种结构</p><h4 id="sortedset"><a class="markdownIt-Anchor" href="#sortedset"></a> SortedSet</h4><p><strong>Sorted set</strong> 是排序的 <strong>Set</strong>，去重但可以排序，写进去的时候给一个分数，自动根据分数排序。</p><p>有序集合的使用场景与集合类似，但是set集合不是自动有序的，而<strong>Sorted set</strong>可以利用分数进行成员间的排序，而且是插入时就排序好。所以当你需要一个有序且不重复的集合列表时，就可以选择<strong>Sorted set</strong>数据结构作为选择方案。</p><ul><li>排行榜：有序集合经典使用场景。例如视频网站需要对用户上传的视频做排行榜，榜单维护可能是多方面：按照时间、按照播放量、按照获得的赞数等。</li><li>用<strong>Sorted Sets</strong>来做带权重的队列，比如普通消息的score为1，重要消息的score为2，然后工作线程可以选择按score的倒序来获取工作任务。让重要的任务优先执行。</li></ul><h3 id="扩展功能"><a class="markdownIt-Anchor" href="#扩展功能"></a> 扩展功能</h3><h4 id="bitmap"><a class="markdownIt-Anchor" href="#bitmap"></a> <strong>Bitmap</strong> :</h4><p>位图是支持按 bit 位来存储信息，可以用来实现 <strong>布隆过滤器（BloomFilter）</strong>；</p><h4 id="hyperloglog"><a class="markdownIt-Anchor" href="#hyperloglog"></a> <strong>HyperLogLog:</strong></h4><p>供不精确的去重计数功能，比较适合用来做大规模数据的去重统计，例如统计 UV；</p><h4 id="geospatial"><a class="markdownIt-Anchor" href="#geospatial"></a> <strong>Geospatial:</strong></h4><p>可以用来保存地理位置，并作位置距离计算或者根据半径计算位置等。有没有想过用Redis来实现附近的人？或者计算最优地图路径？</p><p>这三个其实也可以算作一种数据结构，不知道还有多少朋友记得，我在梦开始的地方，Redis基础中提到过，你如果只知道五种基础类型那只能拿60分，如果你能讲出高级用法，那就觉得你<strong>有点东西</strong>。</p><h4 id="pubsub"><a class="markdownIt-Anchor" href="#pubsub"></a> <strong>pub/sub：</strong></h4><p>功能是订阅发布功能，可以用作简单的消息队列。</p><h4 id="pipeline"><a class="markdownIt-Anchor" href="#pipeline"></a> <strong>Pipeline：</strong></h4><p>可以批量执行一组指令，一次性返回全部结果，可以减少频繁的请求应答。</p><h4 id="lua"><a class="markdownIt-Anchor" href="#lua"></a> <strong>Lua：</strong></h4><p><strong>Redis</strong> 支持提交 <strong>Lua</strong> 脚本来执行一系列的功能。</p><h4 id="事务"><a class="markdownIt-Anchor" href="#事务"></a> <strong>事务：</strong></h4><p>最后一个功能是事务，但 <strong>Redis</strong> 提供的不是严格的事务，<strong>Redis</strong> 只保证串行执行命令，并且能保证全部执行，但是执行命令失败时并不会回滚，而是会继续执行下去。</p><h4 id="stream"><a class="markdownIt-Anchor" href="#stream"></a> Stream：</h4><p>Redis Stream 是 Redis 5.0 版本新增加的数据结构。</p><p>Redis Stream 主要用于消息队列（MQ，Message Queue），Redis 本身是有一个 Redis 发布订阅 (pub/sub) 来实现消息队列的功能，但它有个缺点就是消息无法持久化，如果出现网络断开、Redis 宕机等，消息就会被丢弃。</p><p>简单来说发布订阅 (pub/sub) 可以分发消息，但无法记录历史消息。</p><p>而 Redis Stream 提供了消息的持久化和主备复制功能，可以让任何客户端访问任何时刻的数据，并且能记住每一个客户端的访问位置，还能保证消息不丢失。</p><h3 id="数据持久化方式"><a class="markdownIt-Anchor" href="#数据持久化方式"></a> 数据持久化方式</h3><p>Redis提供了AOF和RDB两种数据持久化方式，RDB是把内存中的数据集以快照的方式来写入磁盘，实际操作是使用 <code>fork</code> 子进程执行，采用二进制压缩存储，而AOF则是以文本日志的方式记录Redis处理的每一个写入或者删除操作。</p><p><strong>RDB</strong> 把整个 Redis 的数据保存在单一文件中，比较适合用来做灾备，但缺点是快照保存完成之前如果宕机，这段时间的数据将会丢失，另外保存快照时可能导致服务短时间不可用。</p><p><strong>AOF</strong> 对日志文件的写入操作使用的追加模式，有灵活的同步策略，支持每秒同步、每次修改同步和不同步，缺点就是相同规模的数据集，AOF 要大于 RDB，AOF 在运行效率上往往会慢于 RDB。</p><h3 id="key失效机制"><a class="markdownIt-Anchor" href="#key失效机制"></a> Key失效机制</h3><p>Reids的key可以设置过期时间，采用主动、被动删除策略，主动即定期随机删除一些过期key，被动则是每次访问的时候删除。</p><h3 id="淘汰策略"><a class="markdownIt-Anchor" href="#淘汰策略"></a> 淘汰策略</h3><p><a href="https://www.huaweicloud.com/articles/articles-A-1.html">精选文章</a> Redis的内存淘汰策略</p><h1 id="redis的内存淘汰策略"><a class="markdownIt-Anchor" href="#redis的内存淘汰策略"></a> Redis的内存淘汰策略</h1><p><em><a href="https://www.huaweicloud.com/articles/024db393ba02005fae9c780ccba95bf3.html#">作者：emprere</a></em> 时间: 2021-02-05 10:02:28</p><p><a href="https://www.huaweicloud.com/articles/topic-A-1.html">标签：</a><a href="https://www.huaweicloud.com/articles/topic_8078bf4f0d9d073c57f982b17be178aa.html">标签打印软件</a></p><pre class="language-none"><code class="language-none">【摘要】作者：千山qiansan来源：juejin.im&#x2F;post&#x2F;5d674ac2e51d4557ca7fdd70我们知道Redis是基于内存的key-value数据库，因为系统的内存大小有限，所以我们在使用Redis的时候可以配置Redis能使用的最大的内存大小。1、通过配置文件配置通过在Redis安装目录下面的redis.conf配置文件中添加以下配置设置内存大小。&#x2F;&#x2F;设置Redis最大占用内...</code></pre><p>作者：千山qiansan</p><p>来源：<a href="http://juejin.im/post/5d674ac2e51d4557ca7fdd70">juejin.im/post/5d674ac2e51d4557ca7fdd70</a></p><p>我们知道Redis是基于内存的key-value数据库，因为系统的内存大小有限，所以我们在使用Redis的时候可以配置Redis能使用的最大的内存大小。</p><h3 id="1-通过配置文件配置"><a class="markdownIt-Anchor" href="#1-通过配置文件配置"></a> <strong>1、通过配置文件配置</strong></h3><p>通过在Redis安装目录下面的redis.conf配置文件中添加以下配置设置内存大小。</p><pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">//设置Redis最大占用内存大小为100M</span>maxmemory <span class="token number">100</span>mb</code></pre><p>redis的配置文件不一定使用的是安装目录下面的redis.conf文件，启动redis服务的时候是可以传一个参数指定redis的配置文件的。</p><h3 id="2-通过命令修改"><a class="markdownIt-Anchor" href="#2-通过命令修改"></a> <strong>2、通过命令修改</strong></h3><p>Redis支持运行时通过命令动态修改内存大小</p><pre class="language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">//设置Redis最大占用内存大小为100M</span><span class="token number">127.0</span><span class="token number">.0</span><span class="token number">.1</span><span class="token operator">:</span><span class="token number">6379</span><span class="token operator">></span> config <span class="token keyword">set</span> maxmemory <span class="token number">100</span>mb<span class="token comment">//获取设置的Redis能使用的最大内存大小</span><span class="token number">127.0</span><span class="token number">.0</span><span class="token number">.1</span><span class="token operator">:</span><span class="token number">6379</span><span class="token operator">></span> config <span class="token keyword">get</span> maxmemory</code></pre><p>如果不设置最大内存大小或者设置最大内存大小为0，在64位操作系统下不限制内存大小，在32位操作系统下最多使用3GB内存</p><h2 id="redis的内存淘汰"><a class="markdownIt-Anchor" href="#redis的内存淘汰"></a> <strong>Redis的内存淘汰</strong></h2><p>Redis定义了几种策略用来处理这种情况：</p><ul><li>noeviction(默认策略)：对于写请求不再提供服务，直接返回错误（DEL请求和部分特殊请求除外）</li><li>allkeys-lru：从所有key中使用LRU算法进行淘汰</li><li>volatile-lru：从设置了过期时间的key中使用LRU算法进行淘汰</li><li>allkeys-random：从所有key中随机淘汰数据</li><li>volatile-random：从设置了过期时间的key中随机淘汰</li><li>volatile-ttl：在设置了过期时间的key中，根据key的过期时间进行淘汰，越早过期的越优先被淘汰</li></ul><p>当使用volatile-lru、volatile-random、volatile-ttl这三种策略时，如果没有key可以被淘汰，则和noeviction一样返回错误。</p>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;介绍了Redis的基础知识，这应该是每个人都会的，不会有什么高深的东西，也不会介绍底层原理&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/categories/Redis/"/>
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/tags/Redis/"/>
+    
+    <category term="基础知识" scheme="https://helloteemo.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+  </entry>
   
   <entry>
     <title>select、epoll模式</title>
@@ -194,17 +267,17 @@
   </entry>
   
   <entry>
-    <title>消费者启动流程</title>
-    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
-    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
+    <title>消费者基本理念</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
     <published>2021-07-07T07:19:09.000Z</published>
-    <updated>2021-07-09T15:53:44.637Z</updated>
+    <updated>2021-07-08T03:49:14.000Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span><h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a class="markdownIt-Anchor" href="#消费者基本理念"></a> 消费者基本理念</h1><h2 id="消费者组"><a class="markdownIt-Anchor" href="#消费者组"></a> 消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>Q：为什么需要消费者组</p><p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a class="markdownIt-Anchor" href="#消息消费模式"></a> 消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a class="markdownIt-Anchor" href="#消息传送方式"></a> 消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li>推模式：消息到达Broker后，推送给消息消费者</li><li>拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a class="markdownIt-Anchor" href="#消息队列负载机制"></a> 消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p><ol><li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li><li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li></ol><h2 id="消息队列重平衡机制"><a class="markdownIt-Anchor" href="#消息队列重平衡机制"></a> 消息队列重平衡机制</h2><p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p><p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p><h2 id="消费模型"><a class="markdownIt-Anchor" href="#消费模型"></a> 消费模型</h2><p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p><ol><li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li><li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li></ol><h2 id="其它"><a class="markdownIt-Anchor" href="#其它"></a> 其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1><blockquote><p>2021-07-07 17:00</p><p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote><blockquote><p>2021-07-08 11:43</p><p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p></blockquote>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
+&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -219,17 +292,17 @@
   </entry>
   
   <entry>
-    <title>消费者基本理念</title>
-    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/"/>
-    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</id>
+    <title>消费者启动流程</title>
+    <link href="https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/"/>
+    <id>https://helloteemo.github.io/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</id>
     <published>2021-07-07T07:19:09.000Z</published>
-    <updated>2021-07-08T03:49:14.000Z</updated>
+    <updated>2021-07-09T15:53:44.637Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p></blockquote><span id="more"></span><h1 id="消费者基本理念"><a class="markdownIt-Anchor" href="#消费者基本理念"></a> 消费者基本理念</h1><h2 id="消费者组"><a class="markdownIt-Anchor" href="#消费者组"></a> 消费者组</h2><p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p><blockquote><p>Q：为什么需要消费者组</p><p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p></blockquote><h2 id="消息消费模式"><a class="markdownIt-Anchor" href="#消息消费模式"></a> 消息消费模式</h2><p>消费者组之间有集群模式和广播模式两种消费模式，</p><ul><li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li><li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li></ul><h2 id="消息传送方式"><a class="markdownIt-Anchor" href="#消息传送方式"></a> 消息传送方式</h2><p>消息传送方式有两种：推模式和拉模式</p><ol><li>推模式：消息到达Broker后，推送给消息消费者</li><li>拉模式：消费端主动拉去消息请求</li></ol><h2 id="消息队列负载机制"><a class="markdownIt-Anchor" href="#消息队列负载机制"></a> 消息队列负载机制</h2><p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p><p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p><ol><li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li><li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li></ol><h2 id="消息队列重平衡机制"><a class="markdownIt-Anchor" href="#消息队列重平衡机制"></a> 消息队列重平衡机制</h2><p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p><p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p><h2 id="消费模型"><a class="markdownIt-Anchor" href="#消费模型"></a> 消费模型</h2><p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p><ol><li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li><li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li></ol><h2 id="其它"><a class="markdownIt-Anchor" href="#其它"></a> 其它</h2><p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p><p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p><h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1><blockquote><p>2021-07-07 17:00</p><p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p></blockquote><blockquote><p>2021-07-08 11:43</p><p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p></blockquote><span id="more"></span><h1 id="消费者启动流程"><a class="markdownIt-Anchor" href="#消费者启动流程"></a> 消费者启动流程</h1>]]></content>
     
     
     <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。&lt;/p&gt;
+&lt;p&gt;本文主要讲解 &lt;code&gt;RocketMQ&lt;/code&gt; 消费者启动流程&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     
     
@@ -436,77 +509,6 @@
     
     
     <category term="leetcode" scheme="https://helloteemo.github.io/tags/leetcode/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java内存区域</title>
-    <link href="https://helloteemo.github.io/2021/02/20/JVM/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/"/>
-    <id>https://helloteemo.github.io/2021/02/20/JVM/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/</id>
-    <published>2021-02-20T01:22:36.000Z</published>
-    <updated>2021-06-14T05:59:03.029Z</updated>
-    
-    <content type="html"><![CDATA[<p>相对于C、C++程序员来说Java程序员应该是很幸福的，他们不需要管理自己的内存，而全部交由JVM来控制，它使得我们能够更加专注于程序功能点的开发而不去维护内存，天下苦NPE久矣，但是一旦出现内存泄漏和溢出方面的问题，如果你不了解JVM具体的运行原理，那么排查错误将是一个非常非常艰难的任务，并且如果你在书写Java程序的时候不知道它一个底层的运行原理，那么你很难书写良好的代码。</p><span id="more"></span><h1 id="运行时数据区域"><a class="markdownIt-Anchor" href="#运行时数据区域"></a> 运行时数据区域</h1><p>Java虚拟机咋执行Java程序的时候会把它管理的内存划分为若干个不同的数据区域</p><blockquote><p>无特殊说明介绍的都是<code>HotSpot</code>虚拟机<br />并且JDK版本默认是1.8及以上</p></blockquote><p><img src="https://helloteemo.com.cn/2021.06/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E6%A6%82%E6%8B%AC.png" alt="JVM运行时数据区域示意图" /></p><p>其中线程私有的有</p><ol><li>程序计数器</li><li>虚拟机栈</li><li>本地方法栈</li></ol><p>线程共享的的有</p><ol><li>堆</li><li>方法区</li><li>直接内存(即非运行时数据区的一部分)</li></ol><p>下面让我们来针对这些内存一个一个的分析</p><h2 id="程序计数器"><a class="markdownIt-Anchor" href="#程序计数器"></a> 程序计数器</h2><ol><li>什么是程序计数器</li></ol><p>程序计数器是<strong>当前线程</strong>正在执行的字节码的地址，它是线程隔离的，其执行原理为字节码解释器读取内存中的字节码，按照顺序读取字节码指令，读取一个指令就把它翻译为一个固定的操作。</p><ol start="2"><li>为什么需要程序计数器</li></ol><p>在单线程来看可有可无，但是在多线程看来需要保存当前线程所执行的位置</p><ol start="3"><li>程序计数器的特点<ol><li>程序计数器是线程隔离的</li><li>程序计数器占用的内存空间非常小，可以忽略不计</li><li>程序计数器是java虚拟机规范中唯一一个没有规定任何<strong>OutOfMemoryError</strong>的区域</li><li>执行native本地方法时，程序计数器的值为空。原因是native方法是java通过jni调用本地C/C++库来实现，非java字节码实现，所以无法统计</li></ol></li></ol><h2 id="java虚拟机栈"><a class="markdownIt-Anchor" href="#java虚拟机栈"></a> Java虚拟机栈</h2><p>Java虚拟机栈也是线程私有的，它的生命周期和线程周期相同，它描述了Java方法执行时的内存模型，每一次方法的调用的数据都是通过栈传递的。</p><p>Java虚拟机栈是有一个一个的栈帧组成，每个栈帧都拥有局部变量表、操作数栈、动态链接、方法出口信息。</p><p>Java虚拟机栈会出现两种错误:<code>StackOverFlowError</code>和<code>OutOfMemoryError</code></p><ul><li><code>StackOverFlowError</code>：如果Java虚拟机栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前Java虚拟机最大深度的时候就会报错</li><li><code>OutOfMemoryError</code>：如果Java虚拟机堆没有空闲内存，并且垃圾回收器也无法提供更多内存的话，就会抛出<code>OutOfMemoryError</code>错误</li></ul><h2 id="本地方法栈"><a class="markdownIt-Anchor" href="#本地方法栈"></a> 本地方法栈</h2><p>本地方法栈和Java虚拟机栈的作用相似，区别为：<strong>Java虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则为虚拟机使用到的Native方法服务</strong>，在HotSpot虚拟机中，Java虚拟机栈和本地方法栈合二为一。</p><h2 id="堆"><a class="markdownIt-Anchor" href="#堆"></a> 堆</h2>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;相对于C、C++程序员来说Java程序员应该是很幸福的，他们不需要管理自己的内存，而全部交由JVM来控制，它使得我们能够更加专注于程序功能点的开发而不去维护内存，天下苦NPE久矣，但是一旦出现内存泄漏和溢出方面的问题，如果你不了解JVM具体的运行原理，那么排查错误将是一个非常非常艰难的任务，并且如果你在书写Java程序的时候不知道它一个底层的运行原理，那么你很难书写良好的代码。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="JVM" scheme="https://helloteemo.github.io/categories/JVM/"/>
-    
-    
-    <category term="JVM" scheme="https://helloteemo.github.io/tags/JVM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>简单工厂模式</title>
-    <link href="https://helloteemo.github.io/2021/02/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://helloteemo.github.io/2021/02/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
-    <published>2021-02-03T03:43:28.000Z</published>
-    <updated>2021-06-24T03:05:29.852Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p><code>Simple Factory Pattern</code> 简单工厂模式，简单但是好用</p></blockquote><span id="more"></span><h1 id="模式动机"><a class="markdownIt-Anchor" href="#模式动机"></a> 模式动机</h1><p>考虑一个简单的场景，Java集合中有List类，List类中有ArrayList和LinkedList等多个子类，如果我希望使用这些子类时，不需与奥知道某些具体的类，而只需要表示该按钮的一个参数(可能是自定义的一个枚举类)，并提供一个调用的方法，把该参数传入方法即可返回一个具体的子类的对线，这就是简单工厂模式</p><h1 id="模式定义"><a class="markdownIt-Anchor" href="#模式定义"></a> 模式定义</h1><p>在简单工厂模式中，可以根据参数的不同返回不同类的实例。简单工厂模式专门定义一个类来负责创建其他类的实例，<strong>被创建的实例通常都具有共同的父类</strong>。</p><h1 id="模式结构"><a class="markdownIt-Anchor" href="#模式结构"></a> 模式结构</h1><p>简单工厂模式有三个角色</p><ul><li><code>Factory</code> 工厂角色:</li><li><code>Product</code> 抽象产品角色</li><li><code>ConcreateProduct</code> 具体产品角色</li></ul><p><img src="https://helloteemo.com.cn/2021.06/image-20210614135748990.png" alt="image-20210614135748990" /></p><h1 id="代码分析"><a class="markdownIt-Anchor" href="#代码分析"></a> 代码分析</h1><h2 id="product-抽象产品角色"><a class="markdownIt-Anchor" href="#product-抽象产品角色"></a> <code>Product</code> 抽象产品角色</h2><pre class="language-go" data-language="go"><code class="language-go"><span class="token comment">// Product 抽象产品角色是所有创建的所有对象的夫类，复制描述所有实例的公共接口</span><span class="token keyword">type</span> Product <span class="token keyword">interface</span> <span class="token punctuation">&#123;</span><span class="token function">Use</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span></code></pre><h2 id="concreateproduct-具体产品角色"><a class="markdownIt-Anchor" href="#concreateproduct-具体产品角色"></a> <code>ConcreateProduct</code> 具体产品角色</h2><pre class="language-go" data-language="go"><code class="language-go"><span class="token comment">// ConCreateProductA 具体产品角色是创建目标，所有创建的对象都充当这个角色的某个具体类的实例。</span><span class="token keyword">type</span> ConCreateProductA <span class="token keyword">struct</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token comment">// Use use</span><span class="token keyword">func</span> <span class="token punctuation">(</span>c ConCreateProductA<span class="token punctuation">)</span> <span class="token function">Use</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span><span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"implement me"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token comment">// ConCreateProductA 具体产品角色是创建目标，所有创建的对象都充当这个角色的某个具体类的实例。</span><span class="token keyword">type</span> ConCreateProductB <span class="token keyword">struct</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token comment">// Use use</span><span class="token keyword">func</span> <span class="token punctuation">(</span>c ConCreateProductB<span class="token punctuation">)</span> <span class="token function">Use</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span><span class="token function">panic</span><span class="token punctuation">(</span><span class="token string">"implement me"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span></code></pre><h2 id="factory-工厂角色"><a class="markdownIt-Anchor" href="#factory-工厂角色"></a> <code>Factory</code> 工厂角色</h2><pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">type</span> ProductEnum <span class="token builtin">int</span><span class="token keyword">const</span> <span class="token punctuation">(</span>AProduct ProductEnum <span class="token operator">=</span> <span class="token boolean">iota</span>BProduct<span class="token punctuation">)</span><span class="token comment">// Factory 工厂角色负责实现创建所有实例的内部逻辑</span><span class="token keyword">func</span> <span class="token function">Factory</span><span class="token punctuation">(</span>u ProductEnum<span class="token punctuation">)</span> Product <span class="token punctuation">&#123;</span><span class="token keyword">switch</span> u <span class="token punctuation">&#123;</span><span class="token keyword">case</span> AProduct<span class="token punctuation">:</span><span class="token keyword">return</span> ConCreateProductA<span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token keyword">case</span> BProduct<span class="token punctuation">:</span><span class="token keyword">return</span> ConCreateProductB<span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span></code></pre><h1 id="模式分析"><a class="markdownIt-Anchor" href="#模式分析"></a> 模式分析</h1><ul><li><p>将对象的创建和对象本身业务处理分离可以降低系统的耦合度，使得两者修改起来都相对容易。</p></li><li><p>简单工厂模式最大的问题在于工厂类的职责相对过重，增加新的产品需要修改工厂类的判断逻辑，这一点与开闭原则是相违背的。</p></li><li><p>简单工厂模式的要点在于：<strong>当你需要什么，只需要传入一个正确的参数，就可以获取你所需要的对象，而无须知道其创建细节。</strong></p></li></ul><h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1><ul><li>创建型模式对类的实例化过程进行了抽象，能够将对象的创建与对象的使用过程分离。</li><li>简单工厂模式又称为静态工厂方法模式，它属于类创建型模式。在简单工厂模式中，可以根据参数的不同返回不同类的实例。简单工厂模式专门定义一个类来负责创建其他类的实例，被创建的实例通常都具有共同的父类。</li><li>简单工厂模式包含三个角色：工厂角色负责实现创建所有实例的内部逻辑；抽象产品角色是所创建的所有对象的父类，负责描述所有实例所共有的公共接口；具体产品角色是创建目标，所有创建的对象都充当这个角色的某个具体类的实例。</li><li>简单工厂模式的要点在于：当你需要什么，只需要传入一个正确的参数，就可以获取你所需要的对象，而无须知道其创建细节。</li><li>简单工厂模式最大的优点在于实现对象的创建和对象的使用分离，将对象的创建交给专门的工厂类负责，但是其最大的缺点在于工厂类不够灵活，增加新的具体产品需要修改工厂类的判断逻辑代码，而且产品较多时，工厂方法代码将会非常复杂。</li><li>简单工厂模式适用情况包括：工厂类负责创建的对象比较少；客户端只知道传入工厂类的参数，对于如何创建对象不关心。</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;&lt;code&gt;Simple Factory Pattern&lt;/code&gt; 简单工厂模式，简单但是好用&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="设计模式" scheme="https://helloteemo.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-    <category term="创建型模式" scheme="https://helloteemo.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/"/>
-    
-    
-    <category term="设计模式" scheme="https://helloteemo.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-    <category term="创建型模式" scheme="https://helloteemo.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>关于代码和对接文档规范</title>
-    <link href="https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
-    <id>https://helloteemo.github.io/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</id>
-    <published>2021-01-26T10:23:14.000Z</published>
-    <updated>2021-01-27T01:15:22.443Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范"><a class="markdownIt-Anchor" href="#关于代码和对接文档规范"></a> 关于代码和对接文档规范</h1><ol><li><h2 id="日志"><a class="markdownIt-Anchor" href="#日志"></a> 日志</h2><ol><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码"><a class="markdownIt-Anchor" href="#错误码"></a> 错误码</h3><ol><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="不知道怎么分类" scheme="https://helloteemo.github.io/categories/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/"/>
-    
-    
-    <category term="没有标签" scheme="https://helloteemo.github.io/tags/%E6%B2%A1%E6%9C%89%E6%A0%87%E7%AD%BE/"/>
     
   </entry>
   
