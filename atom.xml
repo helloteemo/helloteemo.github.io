@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2021-12-30T02:36:36.582Z</updated>
+  <updated>2021-12-30T05:26:53.345Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>对称二叉树</title>
+    <link href="https://helloteemo.github.io/2021/12/30/leetcode/%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91/"/>
+    <id>https://helloteemo.github.io/2021/12/30/leetcode/%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91/</id>
+    <published>2021-12-30T05:14:47.000Z</published>
+    <updated>2021-12-30T05:26:53.345Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>  每日第二题</p></blockquote><span id="more"></span><h2 id="对称二叉树"><a href="#对称二叉树" class="headerlink" title="对称二叉树"></a>对称二叉树</h2><p><a href="https://leetcode-cn.com/problems/symmetric-tree/">跳转链接</a></p><p><img src="https://helloteemo.com.cn/2021/12/30/1640841310.png" alt="image-20211230131506579"></p><h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">isSymmetric</span><span class="token punctuation">(</span>root <span class="token operator">*</span>TreeNode<span class="token punctuation">)</span> <span class="token builtin">bool</span> <span class="token punctuation">&#123;</span>  <span class="token punctuation">&#125;</span></code></pre><p>虽然这里是判断树是否是对称二叉树，但是也可以看成是判断两个树是否相等。首先只有一个根结点的二叉树肯定是对称二叉树，那么我们只需要判断跟节点的左右子树是否是对称二叉树就可以了，如果让左子树不动，右子树镜像对称的话，那就直接判断左子树和镜像之后的右子树是否相等就可以了。那么我们怎么镜像右子树呢？实际上就是让树的左右节点互换就可以了。那么我们合并镜像对称、判断是否相等两个步骤，我们先来看下判断两个树是否相等的代码</p><pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">isSameTree</span><span class="token punctuation">(</span>p <span class="token operator">*</span>TreeNode<span class="token punctuation">,</span> q <span class="token operator">*</span>TreeNode<span class="token punctuation">)</span> <span class="token builtin">bool</span> <span class="token punctuation">&#123;</span>    <span class="token keyword">if</span> p <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token operator">&amp;&amp;</span> q <span class="token operator">==</span> <span class="token boolean">nil</span><span class="token punctuation">&#123;</span>        <span class="token keyword">return</span> <span class="token boolean">true</span>    <span class="token punctuation">&#125;</span>    <span class="token keyword">if</span> q<span class="token operator">==</span><span class="token boolean">nil</span> <span class="token operator">||</span> p <span class="token operator">==</span> <span class="token boolean">nil</span><span class="token punctuation">&#123;</span>        <span class="token keyword">return</span> <span class="token boolean">false</span>    <span class="token punctuation">&#125;</span>    <span class="token keyword">return</span> p<span class="token punctuation">.</span>Val <span class="token operator">==</span> q<span class="token punctuation">.</span>Val <span class="token operator">&amp;&amp;</span> <span class="token comment">// 节点的值和递归代码进行合并</span>        <span class="token function">isSameTree</span><span class="token punctuation">(</span>p<span class="token punctuation">.</span>Left<span class="token punctuation">,</span>q<span class="token punctuation">.</span>Left<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token function">isSameTree</span><span class="token punctuation">(</span>p<span class="token punctuation">.</span>Right<span class="token punctuation">,</span>q<span class="token punctuation">.</span>Right<span class="token punctuation">)</span><span class="token punctuation">&#125;</span></code></pre><p>因为我们不是判断左右子树是否相等了，而是判断左子树和镜像右子树是否相等，而镜像右子树又是左右节点互换，那么我们在判断的时候手动把替换的逻辑改掉。从 <code>isSameTree(p.Left,q.Left)</code> 判断左子树的左节点和右子树的左节点相等换为<code>isSameTree(p.Left,q.Right)</code>就可以了。</p><h2 id="最终答案"><a href="#最终答案" class="headerlink" title="最终答案"></a>最终答案</h2><pre class="language-go" data-language="go"><code class="language-go"><span class="token keyword">func</span> <span class="token function">isSymmetric</span><span class="token punctuation">(</span>root <span class="token operator">*</span>TreeNode<span class="token punctuation">)</span> <span class="token builtin">bool</span> <span class="token punctuation">&#123;</span>    <span class="token keyword">if</span> root <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">&#123;</span>        <span class="token keyword">return</span> <span class="token boolean">true</span>    <span class="token punctuation">&#125;</span>    <span class="token keyword">return</span> <span class="token function">isSymmetricHelper</span><span class="token punctuation">(</span>root<span class="token punctuation">.</span>Left<span class="token punctuation">,</span>root<span class="token punctuation">.</span>Right<span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token keyword">func</span> <span class="token function">isSymmetricHelper</span><span class="token punctuation">(</span>left<span class="token punctuation">,</span>right <span class="token operator">*</span>TreeNode<span class="token punctuation">)</span> <span class="token builtin">bool</span> <span class="token punctuation">&#123;</span>    <span class="token keyword">if</span> left <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token operator">||</span> right <span class="token operator">==</span> <span class="token boolean">nil</span><span class="token punctuation">&#123;</span>        <span class="token keyword">return</span> left <span class="token operator">==</span> right    <span class="token punctuation">&#125;</span>    <span class="token keyword">if</span> left<span class="token punctuation">.</span>Val <span class="token operator">!=</span> right<span class="token punctuation">.</span>Val<span class="token punctuation">&#123;</span>        <span class="token keyword">return</span> <span class="token boolean">false</span>    <span class="token punctuation">&#125;</span>    <span class="token keyword">return</span> <span class="token function">isSymmetricHelper</span><span class="token punctuation">(</span>left<span class="token punctuation">.</span>Left<span class="token punctuation">,</span>right<span class="token punctuation">.</span>Right<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span>         <span class="token function">isSymmetricHelper</span><span class="token punctuation">(</span>left<span class="token punctuation">.</span>Right<span class="token punctuation">,</span>right<span class="token punctuation">.</span>Left<span class="token punctuation">)</span><span class="token punctuation">&#125;</span></code></pre><h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>中午有了点时间，再做一道。</p>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;  每日第二题&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="leetcode" scheme="https://helloteemo.github.io/categories/leetcode/"/>
+    
+    
+    <category term="leetcode" scheme="https://helloteemo.github.io/tags/leetcode/"/>
+    
+  </entry>
   
   <entry>
     <title>相同的树</title>
@@ -475,31 +498,6 @@
     <category term="RocketMQ" scheme="https://helloteemo.github.io/categories/RocketMQ/"/>
     
     <category term="消息消费" scheme="https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/"/>
-    
-    
-    <category term="RocketMQ" scheme="https://helloteemo.github.io/tags/RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>大致的存储过程</title>
-    <link href="https://helloteemo.github.io/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/"/>
-    <id>https://helloteemo.github.io/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/</id>
-    <published>2021-07-05T01:55:28.000Z</published>
-    <updated>2021-09-20T03:02:22.929Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>  由于消息存储篇幅过长，这里只指明大致的消息存储过程</p></blockquote><span id="more"></span><h1 id="大致的消息存储过程"><a href="#大致的消息存储过程" class="headerlink" title="大致的消息存储过程"></a>大致的消息存储过程</h1><h2 id="存储文件"><a href="#存储文件" class="headerlink" title="存储文件"></a>存储文件</h2><p><code>RocketMQ</code> 的主要存储三个文件:</p><ol><li><code>CommitLog</code> ，在 <code>RocketMQ</code> 的设计中，它存储了所有的消息</li><li><code>ConsumerQueue</code> ，每一个消息队列对应一个文件</li><li><code>IndexFile</code> ，加速了消息的检索速度</li></ol><p><img src="https://helloteemo.com.cn/2021.07/image-20210705221223338.png" alt="image-20210705221223338"></p><h2 id="存储过程"><a href="#存储过程" class="headerlink" title="存储过程"></a>存储过程</h2><ol><li>检查消息是否可以写入，如该Broker是Slave、磁盘已满、队列没有写权限则不能写入</li><li>检查是否是延时消息，如果是延时消息则保存具体的Topic信息、MessageID到消息体中，并替换为延时消息的Topic和MessageID</li><li>获取当前可以写入的CommitLog文件</li><li>申请 <code>putMessageLock</code> ，即写入文件是串行写入的</li><li>设置消息的存储时间，创建全局唯一的 Message ID</li><li>获取该消息在消息队列中的偏移量，重新计算消息的总长度，并写入Commit Log文件中，如果无法存储所有的内容则创建新的CommitLog</li><li>把消息写入到CommitLog中，根据配置文件进行刷盘</li><li>更新逻辑偏移量，并释放 <code>putMessageLock</code></li><li>根据 <code>CommitLog</code> 偏移量、消息体大小、tag的hash值写入ConsumerQueue中</li><li>插入数据到IndexFile中</li><li>Consumer Queue间隔一定时间刷盘</li></ol>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;  由于消息存储篇幅过长，这里只指明大致的消息存储过程&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="RocketMQ" scheme="https://helloteemo.github.io/categories/RocketMQ/"/>
-    
-    <category term="消息存储" scheme="https://helloteemo.github.io/categories/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/"/>
     
     
     <category term="RocketMQ" scheme="https://helloteemo.github.io/tags/RocketMQ/"/>
