@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2022-02-02T16:32:45.729Z</updated>
+  <updated>2022-02-07T12:48:35.880Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://helloteemo.github.io/2022/02/03/%E6%B8%B8%E6%88%8F/VR%E5%A5%B3%E5%8F%8B/"/>
     <id>https://helloteemo.github.io/2022/02/03/%E6%B8%B8%E6%88%8F/VR%E5%A5%B3%E5%8F%8B/</id>
     <published>2022-02-02T16:00:00.000Z</published>
-    <updated>2022-02-02T16:32:45.729Z</updated>
+    <updated>2022-02-07T12:48:35.880Z</updated>
     
     <content type="html"><![CDATA[<blockquote><p>啊，嗯哼，来这里的都是老司机了吧，这里也不多逼逼VR女友是什么玩意了，VR 女友补丁安装方法</p></blockquote><span id="more"></span><h1 id="vr女友补丁安装方法"><a class="markdownIt-Anchor" href="#vr女友补丁安装方法"></a> VR女友补丁安装方法</h1><h2 id="准备过程"><a class="markdownIt-Anchor" href="#准备过程"></a> 准备过程</h2><p>我是在Steam中购买的VR女友，并且购买了 <code>Oculus Quest2</code>，使用了 <code>Quest Link</code> 串流玩游戏，这里需要使用到 <code>Steam VR</code>套件， <code>Steam VR</code>套件会在启动 <code>VR Kanojo</code> 的时候自动安装不需要我们操心。因为Steam版本是阉割版本，这个在Steam商城里面就有提到，所以我们需要通过打补丁的方式来获取原汁原味的 <code>VR 女友</code></p><p><img src="https://helloteemo.com.cn/2022/02/03/1643818483.png" alt="image-20220203001440427" /></p><h2 id="如何安装补丁"><a class="markdownIt-Anchor" href="#如何安装补丁"></a> 如何安装补丁</h2><blockquote><p>这个补丁其实有三个补丁，我们主要来讲第三个补丁的获取安装方式</p><ol><li>汉化补丁</li><li>免VR补丁(如果需要)</li><li>18+ 补丁(啊，嗯哼)</li></ol></blockquote><p>首先声明，<a href="https://illusionvr.jp/index_en.php#conthome">官网</a> 貌似已经下掉了补丁包，我找到了一位大佬的 <code>GayHub</code> 上有包，<code>https://github.com/kryuki/VRKanojo_Patch</code> ，我们只需要下载<a href="https://github.com/kryuki/VRKanojo_Patch/blob/master/vrkanojo_steam_ex.exe">vrkanojo_steam_ex.exe</a> (点击可以直接下载)下来，并且到我们的游戏安装目录运行这个可执行文件，程序会弹出一个窗口，直接点 <code>解冻</code> 按钮就可以，它会在本地生成一个文件夹 <code>vrkanojo_staem_ex</code>，我们进入这个文件夹下，它有一个目录：<code>abdata</code>，把它移动到上一层就行(也就是程序安装目录)。</p><h2 id="其它一些东西"><a class="markdownIt-Anchor" href="#其它一些东西"></a> 其它一些东西</h2><p><a href="https://steamcommunity.com/app/751440/reviews/?l=tchinese&amp;browsefilter=toprated&amp;filterLanguage=all">https://steamcommunity.com/app/751440/reviews/?l=tchinese&amp;browsefilter=toprated&amp;filterLanguage=all</a></p><p>这里有一些画质增强的软件，但是我本身电脑配置有点差就没有去尝试</p><h2 id="地址总结"><a class="markdownIt-Anchor" href="#地址总结"></a> 地址总结</h2><p>VR女友官网 : <code>https://illusionvr.jp/index_en.php#conthome</code> (进不去很正常)</p><p>包地址:  <code>https://github.com/kryuki/VRKanojo_Patch</code></p><p>直接下载地址: <code>https://github.com/kryuki/VRKanojo_Patch/blob/master/vrkanojo_steam_ex.exe</code></p><h1 id="写在最后"><a class="markdownIt-Anchor" href="#写在最后"></a> 写在最后</h1><p>啊，我还要去建设社会主义呢。</p><p><img src="http://jyj.km.org.cn/UploadFiles_7686/201707/2017070410205203.jpg" alt="image-20220203001440427" /></p>]]></content>
     
