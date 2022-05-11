@@ -310,6 +310,31 @@
   
   
   <entry>
+    <title>Redis目录</title>
+    <link href="/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/"/>
+    <url>/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</url>
+    
+    <content type="html"><![CDATA[<blockquote><p>此文为Redis的目录</p></blockquote><span id="more"></span><h1 id="目录">目录</h1><h2 id="基本理念">基本理念</h2><ol type="1"><li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li><li><a href="/2021/07/20/Redis/LRU%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" title="[LRU算法实现]">[LRU算法实现]</a></li></ol><h2 id="一些因为无聊写的文字">一些因为无聊写的文字</h2><ol type="1"><li><a href="#">Post not found: Redis/Redis做队列 [Redis做队列]</a></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>基础知识</title>
     <link href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     <url>/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
@@ -329,31 +354,6 @@
       <tag>Redis</tag>
       
       <tag>基础知识</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>Redis目录</title>
-    <link href="/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/"/>
-    <url>/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</url>
-    
-    <content type="html"><![CDATA[<blockquote><p>此文为Redis的目录</p></blockquote><span id="more"></span><h1 id="目录">目录</h1><h2 id="基本理念">基本理念</h2><ol type="1"><li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li><li><a href="/2021/07/20/Redis/LRU%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" title="[LRU算法实现]">[LRU算法实现]</a></li></ol><h2 id="一些因为无聊写的文字">一些因为无聊写的文字</h2><ol type="1"><li><a href="#">Post not found: Redis/Redis做队列 [Redis做队列]</a></li></ol>]]></content>
-    
-    
-    <categories>
-      
-      <category>Redis</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>Redis</tag>
       
     </tags>
     
@@ -871,11 +871,11 @@
   
   
   <entry>
-    <title>人民数字虎帖宕机原因分析</title>
-    <link href="/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%BA%BA%E6%B0%91%E6%95%B0%E5%AD%97%E8%99%8E%E5%B8%96%E5%AE%95%E6%9C%BA%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/"/>
-    <url>/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%BA%BA%E6%B0%91%E6%95%B0%E5%AD%97%E8%99%8E%E5%B8%96%E5%AE%95%E6%9C%BA%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/</url>
+    <title>关于代码和对接文档规范</title>
+    <link href="/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
+    <url>/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</url>
     
-    <content type="html"><![CDATA[<blockquote><p>如题。</p></blockquote><span id="more"></span><h1 id="开始">开始</h1><p>今天突然看到人民网也开始玩NFT，这还不抢到飞起！！！</p><figure><img src="https://helloteemo.com.cn/2022/02/14/1644850001.png" alt="image-20220214224639958" /><figcaption aria-hidden="true">image-20220214224639958</figcaption></figure><h1 id="写在结束">写在结束</h1>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范">关于代码和对接文档规范</h1><ol type="1"><li><h2 id="日志">日志</h2><ol type="1"><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol type="1"><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码">错误码</h3><ol type="1"><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2" type="1"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
     
     
     <categories>
@@ -896,11 +896,11 @@
   
   
   <entry>
-    <title>关于代码和对接文档规范</title>
-    <link href="/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/"/>
-    <url>/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%85%B3%E4%BA%8E%E4%BB%A3%E7%A0%81%E5%92%8C%E6%96%87%E6%A1%A3%E8%A7%84%E8%8C%83/</url>
+    <title>人民数字虎帖宕机原因分析</title>
+    <link href="/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%BA%BA%E6%B0%91%E6%95%B0%E5%AD%97%E8%99%8E%E5%B8%96%E5%AE%95%E6%9C%BA%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/"/>
+    <url>/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%BA%BA%E6%B0%91%E6%95%B0%E5%AD%97%E8%99%8E%E5%B8%96%E5%AE%95%E6%9C%BA%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90/</url>
     
-    <content type="html"><![CDATA[<blockquote><p>本篇文章总结了一下alibaba代码规范，并按照alibab对外文档总结了一些文档规范</p></blockquote><span id="more"></span><h1 id="关于代码和对接文档规范">关于代码和对接文档规范</h1><ol type="1"><li><h2 id="日志">日志</h2><ol type="1"><li><p>日志分级，可以使用<code>logging.SetLogLevel(logging.DEBUG)</code>去屏蔽一些日志</p><ol type="1"><li><code>debug</code></li><li><code>info</code></li><li><code>warn</code></li><li><code>error</code></li></ol></li><li><p>应用中统一使用<code>zonst/logging</code>包去打印日志</p></li><li><p>日志文件统一放在<code>/data/log/&#123;app_name&#125;/&#123;app_name&#125;.log</code>文件中</p></li><li><p>在日志输出中，字符串变量之间的拼接应该使用占位符的方式，最好不要使用字符串拼接的方式</p></li><li><p>谨慎地记录日志。生产环境禁止输出<code>debug</code> 日志；有选择地输出<code>info</code> 日志；如果使用<code>warn</code>来记录刚上线时的业务行为信息，一定要注意日志输出量的问题，避免把服务器磁盘撑爆，并记得及时删除这些观察日志。</p><blockquote><p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</p></blockquote></li><li><p>可以使用 warn 日志级别来记录用户输入参数错误的情况</p></li></ol><h3 id="错误码">错误码</h3><ol type="1"><li>错误码为字符串类型,一共五位，分两个部分，错误来源+四位数字编号</li></ol><blockquote><p>错误产生来源分为 A/B/C，A 表示错误来源于用户，比如参数错误，用户安装版本过低，用户支付超时等问题；B 表示错误来源于当前系统，往往是业务逻辑出错，或程序健壮性差等问题；C 表示错误来源于第三方服务，比如 CDN 服务出错，消息投递超时等问题；四位数字编号从 0001 到 9999，大类之间的步长间距预留 100</p></blockquote><ol start="2" type="1"><li>编号不与公司业务架构，更不与组织架构挂钩，一切与平台先到先申请的原则进行，审批生效，编号即被永久固定。</li><li>错误码使用者避免随意定义新的错误码。尽可能在原有错误码附表中找到语义相同或者相近的错误码在代码中使用即可。</li><li>错误码之外的业务独特信息由 error_message 来承载，而不是让错误码本身涵盖过多具体业务属性。</li></ol></li></ol>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>如题。</p></blockquote><span id="more"></span><h1 id="开始">开始</h1><p>今天突然看到人民网也开始玩NFT，这还不抢到飞起！！！</p><figure><img src="https://helloteemo.com.cn/2022/02/14/1644850001.png" alt="image-20220214224639958" /><figcaption aria-hidden="true">image-20220214224639958</figcaption></figure><h1 id="写在结束">写在结束</h1>]]></content>
     
     
     <categories>

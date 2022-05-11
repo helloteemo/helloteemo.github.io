@@ -299,6 +299,29 @@
   </entry>
   
   <entry>
+    <title>Redis目录</title>
+    <link href="https://helloteemo.github.io/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/"/>
+    <id>https://helloteemo.github.io/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</id>
+    <published>2021-07-20T01:05:09.000Z</published>
+    <updated>2021-10-31T13:36:48.064Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>此文为Redis的目录</p></blockquote><span id="more"></span><h1 id="目录">目录</h1><h2 id="基本理念">基本理念</h2><ol type="1"><li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li><li><a href="/2021/07/20/Redis/LRU%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" title="[LRU算法实现]">[LRU算法实现]</a></li></ol><h2 id="一些因为无聊写的文字">一些因为无聊写的文字</h2><ol type="1"><li><a href="#">Post not found: Redis/Redis做队列 [Redis做队列]</a></li></ol>]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;此文为Redis的目录&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/categories/Redis/"/>
+    
+    
+    <category term="Redis" scheme="https://helloteemo.github.io/tags/Redis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>基础知识</title>
     <link href="https://helloteemo.github.io/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     <id>https://helloteemo.github.io/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</id>
@@ -320,29 +343,6 @@
     <category term="Redis" scheme="https://helloteemo.github.io/tags/Redis/"/>
     
     <category term="基础知识" scheme="https://helloteemo.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis目录</title>
-    <link href="https://helloteemo.github.io/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/"/>
-    <id>https://helloteemo.github.io/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</id>
-    <published>2021-07-20T01:05:09.000Z</published>
-    <updated>2021-10-31T13:36:48.064Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>此文为Redis的目录</p></blockquote><span id="more"></span><h1 id="目录">目录</h1><h2 id="基本理念">基本理念</h2><ol type="1"><li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li><li><a href="/2021/07/20/Redis/LRU%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" title="[LRU算法实现]">[LRU算法实现]</a></li></ol><h2 id="一些因为无聊写的文字">一些因为无聊写的文字</h2><ol type="1"><li><a href="#">Post not found: Redis/Redis做队列 [Redis做队列]</a></li></ol>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;此文为Redis的目录&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="Redis" scheme="https://helloteemo.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://helloteemo.github.io/tags/Redis/"/>
     
   </entry>
   
