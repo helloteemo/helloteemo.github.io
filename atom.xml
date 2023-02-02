@@ -6,7 +6,7 @@
   <link href="https://helloteemo.github.io/atom.xml" rel="self"/>
   
   <link href="https://helloteemo.github.io/"/>
-  <updated>2022-12-18T06:59:50.349Z</updated>
+  <updated>2023-02-02T04:56:18.171Z</updated>
   <id>https://helloteemo.github.io/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>基本死活</title>
+    <link href="https://helloteemo.github.io/2023/02/02/%E5%9B%B4%E6%A3%8B/%E6%AD%BB%E6%B4%BB/%E5%9F%BA%E6%9C%AC%E6%AD%BB%E6%B4%BB/"/>
+    <id>https://helloteemo.github.io/2023/02/02/%E5%9B%B4%E6%A3%8B/%E6%AD%BB%E6%B4%BB/%E5%9F%BA%E6%9C%AC%E6%AD%BB%E6%B4%BB/</id>
+    <published>2023-02-01T16:00:00.000Z</published>
+    <updated>2023-02-02T04:56:18.171Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>基础死活</p></blockquote><span id="more"></span><h1 id="基础死活"><a class="markdownIt-Anchor" href="#基础死活"></a> 基础死活</h1><h2 id="真假眼"><a class="markdownIt-Anchor" href="#真假眼"></a> 真假眼</h2><p>通过眼形判断真眼还是假眼，<strong>如果一个眼眼形四角中有两个及以上为对方所占，那它就是假眼</strong>，若四角齐全或者仅有一角不完整，则应该是真眼</p><img src="https://img.helloteemo.com.cn/2023/02/02/1675312948.png" alt="真眼" style="zoom:20%;" /><h2 id="活棋"><a class="markdownIt-Anchor" href="#活棋"></a> 活棋</h2><p>只要能做出两个及以上的真眼，就能确保货期，获取无法被对方提吃，能够在棋盘存在到终局</p><h2 id="基本活棋形"><a class="markdownIt-Anchor" href="#基本活棋形"></a> 基本活棋形</h2><img src="https://img.helloteemo.com.cn/2023/02/02/1675313141.png" alt="直三" style="zoom:25%;" /><img src="https://img.helloteemo.com.cn/2023/02/02/1675313207.png" alt="曲三" style="zoom:25%;" /><img src="https://img.helloteemo.com.cn/2023/02/02/1675313341.png" alt="丁四" style="zoom:25%;" /><img src="https://img.helloteemo.com.cn/2023/02/02/1675313472.png" alt="曲四" style="zoom:25%;" /><h2 id="基本死棋"><a class="markdownIt-Anchor" href="#基本死棋"></a> 基本死棋</h2><img src="https://img.helloteemo.com.cn/2023/02/02/1675313565.png" alt="方四" style="zoom:25%;" />]]></content>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;基础死活&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="围棋" scheme="https://helloteemo.github.io/categories/%E5%9B%B4%E6%A3%8B/"/>
+    
+    
+    <category term="围棋" scheme="https://helloteemo.github.io/tags/%E5%9B%B4%E6%A3%8B/"/>
+    
+    <category term="死活" scheme="https://helloteemo.github.io/tags/%E6%AD%BB%E6%B4%BB/"/>
+    
+  </entry>
   
   <entry>
     <title>团队框架演进基本思路</title>
@@ -462,31 +487,6 @@
     
     
     <category term="没有标签" scheme="https://helloteemo.github.io/tags/%E6%B2%A1%E6%9C%89%E6%A0%87%E7%AD%BE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MVCC</title>
-    <link href="https://helloteemo.github.io/2021/07/22/SQL/MVCC/"/>
-    <id>https://helloteemo.github.io/2021/07/22/SQL/MVCC/</id>
-    <published>2021-07-22T07:13:21.000Z</published>
-    <updated>2022-07-29T06:16:53.706Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>MVCC的意思是多版本并发控制，是在并发访问数据库时，通过对数据进行多版本控制，从而解决锁问题</p></blockquote><span id="more"></span><h1 id="mvcc"><a class="markdownIt-Anchor" href="#mvcc"></a> MVCC</h1><h2 id="为什么需要mvcc"><a class="markdownIt-Anchor" href="#为什么需要mvcc"></a> 为什么需要MVCC</h2><p>从标题中也可以窥见答案：为了解决并发问题，我们思考一下如果我们需要并发编程中的读写问题</p><ol><li>对并发访问的数据加一把排他锁，这样就只有一个事务可以对数据进行读或者写操作</li><li>对并发的访问的数据加一把读写锁，读操作不需要阻塞，而写操作需要阻塞读操作和其余写操作</li><li>对并发的数据进行快照备份，从而可以访问到任何版本的内容</li></ol><h2 id="mvcc的实现原理"><a class="markdownIt-Anchor" href="#mvcc的实现原理"></a> MVCC的实现原理</h2><p>MVCC实现的两个核心分别是 <code>undo log</code> 和一致性视图，其中 <code>undo log</code> 用来保存版本的数据，而一致性视图用来保存当前活跃的事物列表。</p><h3 id="undo-log"><a class="markdownIt-Anchor" href="#undo-log"></a> <code>undo log</code></h3><p><code>innodb</code> 在每一次修改数据库之前都会把操作日志写在 <code>undo log</code> 中，<code>undo log</code> 文件一般存放在共享表空间中，实际上 <code>undo log</code> 的修改会反应在 <code>redo log</code> 文件中，<code>redo log</code> 会直接反应在磁盘中。</p><p><code>undo log</code> 实现了数据库快照功能，通过事务id和 <code>undo log</code> 我们可以找到历史版本的数据。</p><h3 id="一致性视图"><a class="markdownIt-Anchor" href="#一致性视图"></a> 一致性视图</h3><p>在表的每一列中都存放着两个隐藏列：<code>trx_id</code> 和 <code>roll_ptr</code>，分别表示修改当前列的事务ID和指向上一个版本的记录，如此就可以组成一个版本链。</p><p>接下来就可以讲 <code>ReadView</code> 了。它存储了一种用来记录当前活跃状态的读写事务，用于判定改事务的可见的数据版本。</p><p>它有三个重要的概念：</p><ol><li><code>up_limit_id</code>  ：代表当前已提交的事务ID</li><li><code>trx_ids</code> ：当前活跃但未提交的事务ID</li><li><code>low_limit_id</code>：当前最大的事务ID+1</li></ol><p>因为 <code>low_limit_id</code> 和 <code>trx_ids</code> 要不就是 <code>ReadView</code> 创建之后的事务，要不就是当前未提交的事务ID集合。所以这两个都是不可见的。</p><p><img src="https://img.helloteemo.com.cn/2021.07/image-20210722154757037.png" alt="image-20210722154757037" /></p><p><code>Read Commited</code> 和 <code>Reaptable Read</code> 的区别就在于你每次进行读操作的时候是否重新生成一个 <code>ReadView</code> 。</p><ul><li>如果重新生成 <code>ReadView</code> 的话，就代表每次读取的时候都会获得已提交的事务修改的内容，即 <code>up_limit_id</code> 会更新为最新的 <code>trx_id</code> ,也就是说是 <code>Read Commited</code>  隔离级别</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;MVCC的意思是多版本并发控制，是在并发访问数据库时，通过对数据进行多版本控制，从而解决锁问题&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="SQL" scheme="https://helloteemo.github.io/categories/SQL/"/>
-    
-    
-    <category term="数据库" scheme="https://helloteemo.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
-    
-    <category term="MVCC" scheme="https://helloteemo.github.io/tags/MVCC/"/>
     
   </entry>
   
