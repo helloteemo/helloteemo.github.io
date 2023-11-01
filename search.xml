@@ -612,48 +612,6 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>go时间段分周</title>
-    <url>/2021/01/19/Golang/%E6%8C%89%E5%91%A8%E5%B9%B3%E5%88%86%E6%97%B6%E9%97%B4Go%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<p>这段程序是受困于当初写数据统计时有个非常变态的周统计需求，所以做了一个关于ISO周划分的函数</p>
-<span id="more"></span>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> awesome<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;time&quot;</span><br><br><span class="hljs-keyword">type</span> WeekDate <span class="hljs-keyword">struct</span> &#123;<br>	ISOYear   <span class="hljs-keyword">int</span><br>	ISOWeek   <span class="hljs-keyword">int</span><br>	StartTime time.Time<br>	EndTime   time.Time<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">groupByWeekDate</span><span class="hljs-params">(startTime, endTime time.Time)</span> []<span class="hljs-title">WeekDate</span></span> &#123;<br>	<span class="hljs-comment">// Sunday -&gt; Saturday  0,1,2,3,4,5,6</span><br>	startOffset := <span class="hljs-keyword">int</span>(time.Monday - startTime.Weekday())<br>	<span class="hljs-comment">// 只有Monday减去Sunday的时候是正数</span><br>	<span class="hljs-keyword">if</span> startOffset &gt; <span class="hljs-number">0</span> &#123;<br>		startOffset = <span class="hljs-number">-6</span><br>	&#125;<br>	startMonday := startTime.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, startOffset)<br><br>	endOffset := <span class="hljs-keyword">int</span>(<span class="hljs-number">7</span> - endTime.Weekday())<br>	<span class="hljs-keyword">if</span> endOffset == <span class="hljs-number">7</span> &#123;<br>		endOffset = <span class="hljs-number">0</span><br>	&#125;<br>	endSunday := endTime.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, endOffset)<br><br>	<span class="hljs-keyword">var</span> res = <span class="hljs-built_in">make</span>([]WeekDate, <span class="hljs-number">0</span>)<br>	<span class="hljs-keyword">for</span> i := startMonday; i.Before(endSunday) || i.Equal(endSunday); i = i.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">7</span>) &#123;<br>		iISOYear, iISOWeek := i.ISOWeek()<br>		<span class="hljs-keyword">var</span> tmp = WeekDate&#123;<br>			ISOYear:   iISOYear,<br>			ISOWeek:   iISOWeek,<br>			StartTime: i,<br>			EndTime:   i.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>),<br>		&#125;<br>		res = <span class="hljs-built_in">append</span>(res, tmp)<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> res<br>&#125;<br></code></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>通过函数传递解决Go循环引用</title>
-    <url>/2022/02/13/Golang/%E9%80%9A%E8%BF%87%E5%87%BD%E6%95%B0%E4%BC%A0%E9%80%92%E8%A7%A3%E5%86%B3Go%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8/</url>
-    <content><![CDATA[<blockquote>
-<p>一个比较无耻的解决方案</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="开始">开始</h1>
-<p>这里讲的方法千万不要使用，为什么写这一篇文章是因为在工作中就很少想到有这样的奇淫巧技了。</p>
-<h1 id="案例">案例</h1>
-<p>我有一个a包，里面封装了用户的一些基本信息</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// User basic user info</span><br><span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;<br>	Username <span class="hljs-keyword">string</span><br>	Password <span class="hljs-keyword">string</span><br>	IdCard   <span class="hljs-keyword">string</span><br>&#125;<br><br><span class="hljs-comment">// UpdateUserInfo 更新用户信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">UpdateUserInfo</span><span class="hljs-params">(idCard <span class="hljs-keyword">string</span>)</span></span> &#123;<br>	b.UpdateUserInfo(getAgeFromIdCard(idCard))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getAgeFromIdCard</span><span class="hljs-params">(idCard <span class="hljs-keyword">string</span>)</span> <span class="hljs-params">(age <span class="hljs-keyword">int</span>)</span></span> &#123;<br>	<span class="hljs-comment">// do something</span><br>	<span class="hljs-keyword">return</span><br>&#125;<br></code></pre></td></tr></table></figure>
-<p>当用户更新信息的时候会调用 <code>UpdateUserInfo</code> 方法，但是用户的一些其余信息定义在了B包中。这里就产生了循环引用问题。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// User extend a.User</span><br><span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;<br>	a.User<br>	Age <span class="hljs-keyword">int</span> <span class="hljs-string">`json:&quot;age&quot;`</span><br>&#125;<br><br><span class="hljs-comment">// UpdateUserInfo 刷新用户信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">UpdateUserInfo</span><span class="hljs-params">(age <span class="hljs-keyword">int</span>)</span></span> &#123;<br>	<span class="hljs-comment">// do something</span><br>&#125;<br></code></pre></td></tr></table></figure>
-<h1 id="解决方案">解决方案</h1>
-<p>我们可以保证A包是基本包，它始终不调用任意其余包，这样我们可以通过初始化的方式把B包中的方法传递给A包，这样就解决了循环引用问题，大概就是在A包中增加一个接口(广义的接口)使得A包可以通过调用本地方法的方式来调用B包中的函数。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// a包</span><br><br><span class="hljs-keyword">var</span> (<br>	BUpdateUserInfoFunc <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(age <span class="hljs-keyword">int</span>)</span></span><br>)<br><br><span class="hljs-comment">// b包</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Init</span><span class="hljs-params">()</span></span> &#123;<br>	a.BUpdateUserInfoFunc = UpdateUserInfo<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>当然也可以通过其余方式(比如消息队列或者其余的同步方法)</p>
-<h1 id="写在最后">写在最后</h1>
-<p>水了一周的文章，这样做的意义不大，甚至危害性极高，它使得基础包A包增加了过多的初始化依赖，并且有可能出现循环调用的问题，这无异于一场灾难。</p>
-]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Java 学习路线图</title>
     <url>/2020/12/19/Java/Java-%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E5%9B%BE/</url>
     <content><![CDATA[<p>本文只列举了一些大纲，如果需要细节知识的读者请移步<code>《Java编程思想》</code>，这也是我的入门书籍，它给了我很大的帮助</p>
@@ -1100,6 +1058,48 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
+    <title>go时间段分周</title>
+    <url>/2021/01/19/Golang/%E6%8C%89%E5%91%A8%E5%B9%B3%E5%88%86%E6%97%B6%E9%97%B4Go%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<p>这段程序是受困于当初写数据统计时有个非常变态的周统计需求，所以做了一个关于ISO周划分的函数</p>
+<span id="more"></span>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> awesome<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;time&quot;</span><br><br><span class="hljs-keyword">type</span> WeekDate <span class="hljs-keyword">struct</span> &#123;<br>	ISOYear   <span class="hljs-keyword">int</span><br>	ISOWeek   <span class="hljs-keyword">int</span><br>	StartTime time.Time<br>	EndTime   time.Time<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">groupByWeekDate</span><span class="hljs-params">(startTime, endTime time.Time)</span> []<span class="hljs-title">WeekDate</span></span> &#123;<br>	<span class="hljs-comment">// Sunday -&gt; Saturday  0,1,2,3,4,5,6</span><br>	startOffset := <span class="hljs-keyword">int</span>(time.Monday - startTime.Weekday())<br>	<span class="hljs-comment">// 只有Monday减去Sunday的时候是正数</span><br>	<span class="hljs-keyword">if</span> startOffset &gt; <span class="hljs-number">0</span> &#123;<br>		startOffset = <span class="hljs-number">-6</span><br>	&#125;<br>	startMonday := startTime.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, startOffset)<br><br>	endOffset := <span class="hljs-keyword">int</span>(<span class="hljs-number">7</span> - endTime.Weekday())<br>	<span class="hljs-keyword">if</span> endOffset == <span class="hljs-number">7</span> &#123;<br>		endOffset = <span class="hljs-number">0</span><br>	&#125;<br>	endSunday := endTime.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, endOffset)<br><br>	<span class="hljs-keyword">var</span> res = <span class="hljs-built_in">make</span>([]WeekDate, <span class="hljs-number">0</span>)<br>	<span class="hljs-keyword">for</span> i := startMonday; i.Before(endSunday) || i.Equal(endSunday); i = i.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">7</span>) &#123;<br>		iISOYear, iISOWeek := i.ISOWeek()<br>		<span class="hljs-keyword">var</span> tmp = WeekDate&#123;<br>			ISOYear:   iISOYear,<br>			ISOWeek:   iISOWeek,<br>			StartTime: i,<br>			EndTime:   i.AddDate(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>),<br>		&#125;<br>		res = <span class="hljs-built_in">append</span>(res, tmp)<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> res<br>&#125;<br></code></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Golang</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通过函数传递解决Go循环引用</title>
+    <url>/2022/02/13/Golang/%E9%80%9A%E8%BF%87%E5%87%BD%E6%95%B0%E4%BC%A0%E9%80%92%E8%A7%A3%E5%86%B3Go%E5%BE%AA%E7%8E%AF%E5%BC%95%E7%94%A8/</url>
+    <content><![CDATA[<blockquote>
+<p>一个比较无耻的解决方案</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="开始">开始</h1>
+<p>这里讲的方法千万不要使用，为什么写这一篇文章是因为在工作中就很少想到有这样的奇淫巧技了。</p>
+<h1 id="案例">案例</h1>
+<p>我有一个a包，里面封装了用户的一些基本信息</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// User basic user info</span><br><span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;<br>	Username <span class="hljs-keyword">string</span><br>	Password <span class="hljs-keyword">string</span><br>	IdCard   <span class="hljs-keyword">string</span><br>&#125;<br><br><span class="hljs-comment">// UpdateUserInfo 更新用户信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">UpdateUserInfo</span><span class="hljs-params">(idCard <span class="hljs-keyword">string</span>)</span></span> &#123;<br>	b.UpdateUserInfo(getAgeFromIdCard(idCard))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getAgeFromIdCard</span><span class="hljs-params">(idCard <span class="hljs-keyword">string</span>)</span> <span class="hljs-params">(age <span class="hljs-keyword">int</span>)</span></span> &#123;<br>	<span class="hljs-comment">// do something</span><br>	<span class="hljs-keyword">return</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>当用户更新信息的时候会调用 <code>UpdateUserInfo</code> 方法，但是用户的一些其余信息定义在了B包中。这里就产生了循环引用问题。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// User extend a.User</span><br><span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;<br>	a.User<br>	Age <span class="hljs-keyword">int</span> <span class="hljs-string">`json:&quot;age&quot;`</span><br>&#125;<br><br><span class="hljs-comment">// UpdateUserInfo 刷新用户信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">UpdateUserInfo</span><span class="hljs-params">(age <span class="hljs-keyword">int</span>)</span></span> &#123;<br>	<span class="hljs-comment">// do something</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h1 id="解决方案">解决方案</h1>
+<p>我们可以保证A包是基本包，它始终不调用任意其余包，这样我们可以通过初始化的方式把B包中的方法传递给A包，这样就解决了循环引用问题，大概就是在A包中增加一个接口(广义的接口)使得A包可以通过调用本地方法的方式来调用B包中的函数。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// a包</span><br><br><span class="hljs-keyword">var</span> (<br>	BUpdateUserInfoFunc <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(age <span class="hljs-keyword">int</span>)</span></span><br>)<br><br><span class="hljs-comment">// b包</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Init</span><span class="hljs-params">()</span></span> &#123;<br>	a.BUpdateUserInfoFunc = UpdateUserInfo<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>当然也可以通过其余方式(比如消息队列或者其余的同步方法)</p>
+<h1 id="写在最后">写在最后</h1>
+<p>水了一周的文章，这样做的意义不大，甚至危害性极高，它使得基础包A包增加了过多的初始化依赖，并且有可能出现循环调用的问题，这无异于一场灾难。</p>
+]]></content>
+      <categories>
+        <category>Golang</category>
+      </categories>
+      <tags>
+        <tag>go</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>判断某一天是今年的第几天</title>
     <url>/2020/12/19/Java/%E5%88%A4%E6%96%AD%E6%9F%90%E4%B8%80%E5%A4%A9%E6%98%AF%E4%BB%8A%E5%B9%B4%E7%9A%84%E7%AC%AC%E5%87%A0%E5%A4%A9/</url>
     <content><![CDATA[<p>如题。。。</p>
@@ -1131,61 +1131,6 @@ Protobuf文档生成</li>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// getTotalDaySinceMonth 获取某一个月份之前月份的累积天数</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getTotalDaySinceMonth</span><span class="hljs-params">(<span class="hljs-keyword">int</span> year, <span class="hljs-keyword">int</span> month)</span> </span>&#123;<br>    <span class="hljs-keyword">int</span> totalDay = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt; month; i++) &#123;<br>        totalDay += getMonthDay(year, month);<br>    &#125;<br>    <span class="hljs-keyword">return</span> totalDay;<br>&#125;<br></code></pre></td></tr></table></figure>
 <h2 id="最后程序">最后程序</h2>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> basic;<br><br><span class="hljs-keyword">import</span> java.util.Scanner;<br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Main</span> </span>&#123;<br>    <span class="hljs-comment">// isLeapYear 判断是否是润年</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">isLeapYear</span><span class="hljs-params">(<span class="hljs-keyword">int</span> year)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> ((year % <span class="hljs-number">4</span> == <span class="hljs-number">0</span> &amp;&amp; year % <span class="hljs-number">100</span> != <span class="hljs-number">0</span>) || year % <span class="hljs-number">400</span> == <span class="hljs-number">0</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// getMonthDay 获取某一个月份的天数</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getMonthDay</span><span class="hljs-params">(<span class="hljs-keyword">int</span> year, <span class="hljs-keyword">int</span> month)</span> </span>&#123;<br>        <span class="hljs-keyword">switch</span> (month) &#123;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">5</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">7</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">8</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">10</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">12</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-number">31</span>;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-number">28</span> + (isLeapYear(year) ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span>);<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-number">30</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// getTotalDaySinceMonth 获取某一个月份之前月份的累积天数</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getTotalDaySinceMonth</span><span class="hljs-params">(<span class="hljs-keyword">int</span> year, <span class="hljs-keyword">int</span> month)</span> </span>&#123;<br>        <span class="hljs-keyword">int</span> totalDay = <span class="hljs-number">0</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt; month; i++) &#123;<br>            totalDay += getMonthDay(year, i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> totalDay;<br>    &#125;<br><br>    <span class="hljs-comment">//</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        Scanner in = <span class="hljs-keyword">new</span> Scanner(System.in);<br>        System.out.printf(<span class="hljs-string">&quot;请输入年月日(格式2020-01-02):&quot;</span>);<br>        String str = in.next();<br>        String[] split = str.split(<span class="hljs-string">&quot;-&quot;</span>);<br>        <span class="hljs-keyword">int</span> year = Integer.parseInt(split[<span class="hljs-number">0</span>]);<br>        <span class="hljs-keyword">int</span> month = Integer.parseInt(split[<span class="hljs-number">1</span>]);<br>        <span class="hljs-keyword">int</span> day = Integer.parseInt(split[<span class="hljs-number">2</span>]);<br>        <span class="hljs-keyword">int</span> totalDay = getTotalDaySinceMonth(year, month);<br>        System.out.println(<span class="hljs-string">&quot;总天数为：&quot;</span> + (totalDay + day));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何使用SpringBoot完成毕业设计</title>
-    <url>/2020/12/19/Java/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-SpringBoot-%E5%AE%8C%E6%88%90%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<p>哈哈，这个实际上是一个很大的工程，因为在看这篇文章的读者应该很迷茫，不知道怎么入手一个项目</p>
-<p>本文主要简述了一个项目的开发流程(编码部分)，怎么一步一步从无到有</p>
-<p>Let Go!!!</p>
-<span id="more"></span>
-<h1 id="如何使用springboot完成毕业设计">如何使用<strong>SpringBoot</strong>完成毕业设计</h1>
-<p>假设本博客课题：注册登入功能，这里只实现登入</p>
-<p>博客代码地址：<code>https://gitee.com/helloteemo/springboot-demo.git</code></p>
-<p>GitEE平台有两个分支:<code>master、dev</code>，其中<code>master</code>分支有大致框架，默认配置了<code>jpa</code>、<code>redis</code>，本文默认使用数据库<code>mysql</code>，使用时只需要修改<code>application.properties</code>文件中的</p>
-<figure class="highlight properties"><table><tr><td class="code"><pre><code class="hljs properties"><span class="hljs-meta">spring.datasource.url</span>=<span class="hljs-string">jdbc:mysql://127.0.0.1:3306/springboot_test?useSSL=false&amp;serverTimezone=UTC&amp;charset=utf8mb4</span><br><span class="hljs-meta">spring.datasource.username</span>=<span class="hljs-string">root</span><br><span class="hljs-meta">spring.datasource.password</span>=<span class="hljs-string">123456</span><br><br><span class="hljs-meta">spring.redis.host</span>=<span class="hljs-string">127.0.0.1</span><br><span class="hljs-meta">spring.redis.password</span>=<span class="hljs-string">123456</span><br></code></pre></td></tr></table></figure>
-<p>即可完成毕业设计大部分功能</p>
-<p>而<code>dev</code>分支则为本博客实现的代码，仅供参考</p>
-<blockquote>
-<p>毕业设计编码部分大致流程如下</p>
-<ol type="1">
-<li>创建数据库表</li>
-<li>根据数据库表创建实体类</li>
-<li>编写基本SQL语言</li>
-<li>以此创建Service、Controller</li>
-<li>编写前端部分(不写)</li>
-</ol>
-</blockquote>
-<h3 id="一-创建数据库表">一、 创建数据库表</h3>
-<p>由于实现的功能非常简单，我就写一张<code>user_user</code>表，<code>user_user</code>表有三个字段<code>id username password</code></p>
-<p>对应SQL语句如下：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">DATABASE</span> springboot-<span class="hljs-keyword">test</span> <span class="hljs-built_in">CHARACTER</span> <span class="hljs-keyword">SET</span> utf8 <span class="hljs-keyword">COLLATE</span> utf8_general_ci;<br><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> EXIST <span class="hljs-string">`user_user`</span>(<br>    <span class="hljs-keyword">id</span> <span class="hljs-built_in">int</span> primary <span class="hljs-keyword">key</span> AUTO_INCREMENT,<br>    username <span class="hljs-built_in">text</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,<br>    <span class="hljs-keyword">password</span> <span class="hljs-built_in">text</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span><br>)<span class="hljs-keyword">ENGINE</span>=<span class="hljs-keyword">InnoDB</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CHARSET</span>=utf8;<br><br><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> user_user(username,<span class="hljs-keyword">password</span>) <span class="hljs-keyword">values</span>(<span class="hljs-string">&quot;frank&quot;</span>,<span class="hljs-string">&quot;123456&quot;</span>);<br><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> user_user(username,<span class="hljs-keyword">password</span>) <span class="hljs-keyword">values</span>(<span class="hljs-string">&quot;狗头狗LJH&quot;</span>,<span class="hljs-string">&quot;123456&quot;</span>);<br></code></pre></td></tr></table></figure>
-<h3 id="二根据数据库表创建实体类">二、根据数据库表创建实体类</h3>
-<p>我们在<code>entity</code>包中创建一个<code>User</code>类，使用注解<code>@Entity</code>标记为一个实体类，使用<code>@Table</code>标注对应数据库的表名为<code>user_user</code>，生产<code>get set toString</code>方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span><br><span class="hljs-meta">@Table(&quot;user_user&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span></span>&#123;<br>     <span class="hljs-meta">@Id</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;<br><br>    <span class="hljs-meta">@Column(name = &quot;username&quot;, nullable = false)</span><br>    <span class="hljs-keyword">private</span> String username;<br><br>    <span class="hljs-meta">@Column(name = &quot;password&quot;, nullable = false)</span><br>    <span class="hljs-keyword">private</span> String password;<br>    <br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="三编写基本sql语言">三、编写基本SQL语言</h3>
-<p>由于我们使用的是<code>jpa</code>，所以只需要<code>jpa</code>标准就行，这里只做简单阐述，其余请自行查阅资料</p>
-<p>这个部分我们放在<code>models</code>包中，我们需要创建一个<code>UserRepository</code>接口，该接口需要继承<code>JpaRepository</code>，被继承的<code>JpaRepository</code>接口需要填入两个类型，第一个类型是实体类类型，第二个类型是主键类型。</p>
-<p>由于需要完成登入功能，所以我们检查账户密码是否正确，大致SQL如下</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-keyword">id</span> <span class="hljs-keyword">from</span> user_user <span class="hljs-keyword">where</span> username = ? <span class="hljs-keyword">and</span> passwrod=?<br></code></pre></td></tr></table></figure>
-<p>其中</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">JpaRepository</span>&lt;<span class="hljs-title">User</span>, <span class="hljs-title">Long</span>&gt; </span>&#123;<br>     <span class="hljs-function">User <span class="hljs-title">findByUsernameAndPassword</span><span class="hljs-params">(String username, String password)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>到这里我们就已经完成了SQL语句的编写</p>
-<h3 id="创建servicecontroller">创建Service、Controller</h3>
-<p><code>service</code>包中添加一个<code>UserService</code>接口，用来定义用户的行为，目前只实现登入功能，</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserService</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">userLogin</span><span class="hljs-params">(String username, String password)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>在<code>service</code>包中添加一个<code>impl</code>子包，用来实现<code>service</code>包中的方法，添加一个类<code>UserServiceImpl</code>类实现接口，</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-comment">// 该注解表示这个类是一个组件@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-comment">// spring自动注入</span><br>    UserRepository userRepository;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">userLogin</span><span class="hljs-params">(String username, String password)</span> </span>&#123;<br>        User user = userRepository.findByUsernameAndPassword(username, password);<br>        <span class="hljs-keyword">if</span> (user == <span class="hljs-keyword">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> user.getId() != <span class="hljs-number">0</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p><code>controller</code>包中添加一个<code>UserController</code>类，用来转发不同的请求,</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Controller</span><br><span class="hljs-comment">// 功能同@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserController</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    UserService userService;<br><br>    <span class="hljs-keyword">private</span> Logger log = LoggerFactory.getLogger(UserController.class);<br><br>    <span class="hljs-meta">@RequestMapping(&quot;login&quot;)</span><br>    <span class="hljs-meta">@ResponseBody</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">login</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;username&quot;)</span> String username, <span class="hljs-meta">@Param(&quot;password&quot;)</span> String password, HttpSession session)</span> </span>&#123;<br>        log.info(<span class="hljs-string">&quot;username:&quot;</span> + username);<br>        log.info(<span class="hljs-string">&quot;password:&quot;</span> + password);<br>        <span class="hljs-comment">// 一定，一定要记得写关键日志啊，同志们</span><br>        User currentUser = (User) session.getAttribute(<span class="hljs-string">&quot;currentUser&quot;</span>);<br>        <span class="hljs-keyword">if</span> (currentUser != <span class="hljs-keyword">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;you are login&quot;</span>;<br>        &#125;<br>        <span class="hljs-keyword">boolean</span> flag = userService.userLogin(username, password);<br>        <span class="hljs-keyword">if</span> (flag) &#123;<br>            User user = <span class="hljs-keyword">new</span> User();<br>            user.setUsername(username);<br>            user.setPassword(password);<br>            session.setAttribute(<span class="hljs-string">&quot;currentUser&quot;</span>, user);<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;welcome&quot;</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;error username or password&quot;</span>;<br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
-<p>如果有不同的地方可以加QQ:3075834432，答案<code>眼前人是心上人</code></p>
 ]]></content>
       <categories>
         <category>Java</category>
@@ -1260,6 +1205,86 @@ Protobuf文档生成</li>
       <tags>
         <tag>Redis</tag>
         <tag>基础知识</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何使用SpringBoot完成毕业设计</title>
+    <url>/2020/12/19/Java/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-SpringBoot-%E5%AE%8C%E6%88%90%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<p>哈哈，这个实际上是一个很大的工程，因为在看这篇文章的读者应该很迷茫，不知道怎么入手一个项目</p>
+<p>本文主要简述了一个项目的开发流程(编码部分)，怎么一步一步从无到有</p>
+<p>Let Go!!!</p>
+<span id="more"></span>
+<h1 id="如何使用springboot完成毕业设计">如何使用<strong>SpringBoot</strong>完成毕业设计</h1>
+<p>假设本博客课题：注册登入功能，这里只实现登入</p>
+<p>博客代码地址：<code>https://gitee.com/helloteemo/springboot-demo.git</code></p>
+<p>GitEE平台有两个分支:<code>master、dev</code>，其中<code>master</code>分支有大致框架，默认配置了<code>jpa</code>、<code>redis</code>，本文默认使用数据库<code>mysql</code>，使用时只需要修改<code>application.properties</code>文件中的</p>
+<figure class="highlight properties"><table><tr><td class="code"><pre><code class="hljs properties"><span class="hljs-meta">spring.datasource.url</span>=<span class="hljs-string">jdbc:mysql://127.0.0.1:3306/springboot_test?useSSL=false&amp;serverTimezone=UTC&amp;charset=utf8mb4</span><br><span class="hljs-meta">spring.datasource.username</span>=<span class="hljs-string">root</span><br><span class="hljs-meta">spring.datasource.password</span>=<span class="hljs-string">123456</span><br><br><span class="hljs-meta">spring.redis.host</span>=<span class="hljs-string">127.0.0.1</span><br><span class="hljs-meta">spring.redis.password</span>=<span class="hljs-string">123456</span><br></code></pre></td></tr></table></figure>
+<p>即可完成毕业设计大部分功能</p>
+<p>而<code>dev</code>分支则为本博客实现的代码，仅供参考</p>
+<blockquote>
+<p>毕业设计编码部分大致流程如下</p>
+<ol type="1">
+<li>创建数据库表</li>
+<li>根据数据库表创建实体类</li>
+<li>编写基本SQL语言</li>
+<li>以此创建Service、Controller</li>
+<li>编写前端部分(不写)</li>
+</ol>
+</blockquote>
+<h3 id="一-创建数据库表">一、 创建数据库表</h3>
+<p>由于实现的功能非常简单，我就写一张<code>user_user</code>表，<code>user_user</code>表有三个字段<code>id username password</code></p>
+<p>对应SQL语句如下：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">DATABASE</span> springboot-<span class="hljs-keyword">test</span> <span class="hljs-built_in">CHARACTER</span> <span class="hljs-keyword">SET</span> utf8 <span class="hljs-keyword">COLLATE</span> utf8_general_ci;<br><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> EXIST <span class="hljs-string">`user_user`</span>(<br>    <span class="hljs-keyword">id</span> <span class="hljs-built_in">int</span> primary <span class="hljs-keyword">key</span> AUTO_INCREMENT,<br>    username <span class="hljs-built_in">text</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span>,<br>    <span class="hljs-keyword">password</span> <span class="hljs-built_in">text</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">null</span><br>)<span class="hljs-keyword">ENGINE</span>=<span class="hljs-keyword">InnoDB</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CHARSET</span>=utf8;<br><br><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> user_user(username,<span class="hljs-keyword">password</span>) <span class="hljs-keyword">values</span>(<span class="hljs-string">&quot;frank&quot;</span>,<span class="hljs-string">&quot;123456&quot;</span>);<br><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> user_user(username,<span class="hljs-keyword">password</span>) <span class="hljs-keyword">values</span>(<span class="hljs-string">&quot;狗头狗LJH&quot;</span>,<span class="hljs-string">&quot;123456&quot;</span>);<br></code></pre></td></tr></table></figure>
+<h3 id="二根据数据库表创建实体类">二、根据数据库表创建实体类</h3>
+<p>我们在<code>entity</code>包中创建一个<code>User</code>类，使用注解<code>@Entity</code>标记为一个实体类，使用<code>@Table</code>标注对应数据库的表名为<code>user_user</code>，生产<code>get set toString</code>方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span><br><span class="hljs-meta">@Table(&quot;user_user&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span></span>&#123;<br>     <span class="hljs-meta">@Id</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">long</span> id;<br><br>    <span class="hljs-meta">@Column(name = &quot;username&quot;, nullable = false)</span><br>    <span class="hljs-keyword">private</span> String username;<br><br>    <span class="hljs-meta">@Column(name = &quot;password&quot;, nullable = false)</span><br>    <span class="hljs-keyword">private</span> String password;<br>    <br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="三编写基本sql语言">三、编写基本SQL语言</h3>
+<p>由于我们使用的是<code>jpa</code>，所以只需要<code>jpa</code>标准就行，这里只做简单阐述，其余请自行查阅资料</p>
+<p>这个部分我们放在<code>models</code>包中，我们需要创建一个<code>UserRepository</code>接口，该接口需要继承<code>JpaRepository</code>，被继承的<code>JpaRepository</code>接口需要填入两个类型，第一个类型是实体类类型，第二个类型是主键类型。</p>
+<p>由于需要完成登入功能，所以我们检查账户密码是否正确，大致SQL如下</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-keyword">id</span> <span class="hljs-keyword">from</span> user_user <span class="hljs-keyword">where</span> username = ? <span class="hljs-keyword">and</span> passwrod=?<br></code></pre></td></tr></table></figure>
+<p>其中</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">JpaRepository</span>&lt;<span class="hljs-title">User</span>, <span class="hljs-title">Long</span>&gt; </span>&#123;<br>     <span class="hljs-function">User <span class="hljs-title">findByUsernameAndPassword</span><span class="hljs-params">(String username, String password)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>到这里我们就已经完成了SQL语句的编写</p>
+<h3 id="创建servicecontroller">创建Service、Controller</h3>
+<p><code>service</code>包中添加一个<code>UserService</code>接口，用来定义用户的行为，目前只实现登入功能，</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserService</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">userLogin</span><span class="hljs-params">(String username, String password)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在<code>service</code>包中添加一个<code>impl</code>子包，用来实现<code>service</code>包中的方法，添加一个类<code>UserServiceImpl</code>类实现接口，</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-comment">// 该注解表示这个类是一个组件@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-comment">// spring自动注入</span><br>    UserRepository userRepository;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">userLogin</span><span class="hljs-params">(String username, String password)</span> </span>&#123;<br>        User user = userRepository.findByUsernameAndPassword(username, password);<br>        <span class="hljs-keyword">if</span> (user == <span class="hljs-keyword">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> user.getId() != <span class="hljs-number">0</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>controller</code>包中添加一个<code>UserController</code>类，用来转发不同的请求,</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Controller</span><br><span class="hljs-comment">// 功能同@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserController</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    UserService userService;<br><br>    <span class="hljs-keyword">private</span> Logger log = LoggerFactory.getLogger(UserController.class);<br><br>    <span class="hljs-meta">@RequestMapping(&quot;login&quot;)</span><br>    <span class="hljs-meta">@ResponseBody</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">login</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;username&quot;)</span> String username, <span class="hljs-meta">@Param(&quot;password&quot;)</span> String password, HttpSession session)</span> </span>&#123;<br>        log.info(<span class="hljs-string">&quot;username:&quot;</span> + username);<br>        log.info(<span class="hljs-string">&quot;password:&quot;</span> + password);<br>        <span class="hljs-comment">// 一定，一定要记得写关键日志啊，同志们</span><br>        User currentUser = (User) session.getAttribute(<span class="hljs-string">&quot;currentUser&quot;</span>);<br>        <span class="hljs-keyword">if</span> (currentUser != <span class="hljs-keyword">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;you are login&quot;</span>;<br>        &#125;<br>        <span class="hljs-keyword">boolean</span> flag = userService.userLogin(username, password);<br>        <span class="hljs-keyword">if</span> (flag) &#123;<br>            User user = <span class="hljs-keyword">new</span> User();<br>            user.setUsername(username);<br>            user.setPassword(password);<br>            session.setAttribute(<span class="hljs-string">&quot;currentUser&quot;</span>, user);<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;welcome&quot;</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;error username or password&quot;</span>;<br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>如果有不同的地方可以加QQ:3075834432，答案<code>眼前人是心上人</code></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis目录</title>
+    <url>/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</url>
+    <content><![CDATA[<blockquote>
+<p>此文为Redis的目录</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="目录">目录</h1>
+<h2 id="基本理念">基本理念</h2>
+<ol type="1">
+<li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li>
+<li><a href="/2021/07/20/Redis/LRU%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" title="[LRU算法实现]">[LRU算法实现]</a></li>
+</ol>
+<h2 id="一些因为无聊写的文字">一些因为无聊写的文字</h2>
+<ol type="1">
+<li><a href="#">Post not found: Redis/Redis做队列 [Redis做队列]</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
       </tags>
   </entry>
   <entry>
@@ -1396,86 +1421,43 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>Java内存区域</title>
-    <url>/2021/02/20/JVM/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/</url>
-    <content><![CDATA[<p>相对于C、C++程序员来说Java程序员应该是很幸福的，他们不需要管理自己的内存，而全部交由JVM来控制，它使得我们能够更加专注于程序功能点的开发而不去维护内存，天下苦NPE久矣，但是一旦出现内存泄漏和溢出方面的问题，如果你不了解JVM具体的运行原理，那么排查错误将是一个非常非常艰难的任务，并且如果你在书写Java程序的时候不知道它一个底层的运行原理，那么你很难书写良好的代码。</p>
-<span id="more"></span>
-<h1 id="运行时数据区域">运行时数据区域</h1>
-<p>Java虚拟机咋执行Java程序的时候会把它管理的内存划分为若干个不同的数据区域</p>
-<blockquote>
-<p>无特殊说明介绍的都是<code>HotSpot</code>虚拟机 并且JDK版本默认是1.8及以上</p>
-</blockquote>
-<figure>
-<img src="https://img.helloteemo.com.cn/2021.06/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E6%A6%82%E6%8B%AC.png" alt="JVM运行时数据区域示意图" /><figcaption aria-hidden="true">JVM运行时数据区域示意图</figcaption>
-</figure>
-<p>其中线程私有的有 1. 程序计数器 2. 虚拟机栈 3. 本地方法栈</p>
-<p>线程共享的的有</p>
-<ol type="1">
-<li>堆</li>
-<li>方法区</li>
-<li>直接内存(即非运行时数据区的一部分)</li>
-</ol>
-<p>下面让我们来针对这些内存一个一个的分析</p>
-<h2 id="程序计数器">程序计数器</h2>
-<ol type="1">
-<li>什么是程序计数器</li>
-</ol>
-<p>程序计数器是<strong>当前线程</strong>正在执行的字节码的地址，它是线程隔离的，其执行原理为字节码解释器读取内存中的字节码，按照顺序读取字节码指令，读取一个指令就把它翻译为一个固定的操作。</p>
-<ol start="2" type="1">
-<li>为什么需要程序计数器</li>
-</ol>
-<p>在单线程来看可有可无，但是在多线程看来需要保存当前线程所执行的位置</p>
-<ol start="3" type="1">
-<li>程序计数器的特点
-<ol type="1">
-<li>程序计数器是线程隔离的</li>
-<li>程序计数器占用的内存空间非常小，可以忽略不计</li>
-<li>程序计数器是java虚拟机规范中唯一一个没有规定任何<strong>OutOfMemoryError</strong>的区域</li>
-<li>执行native本地方法时，程序计数器的值为空。原因是native方法是java通过jni调用本地C/C++库来实现，非java字节码实现，所以无法统计</li>
-</ol></li>
-</ol>
-<h2 id="java虚拟机栈">Java虚拟机栈</h2>
-<p>Java虚拟机栈也是线程私有的，它的生命周期和线程周期相同，它描述了Java方法执行时的内存模型，每一次方法的调用的数据都是通过栈传递的。</p>
-<p>Java虚拟机栈是有一个一个的栈帧组成，每个栈帧都拥有局部变量表、操作数栈、动态链接、方法出口信息。</p>
-<p>Java虚拟机栈会出现两种错误:<code>StackOverFlowError</code>和<code>OutOfMemoryError</code></p>
-<ul>
-<li><code>StackOverFlowError</code>：如果Java虚拟机栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前Java虚拟机最大深度的时候就会报错</li>
-<li><code>OutOfMemoryError</code>：如果Java虚拟机堆没有空闲内存，并且垃圾回收器也无法提供更多内存的话，就会抛出<code>OutOfMemoryError</code>错误</li>
-</ul>
-<h2 id="本地方法栈">本地方法栈</h2>
-<p>本地方法栈和Java虚拟机栈的作用相似，区别为：<strong>Java虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则为虚拟机使用到的Native方法服务</strong>，在HotSpot虚拟机中，Java虚拟机栈和本地方法栈合二为一。</p>
-<h2 id="堆">堆</h2>
-]]></content>
-      <categories>
-        <category>JVM</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis目录</title>
-    <url>/2021/07/20/Redis/%E7%9B%AE%E5%BD%95/</url>
+    <title>消息队列目录</title>
+    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
     <content><![CDATA[<blockquote>
-<p>此文为Redis的目录</p>
+<p>此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
 </blockquote>
 <span id="more"></span>
 <h1 id="目录">目录</h1>
 <h2 id="基本理念">基本理念</h2>
 <ol type="1">
-<li><a href="/2021/07/20/Redis/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="[基础知识]">[基础知识]</a></li>
-<li><a href="/2021/07/20/Redis/LRU%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/" title="[LRU算法实现]">[LRU算法实现]</a></li>
+<li><a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a></li>
+<li><a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a></li>
+<li><a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a></li>
+<li><a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a></li>
 </ol>
-<h2 id="一些因为无聊写的文字">一些因为无聊写的文字</h2>
+<hr />
+<h2 id="rocketmq生产者">RocketMQ生产者</h2>
 <ol type="1">
-<li><a href="#">Post not found: Redis/Redis做队列 [Redis做队列]</a></li>
+<li><a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a></li>
+<li><a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a></li>
+<li><a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a></li>
+<li><a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a></li>
+</ol>
+<h2 id="存储">存储</h2>
+<ol type="1">
+<li><a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a></li>
+</ol>
+<h2 id="消息消费">消息消费</h2>
+<ol type="1">
+<li><a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a></li>
+<li><a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a></li>
 </ol>
 ]]></content>
       <categories>
-        <category>Redis</category>
+        <category>RocketMQ</category>
       </categories>
       <tags>
-        <tag>Redis</tag>
+        <tag>RocketMQ</tag>
       </tags>
   </entry>
   <entry>
@@ -1522,47 +1504,6 @@ Protobuf文档生成</li>
       <tags>
         <tag>数据库</tag>
         <tag>MVCC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SQL优化</title>
-    <url>/2020/12/19/SQL/SQL%E4%BC%98%E5%8C%96/</url>
-    <content><![CDATA[<p>简单说了一下SQL语句的优化，实际上就是要如何命中索引</p>
-<span id="more"></span>
-<h1 id="sql优化">SQL优化</h1>
-<ol type="1">
-<li>对查询时,应该尽量避免全表扫描,首先应该考虑在<code>where</code>和<code>order by</code>上涉及的列上建立索引</li>
-<li>应该尽量避免对<code>where</code>子句中对字段进行<code>null</code>值判断,否则会导致引擎放弃使用索引而进行全表扫描,如<code>select id from t where num is null</code>,<strong>最好不要给数据库留<code>NULL</code>值,应该尽可能使用<code>NOT NULL</code>填充数据库</strong>,不要以为<code>NULL</code>值不需要空间,比如<code>char(100)</code>型,在字段建立时,空间就固定了,不管是否插入值,都是要占用100个字符的空间,但是如果是<code>varcahr</code>这种变长的字段,<code>null</code>不占用空间</li>
-<li>应该尽量避免在<code>where</code>子句中使用<code>!=</code>或<code>&lt;&gt;</code>操作符,否则将使用引擎进行全表扫描</li>
-<li>应该尽量避免在<code>where</code>子句中使用<code>or</code>来连接条件,如果一个字段有索引,一个字段没有索引,将导致引擎放弃使用索引而进行全表扫描,如</li>
-</ol>
-<blockquote>
-<p>Select id from t where num = 10 or name = ‘frank’</p>
-<p>可以这样查询</p>
-<p>Select id from t where t</p>
-<p>union all</p>
-<p>select id from where name = ‘frank’</p>
-</blockquote>
-<ol start="5" type="1">
-<li><code>in</code>和<code>not in</code>也要慎用,否则会导致全表扫描如</li>
-</ol>
-<blockquote>
-<p>select id from t where num in (1,2,3)</p>
-<p>可以使用exist、any函数进行优化</p>
-</blockquote>
-<ol start="6" type="1">
-<li>不要在<code>where</code>子句中的<code>=</code>号左边进行函数、算术运算或者其他表达式运算,否则系统将可能使用索引</li>
-<li>在使用索引字段作为条件时,如果该索引是复合索引,那么必须使用到该索引中的第一个字段作为条件时才能保证系统使用该索引,否则索引将不会被使用,并应该尽可能地让字段顺序与索引顺序相同</li>
-<li>不要使用<code>count(*)</code>这样不带任何条件的<code>count</code>,这会引起全表扫描,并且没有任何意义</li>
-<li>索引不是越多越好,索引固然可以提高相应的搜索效率,但是也会降低<code>insert</code>和<code>update</code>时可能会重建索引,所以怎么样建立索引应该慎重考虑,视具体情况而定,一个表的索引数最好不超过6个</li>
-<li>应该尽量使用数字类型而不是字符类型,因为字符类型会一个字节一个字节的比较而数字类型只会比较一次.</li>
-</ol>
-]]></content>
-      <categories>
-        <category>SQL</category>
-      </categories>
-      <tags>
-        <tag>sql</tag>
       </tags>
   </entry>
   <entry>
@@ -1876,6 +1817,47 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
+    <title>SQL优化</title>
+    <url>/2020/12/19/SQL/SQL%E4%BC%98%E5%8C%96/</url>
+    <content><![CDATA[<p>简单说了一下SQL语句的优化，实际上就是要如何命中索引</p>
+<span id="more"></span>
+<h1 id="sql优化">SQL优化</h1>
+<ol type="1">
+<li>对查询时,应该尽量避免全表扫描,首先应该考虑在<code>where</code>和<code>order by</code>上涉及的列上建立索引</li>
+<li>应该尽量避免对<code>where</code>子句中对字段进行<code>null</code>值判断,否则会导致引擎放弃使用索引而进行全表扫描,如<code>select id from t where num is null</code>,<strong>最好不要给数据库留<code>NULL</code>值,应该尽可能使用<code>NOT NULL</code>填充数据库</strong>,不要以为<code>NULL</code>值不需要空间,比如<code>char(100)</code>型,在字段建立时,空间就固定了,不管是否插入值,都是要占用100个字符的空间,但是如果是<code>varcahr</code>这种变长的字段,<code>null</code>不占用空间</li>
+<li>应该尽量避免在<code>where</code>子句中使用<code>!=</code>或<code>&lt;&gt;</code>操作符,否则将使用引擎进行全表扫描</li>
+<li>应该尽量避免在<code>where</code>子句中使用<code>or</code>来连接条件,如果一个字段有索引,一个字段没有索引,将导致引擎放弃使用索引而进行全表扫描,如</li>
+</ol>
+<blockquote>
+<p>Select id from t where num = 10 or name = ‘frank’</p>
+<p>可以这样查询</p>
+<p>Select id from t where t</p>
+<p>union all</p>
+<p>select id from where name = ‘frank’</p>
+</blockquote>
+<ol start="5" type="1">
+<li><code>in</code>和<code>not in</code>也要慎用,否则会导致全表扫描如</li>
+</ol>
+<blockquote>
+<p>select id from t where num in (1,2,3)</p>
+<p>可以使用exist、any函数进行优化</p>
+</blockquote>
+<ol start="6" type="1">
+<li>不要在<code>where</code>子句中的<code>=</code>号左边进行函数、算术运算或者其他表达式运算,否则系统将可能使用索引</li>
+<li>在使用索引字段作为条件时,如果该索引是复合索引,那么必须使用到该索引中的第一个字段作为条件时才能保证系统使用该索引,否则索引将不会被使用,并应该尽可能地让字段顺序与索引顺序相同</li>
+<li>不要使用<code>count(*)</code>这样不带任何条件的<code>count</code>,这会引起全表扫描,并且没有任何意义</li>
+<li>索引不是越多越好,索引固然可以提高相应的搜索效率,但是也会降低<code>insert</code>和<code>update</code>时可能会重建索引,所以怎么样建立索引应该慎重考虑,视具体情况而定,一个表的索引数最好不超过6个</li>
+<li>应该尽量使用数字类型而不是字符类型,因为字符类型会一个字节一个字节的比较而数字类型只会比较一次.</li>
+</ol>
+]]></content>
+      <categories>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>sql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>部门工资前三高的所有员工</title>
     <url>/2020/12/19/SQL/%E9%83%A8%E9%97%A8%E5%B7%A5%E8%B5%84%E5%89%8D%E4%B8%89%E9%AB%98%E7%9A%84%E6%89%80%E6%9C%89%E5%91%98%E5%B7%A5/</url>
     <content><![CDATA[<p>这是一道<code>Leetcode</code>数据库部分的<code>Hard</code>题,本文决定采用最简单的方式来一步一步分解</p>
@@ -1924,43 +1906,79 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>消息队列目录</title>
-    <url>/2021/01/21/RocketMQ/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9B%AE%E5%BD%95/</url>
+    <title>一些数据结构小抄</title>
+    <url>/2022/11/16/leetcode/%E5%B0%8F%E6%8A%84/</url>
     <content><![CDATA[<blockquote>
-<p>此文为目录，它可以让你对MQ有一个清晰的脉络。</p>
+<p>数据结构小抄，Go语言实现，用于面试快速书写算法</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="目录">目录</h1>
-<h2 id="基本理念">基本理念</h2>
-<ol type="1">
-<li><a href="/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="[为什么要使用消息队列]">[为什么要使用消息队列]</a></li>
-<li><a href="/2021/01/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E9%80%89%E5%9E%8B/" title="[消息队列选型]">[消息队列选型]</a></li>
-<li><a href="/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/" title="[安装RocketMQ]">[安装RocketMQ]</a></li>
-<li><a href="/2021/07/02/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/NameServer/" title="[NameServer]">[NameServer]</a></li>
-</ol>
-<hr />
-<h2 id="rocketmq生产者">RocketMQ生产者</h2>
-<ol type="1">
-<li><a href="/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/" title="[RocketMQ生产者]">[RocketMQ生产者]</a></li>
-<li><a href="/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[RocketMQ生产者启动流程]">[RocketMQ生产者启动流程]</a></li>
-<li><a href="/2021/06/29/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81/" title="[RocketMQ生产者消息发送]">[RocketMQ生产者消息发送]</a></li>
-<li><a href="/2021/07/01/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%B0%8F%E7%BB%93/" title="[RocketMQ生产者小结]">[RocketMQ生产者小结]</a></li>
-</ol>
-<h2 id="存储">存储</h2>
-<ol type="1">
-<li><a href="/2021/07/05/RocketMQ/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%A4%A7%E8%87%B4%E7%9A%84%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B/" title="[大致的存储过程]">[大致的存储过程]</a></li>
-</ol>
-<h2 id="消息消费">消息消费</h2>
-<ol type="1">
-<li><a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/" title="[消费者基本理念]">[消费者基本理念]</a></li>
-<li><a href="/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="[消费者启动流程]">[消费者启动流程]</a></li>
-</ol>
+<h1 id="一些数据结构小抄">一些数据结构小抄</h1>
+<h2 id="最小堆">最小堆</h2>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> hp <span class="hljs-keyword">struct</span>&#123; sort.IntSlice &#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *hp)</span> <span class="hljs-title">Push</span><span class="hljs-params">(v <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> &#123;<br>	h.IntSlice = <span class="hljs-built_in">append</span>(h.IntSlice, v.(<span class="hljs-keyword">int</span>))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *hp)</span> <span class="hljs-title">Pop</span><span class="hljs-params">()</span> <span class="hljs-title">interface</span></span>&#123;&#125; &#123;<br>	a := h.IntSlice<br>	v := a[<span class="hljs-built_in">len</span>(a)<span class="hljs-number">-1</span>]<br>	h.IntSlice = a[:<span class="hljs-built_in">len</span>(a)<span class="hljs-number">-1</span>]<br>	<span class="hljs-keyword">return</span> v<br>&#125;<br></code></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>RocketMQ</category>
+        <category>leetcode</category>
       </categories>
       <tags>
-        <tag>RocketMQ</tag>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java内存区域</title>
+    <url>/2021/02/20/JVM/Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/</url>
+    <content><![CDATA[<p>相对于C、C++程序员来说Java程序员应该是很幸福的，他们不需要管理自己的内存，而全部交由JVM来控制，它使得我们能够更加专注于程序功能点的开发而不去维护内存，天下苦NPE久矣，但是一旦出现内存泄漏和溢出方面的问题，如果你不了解JVM具体的运行原理，那么排查错误将是一个非常非常艰难的任务，并且如果你在书写Java程序的时候不知道它一个底层的运行原理，那么你很难书写良好的代码。</p>
+<span id="more"></span>
+<h1 id="运行时数据区域">运行时数据区域</h1>
+<p>Java虚拟机咋执行Java程序的时候会把它管理的内存划分为若干个不同的数据区域</p>
+<blockquote>
+<p>无特殊说明介绍的都是<code>HotSpot</code>虚拟机 并且JDK版本默认是1.8及以上</p>
+</blockquote>
+<figure>
+<img src="https://img.helloteemo.com.cn/2021.06/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E6%A6%82%E6%8B%AC.png" alt="JVM运行时数据区域示意图" /><figcaption aria-hidden="true">JVM运行时数据区域示意图</figcaption>
+</figure>
+<p>其中线程私有的有 1. 程序计数器 2. 虚拟机栈 3. 本地方法栈</p>
+<p>线程共享的的有</p>
+<ol type="1">
+<li>堆</li>
+<li>方法区</li>
+<li>直接内存(即非运行时数据区的一部分)</li>
+</ol>
+<p>下面让我们来针对这些内存一个一个的分析</p>
+<h2 id="程序计数器">程序计数器</h2>
+<ol type="1">
+<li>什么是程序计数器</li>
+</ol>
+<p>程序计数器是<strong>当前线程</strong>正在执行的字节码的地址，它是线程隔离的，其执行原理为字节码解释器读取内存中的字节码，按照顺序读取字节码指令，读取一个指令就把它翻译为一个固定的操作。</p>
+<ol start="2" type="1">
+<li>为什么需要程序计数器</li>
+</ol>
+<p>在单线程来看可有可无，但是在多线程看来需要保存当前线程所执行的位置</p>
+<ol start="3" type="1">
+<li>程序计数器的特点
+<ol type="1">
+<li>程序计数器是线程隔离的</li>
+<li>程序计数器占用的内存空间非常小，可以忽略不计</li>
+<li>程序计数器是java虚拟机规范中唯一一个没有规定任何<strong>OutOfMemoryError</strong>的区域</li>
+<li>执行native本地方法时，程序计数器的值为空。原因是native方法是java通过jni调用本地C/C++库来实现，非java字节码实现，所以无法统计</li>
+</ol></li>
+</ol>
+<h2 id="java虚拟机栈">Java虚拟机栈</h2>
+<p>Java虚拟机栈也是线程私有的，它的生命周期和线程周期相同，它描述了Java方法执行时的内存模型，每一次方法的调用的数据都是通过栈传递的。</p>
+<p>Java虚拟机栈是有一个一个的栈帧组成，每个栈帧都拥有局部变量表、操作数栈、动态链接、方法出口信息。</p>
+<p>Java虚拟机栈会出现两种错误:<code>StackOverFlowError</code>和<code>OutOfMemoryError</code></p>
+<ul>
+<li><code>StackOverFlowError</code>：如果Java虚拟机栈的内存大小不允许动态扩展，那么当线程请求栈的深度超过当前Java虚拟机最大深度的时候就会报错</li>
+<li><code>OutOfMemoryError</code>：如果Java虚拟机堆没有空闲内存，并且垃圾回收器也无法提供更多内存的话，就会抛出<code>OutOfMemoryError</code>错误</li>
+</ul>
+<h2 id="本地方法栈">本地方法栈</h2>
+<p>本地方法栈和Java虚拟机栈的作用相似，区别为：<strong>Java虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则为虚拟机使用到的Native方法服务</strong>，在HotSpot虚拟机中，Java虚拟机栈和本地方法栈合二为一。</p>
+<h2 id="堆">堆</h2>
+]]></content>
+      <categories>
+        <category>JVM</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -2070,24 +2088,6 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>一些数据结构小抄</title>
-    <url>/2022/11/16/leetcode/%E5%B0%8F%E6%8A%84/</url>
-    <content><![CDATA[<blockquote>
-<p>数据结构小抄，Go语言实现，用于面试快速书写算法</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="一些数据结构小抄">一些数据结构小抄</h1>
-<h2 id="最小堆">最小堆</h2>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> hp <span class="hljs-keyword">struct</span>&#123; sort.IntSlice &#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *hp)</span> <span class="hljs-title">Push</span><span class="hljs-params">(v <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> &#123;<br>	h.IntSlice = <span class="hljs-built_in">append</span>(h.IntSlice, v.(<span class="hljs-keyword">int</span>))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *hp)</span> <span class="hljs-title">Pop</span><span class="hljs-params">()</span> <span class="hljs-title">interface</span></span>&#123;&#125; &#123;<br>	a := h.IntSlice<br>	v := a[<span class="hljs-built_in">len</span>(a)<span class="hljs-number">-1</span>]<br>	h.IntSlice = a[:<span class="hljs-built_in">len</span>(a)<span class="hljs-number">-1</span>]<br>	<span class="hljs-keyword">return</span> v<br>&#125;<br></code></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>leetcode</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ChatGPTPrompt</title>
     <url>/2023/03/31/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/ChatGPTPrompt/</url>
     <content><![CDATA[<blockquote>
@@ -2145,6 +2145,73 @@ Protobuf文档生成</li>
       </categories>
       <tags>
         <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Raft算法</title>
+    <url>/2023/02/14/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/Raft%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<blockquote>
+<p>Paxos是出了名的难懂，而Raft正是为了探索一种更易于理解的一致性算法而产生的。它的首要设计目的就是易于理解，所以在选主的冲突处理等方式上它都选择了非常简单明了的解决方案。</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="raft算法">Raft算法</h1>
+<p>Raft 算法从多副本状态机的角度提出，用于管理多副本状态机的日志复制。Raft把一致性问题分解为了多个子问题</p>
+<ol type="1">
+<li>Leader选举 Leader election</li>
+<li>日志同步 log replication</li>
+<li>安全性 safety</li>
+<li>日志压缩 log compaction （可选）</li>
+<li>成员变更 membership change（可选）</li>
+</ol>
+<blockquote>
+<p>Q: 为什么日志复制就能够保证集群状态一致？</p>
+<p>A: 因为日志可以是集群的指令，比如说 X &lt;- 3这条日志，就是把3赋给X这个值，集群如果按照某种手段处理这些日志，并且保证日志是一致的，那么就可以得到一致的状态。</p>
+</blockquote>
+<h2 id="角色">角色</h2>
+<p>raft降系统中的角色分为 Leader、Follower、Candidate</p>
+<ol type="1">
+<li>Leader 接收客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。</li>
+<li>Follower 接收并持久化 Leader 同步的日志。</li>
+<li>Candidate 选举的临时角色</li>
+</ol>
+<p>集群默认只存在一位 Leader，其余都是Follower。Leader 会定时发送 <strong>心跳</strong> 告诉 Follower 保持Leader的统治地位。如果 Follower 超过一定的时间未收到心跳 (一般为150~300ms) ，那么 Follower 就会转为 Candidate 并发起一次选举，如果它获得了大多数的投票则自动成为 Leader。</p>
+<p><img src="https://img.helloteemo.com.cn/2023/02/20/1676895945.png" alt="状态转化图" style="zoom: 67%;" /></p>
+<p>raft算法把时间分为一段段的任期<em>(term)</em> ,每一个 term 的开始都是Leader选举，在成功选举Leader之后，Leader会在term之内管理整个集群。如果Leader选举失败，则该term就会因为没有leader选举结束。</p>
+<p><img src="https://img.helloteemo.com.cn/2023/02/20/1676895973.png" alt="任期图" style="zoom:67%;" /></p>
+<h2 id="日志复制">日志复制</h2>
+]]></content>
+      <categories>
+        <category>不知道怎么分类</category>
+      </categories>
+      <tags>
+        <tag>Raft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>idea插件</title>
+    <url>/2021/07/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/Windows%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E9%85%8D/</url>
+    <content><![CDATA[<blockquote>
+<p>推荐一些使用到的好用的idea插件</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="idea插件">Idea插件</h1>
+<ol type="1">
+<li><code>.ignore</code> 可以新建一些 <code>.ignore</code> 文件</li>
+<li><code>AceJump</code></li>
+<li><code>Atom Material icon</code></li>
+<li><code>GitToolBox</code></li>
+<li><code>Rainbow Brackets</code></li>
+<li><code>Translation</code></li>
+<li><code>Gerry Themes</code></li>
+<li><code>IdeaVim</code></li>
+<li><code>Nyan Progress bar</code></li>
+</ol>
+]]></content>
+      <categories>
+        <category>不知道怎么分类</category>
+      </categories>
+      <tags>
+        <tag>没有标签</tag>
       </tags>
   </entry>
   <entry>
@@ -2226,24 +2293,14 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>idea插件</title>
-    <url>/2021/07/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/Windows%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E9%85%8D/</url>
+    <title>书写简单的Web服务器2</title>
+    <url>/2021/10/10/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%B9%A6%E5%86%99%E7%AE%80%E5%8D%95%E7%9A%84Web%E6%9C%8D%E5%8A%A1%E5%99%A82/</url>
     <content><![CDATA[<blockquote>
-<p>推荐一些使用到的好用的idea插件</p>
+<p>这里扩充上一篇文章 <a href="/2021/10/04/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%B9%A6%E5%86%99%E7%AE%80%E5%8D%95%E7%9A%84Web%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="[书写简单的Web服务器]">[书写简单的Web服务器]</a> 的内容，主要引入线程，以及解决一下上文读取数据的瑕疵。</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="idea插件">Idea插件</h1>
-<ol type="1">
-<li><code>.ignore</code> 可以新建一些 <code>.ignore</code> 文件</li>
-<li><code>AceJump</code></li>
-<li><code>Atom Material icon</code></li>
-<li><code>GitToolBox</code></li>
-<li><code>Rainbow Brackets</code></li>
-<li><code>Translation</code></li>
-<li><code>Gerry Themes</code></li>
-<li><code>IdeaVim</code></li>
-<li><code>Nyan Progress bar</code></li>
-</ol>
+<h1 id="书写简单的web服务器2">书写简单的Web服务器2</h1>
+<h2 id="前言">前言</h2>
 ]]></content>
       <categories>
         <category>不知道怎么分类</category>
@@ -2253,14 +2310,43 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>书写简单的Web服务器2</title>
-    <url>/2021/10/10/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%B9%A6%E5%86%99%E7%AE%80%E5%8D%95%E7%9A%84Web%E6%9C%8D%E5%8A%A1%E5%99%A82/</url>
+    <title>单元测试</title>
+    <url>/2022/06/30/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</url>
     <content><![CDATA[<blockquote>
-<p>这里扩充上一篇文章 <a href="/2021/10/04/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E4%B9%A6%E5%86%99%E7%AE%80%E5%8D%95%E7%9A%84Web%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="[书写简单的Web服务器]">[书写简单的Web服务器]</a> 的内容，主要引入线程，以及解决一下上文读取数据的瑕疵。</p>
+<p>本篇文章总结了单元测试的一些知识点</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="书写简单的web服务器2">书写简单的Web服务器2</h1>
-<h2 id="前言">前言</h2>
+<h1 id="单元测试">单元测试</h1>
+<h2 id="单元测试的四个目标">单元测试的四个目标</h2>
+<ol type="1">
+<li>会写，全员可写
+<ol type="1">
+<li>会使用单元测试框架</li>
+</ol></li>
+<li>写的好，同时关注可测性问题
+<ol type="1">
+<li>每个同学的单元测试case个数、覆盖率比较稳定</li>
+<li>MR 时Review单测</li>
+</ol></li>
+<li>系统集成单元测试
+<ol type="1">
+<li>各个模块的go test运行</li>
+<li>能在流水线上执行go test</li>
+</ol></li>
+<li>TDD</li>
+</ol>
+<h2 id="单元测试准则">单元测试准则</h2>
+<ol type="1">
+<li>好的单元测试应该具有自动化、独立性、可重复执行的特性</li>
+<li>单元测试应该是全自动执行的，不允许使用 <code>t.Logf</code> 等函数人肉验证</li>
+<li>单元测试用例之间不能互相调用，也不能依赖执行的先后顺序</li>
+<li>单元测试不应该受到外部环境的影响</li>
+</ol>
+<h2 id="单元测试框架">单元测试框架</h2>
+<h3 id="goconvey">goconvey</h3>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">go get -u github.com/smartystreets/goconvey<br></code></pre></td></tr></table></figure>
+<p>单元测试的简化</p>
+<h3 id="assert">assert</h3>
 ]]></content>
       <categories>
         <category>不知道怎么分类</category>
@@ -2318,43 +2404,16 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>单元测试</title>
-    <url>/2022/06/30/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</url>
+    <title>团队框架演进基本思路</title>
+    <url>/2022/12/18/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%9B%A2%E9%98%9F%E6%A1%86%E6%9E%B6%E6%BC%94%E8%BF%9B%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF/</url>
     <content><![CDATA[<blockquote>
-<p>本篇文章总结了单元测试的一些知识点</p>
+<p>作者本人在团队内进行轮子书写遇到的一些问题总结</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="单元测试">单元测试</h1>
-<h2 id="单元测试的四个目标">单元测试的四个目标</h2>
-<ol type="1">
-<li>会写，全员可写
-<ol type="1">
-<li>会使用单元测试框架</li>
-</ol></li>
-<li>写的好，同时关注可测性问题
-<ol type="1">
-<li>每个同学的单元测试case个数、覆盖率比较稳定</li>
-<li>MR 时Review单测</li>
-</ol></li>
-<li>系统集成单元测试
-<ol type="1">
-<li>各个模块的go test运行</li>
-<li>能在流水线上执行go test</li>
-</ol></li>
-<li>TDD</li>
-</ol>
-<h2 id="单元测试准则">单元测试准则</h2>
-<ol type="1">
-<li>好的单元测试应该具有自动化、独立性、可重复执行的特性</li>
-<li>单元测试应该是全自动执行的，不允许使用 <code>t.Logf</code> 等函数人肉验证</li>
-<li>单元测试用例之间不能互相调用，也不能依赖执行的先后顺序</li>
-<li>单元测试不应该受到外部环境的影响</li>
-</ol>
-<h2 id="单元测试框架">单元测试框架</h2>
-<h3 id="goconvey">goconvey</h3>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">go get -u github.com/smartystreets/goconvey<br></code></pre></td></tr></table></figure>
-<p>单元测试的简化</p>
-<h3 id="assert">assert</h3>
+<h1 id="团队框架演进基本思路">团队框架演进基本思路</h1>
+<h2 id="现状">现状</h2>
+<p>本人待过两个团队，这两个团队都非常有意思，可以认为是两个极端。</p>
+<p>其中第一个团队基本使用开源框架进行开发，仅有一些gorm、sqlx、gin、zinx非常基本的库。</p>
 ]]></content>
       <categories>
         <category>不知道怎么分类</category>
@@ -2364,60 +2423,121 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>Raft算法</title>
-    <url>/2023/02/14/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/Raft%E7%AE%97%E6%B3%95/</url>
+    <title>墙</title>
+    <url>/2022/10/09/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A2%99/</url>
     <content><![CDATA[<blockquote>
-<p>Paxos是出了名的难懂，而Raft正是为了探索一种更易于理解的一致性算法而产生的。它的首要设计目的就是易于理解，所以在选主的冲突处理等方式上它都选择了非常简单明了的解决方案。</p>
+<p>讲一下一些面试的东西，其实这篇文章也可以当成笔者个人学习方法的认知</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="raft算法">Raft算法</h1>
-<p>Raft 算法从多副本状态机的角度提出，用于管理多副本状态机的日志复制。Raft把一致性问题分解为了多个子问题</p>
+<h1 id="墙">墙</h1>
+<h2 id="购买套餐">购买套餐</h2>
+<p>打开网站，<a href="https://xpp.cool/">点我打开</a> ，官网长这样，选购买产品</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009171932572.png" alt="image-20231009171932572" style="zoom:25%;" /></p>
+<p>随便挑一个产品买就行，推荐百香三重奏，点立即订购</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009172209675.png" alt="image-20231009172209675" style="zoom:25%;" /></p>
+<p>下划然后看到这两个协议，勾上就可以，然后点下面的继续按钮</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009172415407.png" alt="image-20231009172415407" style="zoom:25%;" /></p>
+<p>进入到确定订单界面，有账户就登陆，没账户就新建，其中新建账户的时候。以下信息是必填的</p>
 <ol type="1">
-<li>Leader选举 Leader election</li>
-<li>日志同步 log replication</li>
-<li>安全性 safety</li>
-<li>日志压缩 log compaction （可选）</li>
-<li>成员变更 membership change（可选）</li>
+<li>名字</li>
+<li>姓</li>
+<li><strong>邮箱地址</strong>，非常重要，不要乱填</li>
+<li>手机号</li>
+<li>街道地址，随便填</li>
+<li>城市，随便填</li>
+<li>省份，随便填</li>
+<li>邮编，随便填</li>
 </ol>
+<p>填完之后选结账按钮就可以了，然后付款</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009172718311.png" alt="image-20231009172718311" style="zoom:25%;" /></p>
+<h2 id="安装软件">安装软件</h2>
+<p>安卓下载地址：https://sabrinathings.lanzouv.com/i8m9C0g8szoh</p>
+<h2 id="配置">配置</h2>
+<p>回到刚刚的web页面，主页里可以看到已经激活的产品。点百香果三重奏这几个字可以到下一个界面</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009173326376.png" alt="image-20231009173326376" style="zoom:50%;" /></p>
+<p>下划，然后复制配置。</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009173554072.png" alt="image-20231009173554072" style="zoom:33%;" /></p>
+<p>打开刚刚安装的APP，Clash，主页长这样。点配置按钮</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009174430631.png" alt="image-20231009174430631" style="zoom:50%;" /></p>
+<p>进入到下面这个界面之后选加号</p>
+<figure>
+<img src="/Users/zhukewei/Library/Application%20Support/typora-user-images/image-20231009174512687.png" alt="image-20231009174512687" /><figcaption aria-hidden="true">image-20231009174512687</figcaption>
+</figure>
+<p>创建配置的时候选从URL导入</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009174551909.png" alt="image-20231009174551909" style="zoom:50%;" /></p>
+<p>只要填我框出来的两个框，其余的不要动，URL选粘贴，内容就是刚刚复制的网页的内容。自动更新填15分钟。</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009174652551.png" alt="image-20231009174652551" style="zoom:33%;" /></p>
+<p>填好之后长这样</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009174826759.png" alt="image-20231009174826759" style="zoom:25%;" /></p>
+<p>确定没问题了就点右上角的保存</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009174953830.png" alt="image-20231009174953830" style="zoom:50%;" /></p>
+<p>回到上一个界面之后一定要选中这个按钮</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009175105133.png" alt="image-20231009175105133" style="zoom:33%;" /></p>
+<p>然后返回上一个界面点启动就行</p>
+<p><img src="/Users/zhukewei/Library/Application Support/typora-user-images/image-20231009175348740.png" alt="image-20231009175348740" style="zoom:50%;" /></p>
+<h2 id="验证">验证</h2>
+<p>打开这个页面</p>
+<p>https://www.google.com.hk/</p>
+<p>能打开就说明连上了</p>
+]]></content>
+      <categories>
+        <category>不知道怎么分类</category>
+      </categories>
+      <tags>
+        <tag>没有标签</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何写出简短的代码</title>
+    <url>/2021/01/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E5%86%99%E5%87%BA%E7%AE%80%E7%9F%AD%E7%9A%84%E4%BB%A3%E7%A0%81/</url>
+    <content><![CDATA[<p>其实这个部分针对于新手，老手可以不看</p>
+<span id="more"></span>
+<ul>
+<li><strong>及时清理不再使用的代码或者配置信息</strong></li>
+</ul>
 <blockquote>
-<p>Q: 为什么日志复制就能够保证集群状态一致？</p>
-<p>A: 因为日志可以是集群的指令，比如说 X &lt;- 3这条日志，就是把3赋给X这个值，集群如果按照某种手段处理这些日志，并且保证日志是一致的，那么就可以得到一致的状态。</p>
+<p>对于垃圾代码或者过时的配置，坚决清理干净，避免程序过度臃肿、代码冗余</p>
 </blockquote>
-<h2 id="角色">角色</h2>
-<p>raft降系统中的角色分为 Leader、Follower、Candidate</p>
-<ol type="1">
-<li>Leader 接收客户端请求，并向Follower同步请求日志，当日志同步到大多数节点上后告诉Follower提交日志。</li>
-<li>Follower 接收并持久化 Leader 同步的日志。</li>
-<li>Candidate 选举的临时角色</li>
-</ol>
-<p>集群默认只存在一位 Leader，其余都是Follower。Leader 会定时发送 <strong>心跳</strong> 告诉 Follower 保持Leader的统治地位。如果 Follower 超过一定的时间未收到心跳 (一般为150~300ms) ，那么 Follower 就会转为 Candidate 并发起一次选举，如果它获得了大多数的投票则自动成为 Leader。</p>
-<p><img src="https://img.helloteemo.com.cn/2023/02/20/1676895945.png" alt="状态转化图" style="zoom: 67%;" /></p>
-<p>raft算法把时间分为一段段的任期<em>(term)</em> ,每一个 term 的开始都是Leader选举，在成功选举Leader之后，Leader会在term之内管理整个集群。如果Leader选举失败，则该term就会因为没有leader选举结束。</p>
-<p><img src="https://img.helloteemo.com.cn/2023/02/20/1676895973.png" alt="任期图" style="zoom:67%;" /></p>
-<h2 id="日志复制">日志复制</h2>
-]]></content>
-      <categories>
-        <category>不知道怎么分类</category>
-      </categories>
-      <tags>
-        <tag>Raft</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何调试代码</title>
-    <url>/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</url>
-    <content><![CDATA[<blockquote>
-<p>一些关于调试的经验，更多的是如何找到BUG并修复</p>
+<ul>
+<li><p>保持统一的命名规范</p></li>
+<li><ul>
+<li>变量名统一使用驼峰形式书写，变量首字母小写</li>
+<li>不要使用一些常见包名作为变量名，如<code>time config</code>等</li>
+<li>如果参数为一个常量，它的首字母必须大写，且使用驼峰形式命名，如最大线程数应该表示为<code>MaxGoroutine</code></li>
+</ul></li>
+<li><p>保证你的变量名在足够明了的情况下尽量简单</p></li>
+<li><p>使用defer做资源清理工作</p></li>
+<li><p>在一个导出方法书写之后，应该在方法顶部加上注释，标注出函数的具体作用，如果有必要的话加上参数的意义</p></li>
+</ul>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Add 返回a+b</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Add</span><span class="hljs-params">(a, b <span class="hljs-keyword">int</span>)</span> <span class="hljs-title">int</span></span> &#123;<br>     <span class="hljs-keyword">return</span> a + b<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>在写完代码之后记得对代码进行格式化操作</strong></li>
+<li>最紧张的资源应该尽量少的访问</li>
+</ul>
+<blockquote>
+<p>在我们目前的服务中，数据库资源往往是最为脆落的、最为紧张的资源，我们应该尽量把访问拦截在上游，有访问频次限制就加上访问频次限制，如果有内存缓存就查内存缓存，否则查redis，没有redis可以考虑熔断降级，保证只有一定量的请求到达数据库</p>
 </blockquote>
-<span id="more"></span>
-<h1 id="如何调试代码">如何调试代码</h1>
-<p>最重要的一点：<strong>放平心态，冷静对待</strong></p>
-<p>在此给出调试代码3步曲</p>
-<ol type="1">
-<li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li>
-<li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li>
-<li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li>
-</ol>
+<ul>
+<li>磁盘I/O，网络延时往往比你想的要更加耗时，应该尽量少的访问磁盘，以及减少网络通信中包的大小</li>
+</ul>
+<blockquote>
+<p>我们禁止在一个循环中做SQL查询操作，这个可以改写成in语句或者any语句，如果我们需要循环做update语句时，最好预处理我们的SQL语句，并且开启一个事务进行更改</p>
+</blockquote>
+<ul>
+<li><p><strong>内存缓存只能用于缓存一些不经常被更改且即使被更改之后也不会影响现有业务的数据</strong></p></li>
+<li><p>redis线上操作禁止keys、hgetall等耗时操作</p></li>
+<li><p><strong>用户输入的SQL参数严格使用参数绑定，防止SQL注入，禁止字符串拼接SQL访问数据库</strong></p></li>
+<li><p><strong>用户请求传入的任何参数做有效性验证(试情况而定),忽略参数校验可能导致:</strong></p></li>
+<li><ul>
+<li>page size过大导致内存溢出</li>
+<li>恶意order by导致数据库慢查询</li>
+<li>SQL注入</li>
+</ul></li>
+<li><p>表的命名最好是遵循“业务名称_表的作用” 如 (game_config)</p></li>
+<li><p>单表行数超过500万行或者单表容量超过2GB，才推荐进行分库分表。</p></li>
+<li><p>不要使用 count(列名)或 count(常量)来替代 count(<em>)，count(</em>)是 SQL92 定义的标准统计行数的语法，跟数据库无关，跟 NULL 和非 NULL 无关。</p></li>
+<li><p>数据订正（特别是删除或修改记录操作）时，要先 select，避免出现误删除，确认无误才能执行更新语句</p></li>
+</ul>
 ]]></content>
       <categories>
         <category>不知道怎么分类</category>
@@ -2427,17 +2547,17 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>富途面试题</title>
+    <title>面试智力题</title>
     <url>/2023/09/22/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%AF%8C%E9%80%94%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
     <content><![CDATA[<blockquote>
-<p>富途面试</p>
+<p>智力题面试</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="富途面试">富途面试</h1>
+<h1 id="面试智力题">面试智力题</h1>
 <h2 id="一面">一面</h2>
 <h3 id="题目">题目</h3>
 <blockquote>
-<p>请用尽可能少的代码实现一个函数，用于计算用户一个月共计交费多少港元。（代码请写的尽量清晰简洁，我们希望能够看到你的编码风格和习惯） 用户在富途的平台上进行交易，需要交平台使用费。平台使用费的梯度收费方案如下： 每月累计订单数 每笔订单（港元） 梯度1：1-5笔 =&gt; 30.00 梯度2：6-20笔 =&gt; 15.00 梯度3：21-50笔 =&gt; 10.00 梯度4：51笔及以上 =&gt; 1.00 假设一个用户，一个月交易了6笔订单，则在梯度1交费共计： 30港元*5=150港元，在梯度二交费：15港元，一共交费165港元。</p>
+<p>请用尽可能少的代码实现一个函数，用于计算用户一个月共计交费多少港元。（代码请写的尽量清晰简洁，我们希望能够看到你的编码风格和习惯） 用户在的平台上进行交易，需要交平台使用费。平台使用费的梯度收费方案如下： 每月累计订单数 每笔订单（港元） 梯度1：1-5笔 =&gt; 30.00 梯度2：6-20笔 =&gt; 15.00 梯度3：21-50笔 =&gt; 10.00 梯度4：51笔及以上 =&gt; 1.00 假设一个用户，一个月交易了6笔订单，则在梯度1交费共计： 30港元*5=150港元，在梯度二交费：15港元，一共交费165港元。</p>
 </blockquote>
 <figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">calcAmount</span><span class="hljs-params">(orderCount <span class="hljs-keyword">int</span>)</span> <span class="hljs-params">(amount <span class="hljs-keyword">int</span>)</span></span> &#123;<br>	<span class="hljs-keyword">type</span> level <span class="hljs-keyword">struct</span> &#123;<br>		min <span class="hljs-keyword">int</span><br>		max <span class="hljs-keyword">int</span><br>		fee <span class="hljs-keyword">int</span> <span class="hljs-comment">// 单价</span><br>	&#125;<br>	levels := []level&#123;<br>		&#123;min: <span class="hljs-number">1</span>, max: <span class="hljs-number">5</span>, fee: <span class="hljs-number">30</span>&#125;,<br>		&#123;min: <span class="hljs-number">6</span>, max: <span class="hljs-number">20</span>, fee: <span class="hljs-number">15</span>&#125;,<br>		&#123;min: <span class="hljs-number">21</span>, max: <span class="hljs-number">50</span>, fee: <span class="hljs-number">10</span>&#125;,<br>		&#123;min: <span class="hljs-number">51</span>, max: <span class="hljs-number">0</span>, fee: <span class="hljs-number">1</span>&#125;,<br>	&#125;<br>	<span class="hljs-keyword">for</span> _, l := <span class="hljs-keyword">range</span> levels &#123;<br>		<span class="hljs-keyword">if</span> orderCount &gt;= l.min &amp;&amp; (orderCount &lt;= l.max || l.max == <span class="hljs-number">0</span>) &#123;<br>			amount += l.fee * (orderCount - l.min + <span class="hljs-number">1</span>)<br>			<span class="hljs-keyword">break</span><br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			amount += l.fee * (l.max - l.min + <span class="hljs-number">1</span>)<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> amount<br>&#125;<br></code></pre></td></tr></table></figure>
 <blockquote>
@@ -2556,16 +2676,28 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>团队框架演进基本思路</title>
-    <url>/2022/12/18/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%9B%A2%E9%98%9F%E6%A1%86%E6%9E%B6%E6%BC%94%E8%BF%9B%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF/</url>
+    <title>记一次线上延时问题</title>
+    <url>/2021/12/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/</url>
     <content><![CDATA[<blockquote>
-<p>作者本人在团队内进行轮子书写遇到的一些问题总结</p>
+<p>记一次线上延时问题，主要讲如何进行延时分析。</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="团队框架演进基本思路">团队框架演进基本思路</h1>
-<h2 id="现状">现状</h2>
-<p>本人待过两个团队，这两个团队都非常有意思，可以认为是两个极端。</p>
-<p>其中第一个团队基本使用开源框架进行开发，仅有一些gorm、sqlx、gin、zinx非常基本的库。</p>
+<h1 id="记一次线上延时分析">记一次线上延时分析</h1>
+<h2 id="问题爆发">问题爆发</h2>
+<p>今天九点钟的时候，本来在开开心心写着代码准备验证的时候，运营人员突然发来钉钉说App偶然间出现卡顿问题，有一些页面加载不出来，同时举报入口、聊天页面均出现了部分异常。考虑到九点钟正值高峰期，且安排了一场引流活动，我们便开始了一轮排查</p>
+<h2 id="第一站prometheus">第一站：<code>Prometheus</code></h2>
+<p>由于大部分服务均使用了 <code>Gateway</code> 来转发流量，我们可以直接查询 <code>Geteway</code> 去分析所有后端服务的延时情况。果不其然，<code>Gateway</code> 服务 <code>p50 p75</code> 均小于200ms(<del>虽然也不低</del>)的延时，但是还在可以接受的范围之内。但是 <code>p99</code> 已经严重超时，达到了 <code>2000ms</code> 的延时，于此同时 <code>Prometheus</code> 终于向我们发出了警告，提醒我们有服务超时。</p>
+<h2 id="第二站k8s-node-pod资源不足">第二站：<code>K8S Node Pod</code>资源不足</h2>
+<p>其实这点我们是不相信的，很少会出现 <code>k8s node</code> 资源不足的情况，即使之前的顶峰也没有占用到 70% 的资源，一场引流活动不可能直接把 node 全部打死，并且我们还做了 <code>k8s</code> 的节点池，如果进行了节点池的补充我们应该是会第一个知道的，它的报警会比 <code>Prometheus</code> 还要及时。我们接着使用了 <code>kubectl -n namespace top nodes</code> 查看资源占用情况，很不幸，所有的节点资源均在正常范围之内。</p>
+<p>接下来我们开始怀疑一些热点服务Pod资源不足，我们虽然使用了 <code>HPA</code> 来进行 <code>pod</code> 伸缩，但是规定了最大节点数为30个，我们怀疑是最大节点数达到了限制导致资源不足的情况。然后我们检查了几个重点服务: <code>account</code>等，发现资源的占用都在正常的范围之内。</p>
+<h2 id="第三站mysql-服务">第三站：<code>MySQL</code> 服务</h2>
+<p>这点我也是不太相信的，之前遇到过一次宕机问题之后，我们对线上的 <code>MySQL</code> 数据库进行了读写分离，并且分离了一些非重点仓库，升级了 <code>MySQL</code> 数据库的配置（云原生真的很方便）。我们查看了 <code>MySQL</code> 的重点资源，发现均在正常范围之内，并且之前的工作也是很有成效的，目前 <code>MySQL</code> 的CPU、磁盘等均在 <code>20%</code> 的占用(感觉会缩容了)。并且仅存的几个慢查询日志均为定时任务查询，在运行的范围之内。</p>
+<h2 id="第四站-mongo-服务">第四站： <code>Mongo</code> 服务</h2>
+<p>当我打开的 <code>Mongo</code> 的监控时，发现 <code>Mongo</code> 服务出现了大量的慢查询，且 <code>CPU</code> 占用达到了 <code>80%</code> 。由于 <code>IM</code> 服务和 <code>account</code> 服务均使用了 <code>mongo</code>作为数据库(哪位小可爱把用户数据存<code>mongo</code>的 <code>:)</code> )，并且 <code>IM</code> 服务的一些表没有走有效的索引，导致了大量的全量扫表，最多的达到了三百万行数据，延时达到了一秒！！！之前没有暴露的原因在于不存在瞬时的 <code>IM</code> 访问，为什么IM服务会出现大量访问的原因就不说那么具体了，感觉是被友商搞了。</p>
+<h2 id="第五站加索引">第五站：加索引！！！！</h2>
+<p>没有什么好说的。</p>
+<h1 id="写在最后">写在最后</h1>
+<p>其实总结这篇文章的原因在于为下一篇文章(<del>准备写一个SQL质量分析插件</del>)做个开始，当然这里也给大家展示了解决卡顿问题的基本思路(查日志定位具体服务延时这里没有说)，也没什么好说的，睡觉😪，希望明天可以开心上班。</p>
 ]]></content>
       <categories>
         <category>不知道怎么分类</category>
@@ -2674,227 +2806,26 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>记一次线上延时问题</title>
-    <url>/2021/12/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%E5%BB%B6%E6%97%B6%E9%97%AE%E9%A2%98/</url>
+    <title>如何调试代码</title>
+    <url>/2021/01/26/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E4%BB%A3%E7%A0%81/</url>
     <content><![CDATA[<blockquote>
-<p>记一次线上延时问题，主要讲如何进行延时分析。</p>
+<p>一些关于调试的经验，更多的是如何找到BUG并修复</p>
 </blockquote>
 <span id="more"></span>
-<h1 id="记一次线上延时分析">记一次线上延时分析</h1>
-<h2 id="问题爆发">问题爆发</h2>
-<p>今天九点钟的时候，本来在开开心心写着代码准备验证的时候，运营人员突然发来钉钉说App偶然间出现卡顿问题，有一些页面加载不出来，同时举报入口、聊天页面均出现了部分异常。考虑到九点钟正值高峰期，且安排了一场引流活动，我们便开始了一轮排查</p>
-<h2 id="第一站prometheus">第一站：<code>Prometheus</code></h2>
-<p>由于大部分服务均使用了 <code>Gateway</code> 来转发流量，我们可以直接查询 <code>Geteway</code> 去分析所有后端服务的延时情况。果不其然，<code>Gateway</code> 服务 <code>p50 p75</code> 均小于200ms(<del>虽然也不低</del>)的延时，但是还在可以接受的范围之内。但是 <code>p99</code> 已经严重超时，达到了 <code>2000ms</code> 的延时，于此同时 <code>Prometheus</code> 终于向我们发出了警告，提醒我们有服务超时。</p>
-<h2 id="第二站k8s-node-pod资源不足">第二站：<code>K8S Node Pod</code>资源不足</h2>
-<p>其实这点我们是不相信的，很少会出现 <code>k8s node</code> 资源不足的情况，即使之前的顶峰也没有占用到 70% 的资源，一场引流活动不可能直接把 node 全部打死，并且我们还做了 <code>k8s</code> 的节点池，如果进行了节点池的补充我们应该是会第一个知道的，它的报警会比 <code>Prometheus</code> 还要及时。我们接着使用了 <code>kubectl -n namespace top nodes</code> 查看资源占用情况，很不幸，所有的节点资源均在正常范围之内。</p>
-<p>接下来我们开始怀疑一些热点服务Pod资源不足，我们虽然使用了 <code>HPA</code> 来进行 <code>pod</code> 伸缩，但是规定了最大节点数为30个，我们怀疑是最大节点数达到了限制导致资源不足的情况。然后我们检查了几个重点服务: <code>account</code>等，发现资源的占用都在正常的范围之内。</p>
-<h2 id="第三站mysql-服务">第三站：<code>MySQL</code> 服务</h2>
-<p>这点我也是不太相信的，之前遇到过一次宕机问题之后，我们对线上的 <code>MySQL</code> 数据库进行了读写分离，并且分离了一些非重点仓库，升级了 <code>MySQL</code> 数据库的配置（云原生真的很方便）。我们查看了 <code>MySQL</code> 的重点资源，发现均在正常范围之内，并且之前的工作也是很有成效的，目前 <code>MySQL</code> 的CPU、磁盘等均在 <code>20%</code> 的占用(感觉会缩容了)。并且仅存的几个慢查询日志均为定时任务查询，在运行的范围之内。</p>
-<h2 id="第四站-mongo-服务">第四站： <code>Mongo</code> 服务</h2>
-<p>当我打开的 <code>Mongo</code> 的监控时，发现 <code>Mongo</code> 服务出现了大量的慢查询，且 <code>CPU</code> 占用达到了 <code>80%</code> 。由于 <code>IM</code> 服务和 <code>account</code> 服务均使用了 <code>mongo</code>作为数据库(哪位小可爱把用户数据存<code>mongo</code>的 <code>:)</code> )，并且 <code>IM</code> 服务的一些表没有走有效的索引，导致了大量的全量扫表，最多的达到了三百万行数据，延时达到了一秒！！！之前没有暴露的原因在于不存在瞬时的 <code>IM</code> 访问，为什么IM服务会出现大量访问的原因就不说那么具体了，感觉是被友商搞了。</p>
-<h2 id="第五站加索引">第五站：加索引！！！！</h2>
-<p>没有什么好说的。</p>
-<h1 id="写在最后">写在最后</h1>
-<p>其实总结这篇文章的原因在于为下一篇文章(<del>准备写一个SQL质量分析插件</del>)做个开始，当然这里也给大家展示了解决卡顿问题的基本思路(查日志定位具体服务延时这里没有说)，也没什么好说的，睡觉😪，希望明天可以开心上班。</p>
+<h1 id="如何调试代码">如何调试代码</h1>
+<p>最重要的一点：<strong>放平心态，冷静对待</strong></p>
+<p>在此给出调试代码3步曲</p>
+<ol type="1">
+<li>找出问题第一次出现的时间、位置，最好<strong>有一些特征</strong>，比如说具体到某个人，精度越细越好，如果说问题涉及到了其它人员管理的服务，可以询问他们大概的调用流程，以及出现问题的基本情况。</li>
+<li>在此应该就可以模糊的定位出出现问题的服务，接下来就可以查看该服务运行的日志，可以通过<code>grep -G 'str' file</code>来定位出日志中<strong>是否存在报错信息</strong>等，因为这一些报错信息是最直接的证据，如果说<strong>未出现报错信息则可以找一些明显的特征</strong>，比如说:SQL语句找到了0条数据，关键日志未打印等，当然如果实在找不出问题出处，可以通过请求参数在测试环境或者本地模拟去DEBUG一下，这下应该就把问题定位在了行级别</li>
+<li>思考语句如何修复，很多时候语句只是少考虑了一种环境，这时候加上这种环境的判断应该就可以了，但是修复的过程中应该明确修改之后的代码是否符合需求，以及是否做到了兼容，很多时候问题频繁出现的原因就在于未做到兼容。(PS.当然这也考验到了你单元测试的设计技巧)</li>
+</ol>
 ]]></content>
       <categories>
         <category>不知道怎么分类</category>
       </categories>
       <tags>
         <tag>没有标签</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何写出简短的代码</title>
-    <url>/2021/01/08/%E4%B8%8D%E7%9F%A5%E9%81%93%E6%80%8E%E4%B9%88%E5%88%86%E7%B1%BB/%E5%A6%82%E4%BD%95%E5%86%99%E5%87%BA%E7%AE%80%E7%9F%AD%E7%9A%84%E4%BB%A3%E7%A0%81/</url>
-    <content><![CDATA[<p>其实这个部分针对于新手，老手可以不看</p>
-<span id="more"></span>
-<ul>
-<li><strong>及时清理不再使用的代码或者配置信息</strong></li>
-</ul>
-<blockquote>
-<p>对于垃圾代码或者过时的配置，坚决清理干净，避免程序过度臃肿、代码冗余</p>
-</blockquote>
-<ul>
-<li><p>保持统一的命名规范</p></li>
-<li><ul>
-<li>变量名统一使用驼峰形式书写，变量首字母小写</li>
-<li>不要使用一些常见包名作为变量名，如<code>time config</code>等</li>
-<li>如果参数为一个常量，它的首字母必须大写，且使用驼峰形式命名，如最大线程数应该表示为<code>MaxGoroutine</code></li>
-</ul></li>
-<li><p>保证你的变量名在足够明了的情况下尽量简单</p></li>
-<li><p>使用defer做资源清理工作</p></li>
-<li><p>在一个导出方法书写之后，应该在方法顶部加上注释，标注出函数的具体作用，如果有必要的话加上参数的意义</p></li>
-</ul>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Add 返回a+b</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Add</span><span class="hljs-params">(a, b <span class="hljs-keyword">int</span>)</span> <span class="hljs-title">int</span></span> &#123;<br>     <span class="hljs-keyword">return</span> a + b<br>&#125;<br></code></pre></td></tr></table></figure>
-<ul>
-<li><strong>在写完代码之后记得对代码进行格式化操作</strong></li>
-<li>最紧张的资源应该尽量少的访问</li>
-</ul>
-<blockquote>
-<p>在我们目前的服务中，数据库资源往往是最为脆落的、最为紧张的资源，我们应该尽量把访问拦截在上游，有访问频次限制就加上访问频次限制，如果有内存缓存就查内存缓存，否则查redis，没有redis可以考虑熔断降级，保证只有一定量的请求到达数据库</p>
-</blockquote>
-<ul>
-<li>磁盘I/O，网络延时往往比你想的要更加耗时，应该尽量少的访问磁盘，以及减少网络通信中包的大小</li>
-</ul>
-<blockquote>
-<p>我们禁止在一个循环中做SQL查询操作，这个可以改写成in语句或者any语句，如果我们需要循环做update语句时，最好预处理我们的SQL语句，并且开启一个事务进行更改</p>
-</blockquote>
-<ul>
-<li><p><strong>内存缓存只能用于缓存一些不经常被更改且即使被更改之后也不会影响现有业务的数据</strong></p></li>
-<li><p>redis线上操作禁止keys、hgetall等耗时操作</p></li>
-<li><p><strong>用户输入的SQL参数严格使用参数绑定，防止SQL注入，禁止字符串拼接SQL访问数据库</strong></p></li>
-<li><p><strong>用户请求传入的任何参数做有效性验证(试情况而定),忽略参数校验可能导致:</strong></p></li>
-<li><ul>
-<li>page size过大导致内存溢出</li>
-<li>恶意order by导致数据库慢查询</li>
-<li>SQL注入</li>
-</ul></li>
-<li><p>表的命名最好是遵循“业务名称_表的作用” 如 (game_config)</p></li>
-<li><p>单表行数超过500万行或者单表容量超过2GB，才推荐进行分库分表。</p></li>
-<li><p>不要使用 count(列名)或 count(常量)来替代 count(<em>)，count(</em>)是 SQL92 定义的标准统计行数的语法，跟数据库无关，跟 NULL 和非 NULL 无关。</p></li>
-<li><p>数据订正（特别是删除或修改记录操作）时，要先 select，避免出现误删除，确认无误才能执行更新语句</p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>不知道怎么分类</category>
-      </categories>
-      <tags>
-        <tag>没有标签</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>VR女友补丁安装全教程攻略</title>
-    <url>/2022/02/03/%E6%B8%B8%E6%88%8F/VR%E5%A5%B3%E5%8F%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>啊，嗯哼，来这里的都是老司机了吧，这里也不多逼逼VR女友是什么玩意了，VR 女友补丁安装方法</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="vr女友补丁安装方法">VR女友补丁安装方法</h1>
-<h2 id="准备过程">准备过程</h2>
-<p>我是在Steam中购买的VR女友，并且购买了 <code>Oculus Quest2</code>，使用了 <code>Quest Link</code> 串流玩游戏，这里需要使用到 <code>Steam VR</code>套件， <code>Steam VR</code>套件会在启动 <code>VR Kanojo</code> 的时候自动安装不需要我们操心。因为Steam版本是阉割版本，这个在Steam商城里面就有提到，所以我们需要通过打补丁的方式来获取原汁原味的 <code>VR 女友</code></p>
-<figure>
-<img src="https://img.helloteemo.com.cn/2022/02/03/1643818483.png" alt="image-20220203001440427" /><figcaption aria-hidden="true">image-20220203001440427</figcaption>
-</figure>
-<h2 id="如何安装补丁">如何安装补丁</h2>
-<blockquote>
-<p>这个补丁其实有三个补丁，我们主要来讲第三个补丁的获取安装方式</p>
-<ol type="1">
-<li>汉化补丁</li>
-<li>免VR补丁(如果需要)</li>
-<li>18+ 补丁(啊，嗯哼)</li>
-</ol>
-</blockquote>
-<p>首先声明，<a href="https://illusionvr.jp/index_en.php#conthome">官网</a> 貌似已经下掉了补丁包，我找到了一位大佬的 <code>GayHub</code> 上有包，<code>https://github.com/kryuki/VRKanojo_Patch</code> ，我们只需要下载<a href="https://github.com/kryuki/VRKanojo_Patch/blob/master/vrkanojo_steam_ex.exe">vrkanojo_steam_ex.exe</a> (点击可以直接下载)下来，并且到我们的游戏安装目录运行这个可执行文件，程序会弹出一个窗口，直接点 <code>解冻</code> 按钮就可以，它会在本地生成一个文件夹 <code>vrkanojo_staem_ex</code>，我们进入这个文件夹下，它有一个目录：<code>abdata</code>，把它移动到上一层就行(也就是程序安装目录)。</p>
-<h2 id="其它一些东西">其它一些东西</h2>
-<p>https://steamcommunity.com/app/751440/reviews/?l=tchinese&amp;browsefilter=toprated&amp;filterLanguage=all</p>
-<p>这里有一些画质增强的软件，但是我本身电脑配置有点差就没有去尝试</p>
-<h2 id="地址总结">地址总结</h2>
-<p>VR女友官网 : <code>https://illusionvr.jp/index_en.php#conthome</code> (进不去很正常)</p>
-<p>包地址: <code>https://github.com/kryuki/VRKanojo_Patch</code></p>
-<p>直接下载地址: <code>https://github.com/kryuki/VRKanojo_Patch/blob/master/vrkanojo_steam_ex.exe</code></p>
-<h1 id="写在最后">写在最后</h1>
-<p>啊，我还要去建设社会主义呢。</p>
-<figure>
-<img src="http://jyj.km.org.cn/UploadFiles_7686/201707/2017070410205203.jpg" alt="image-20220203001440427" /><figcaption aria-hidden="true">image-20220203001440427</figcaption>
-</figure>
-]]></content>
-      <categories>
-        <category>游戏</category>
-      </categories>
-      <tags>
-        <tag>游戏</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>操作系统笔记</title>
-    <url>/2022/11/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<blockquote>
-<p>操作系统笔记</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="操作系统笔记">操作系统笔记</h1>
-<h2 id="操作系统介绍">操作系统介绍</h2>
-<h4 id="系统调用过程调用的区别">系统调用、过程调用的区别</h4>
-<p>区别在于系统调用会把控制权限转移到OS中，同时提高硬件特权级别(hardware privilege level)。</p>
-<h4 id="用户模式系统内核模式区别">用户模式、系统(内核)模式区别</h4>
-<p>用户程序应用一般运行在用户模式(user mode)。而用户模式一般意味着硬件限制了应用程序的功能，比如说发起对磁盘的IO请求。</p>
-<p>而系统(内核)模式拥有完整的硬件权限。</p>
-]]></content>
-      <categories>
-        <category>操作系统</category>
-      </categories>
-      <tags>
-        <tag>操作系统</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TCP篇</title>
-    <url>/2021/07/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP/</url>
-    <content><![CDATA[<blockquote>
-<p>计算机网络中的TCP部分，简单复习一下。</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="tcp篇">TCP篇</h1>
-<h2 id="osi七层协议">OSI七层协议</h2>
-<p>OSI七层从下至上分别为</p>
-<ol type="1">
-<li>物理层：定义了物理设备标准，主要作用是传输比特流，这一层的数据叫比特</li>
-<li>数据链路层：定义了如何让格式化数据以进行传输，以及如何让控制对物理介质的访问，</li>
-<li>网络层：对网络中的两个主机系统之间提供连接和路径选择</li>
-<li>传输层：定义一些传输数据的协议和端口号</li>
-<li>会话层：负责在数据传输中设置和维护计算机网络中两台计算机之间的通信连接</li>
-<li>表示层：数据转换为能与接收者的系统格式兼容并适合传输的格式</li>
-<li>应用层：为应用软件而设计的接口，以设置与另一应用软件之间的通信</li>
-</ol>
-<p>TCP、UDP协议是作用来传输层的协议</p>
-<h2 id="tcp基础知识">TCP基础知识</h2>
-<h3 id="tcp是什么">tcp是什么</h3>
-<p>tcp的全称是 <code>Transmission Control Protocol</code>，即传输控制协议，它的重点在于控制，控制传输的可靠、有序的传输以及端对端的流量控制、拥塞控制等</p>
-<h3 id="tcp连接是什么">TCP连接是什么</h3>
-<p>我们都知道TCP是基于连接的，所谓连接即双方都维护了一个状态，并在米一次通信间来更新这个状态。</p>
-<h3 id="tcp协议头">TCP协议头</h3>
-<p>在深入了解TCP协议之前我们先来看下TCP的协议头吧，这里我截取了 <a href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">维基百科传输协议控制</a> 的图。</p>
-<figure>
-<img src="https://img.helloteemo.com.cn/2021.07/image-20210714170908967.png" alt="image-20210714170908967" /><figcaption aria-hidden="true">image-20210714170908967</figcaption>
-</figure>
-<p>我们不一定需要完全了解整体的内容，这里我挑选几个重要的参数来说</p>
-<ol type="1">
-<li>端口：包括源端口和目标端口</li>
-<li><code>seq</code> ：序列号，用来解决包乱序问题</li>
-<li><code>ack</code> ：确认号，用来解决丢包问题</li>
-<li><code>窗口大小</code> ：即滑动窗口大小，用来控流</li>
-<li><code>标志位</code> ：标识这个包是什么类型的，用来控制TCP的状态</li>
-</ol>
-<h3 id="三次握手">三次握手</h3>
-<p>三次握手是建立TCP连接的步骤。我们先来看图</p>
-<p><img src="https://img.helloteemo.com.cn/2021.07/image-20210714173409157.png" alt="image-20210714173409157" style="zoom:50%;" /></p>
-<p>为什么需要三次握手：为了初始化SeqNumer，并且三次握手时确保双方的发送接收功能都正常。</p>
-<h3 id="四次挥手">四次挥手</h3>
-<p>四次挥手和三次握手类似，先看图</p>
-<p><img src="https://pic2.zhimg.com/80/v2-8561a80c0b70da10eae1b298ca76c901_720w.jpg" /></p>
-<p>为什么需要四次挥手：因为TCP是全双工协议，也就是说双方都需要关闭。每一方都向对方发送FIN和回应ACK。从图中可以看到主动关闭方的状态是 FIN_WAIT_1 到 FIN_WAIT_2 然后再到 TIME_WAIT，而被动关闭方是 CLOSE_WAIT 到 LAST_ACK。</p>
-<h3 id="为什么一定要有time_wait">为什么一定要有TIME_WAIT</h3>
-<p>断开连接发起方在接受到接受方的 FIN 并回复 ACK 之后并没有直接进入 CLOSED 状态，而是进行了一波等待，等待时间为 2MSL。</p>
-<p>MSL 是 Maximum Segment Lifetime，即报文最长生存时间，RFC 793 定义的 MSL 时间是 2 分钟，Linux 实际实现是 30s，那么 2MSL 是一分钟。</p>
-<p><strong>那么为什么要等 2MSL 呢？</strong></p>
-<ul>
-<li>就是怕被动关闭方没有收到最后的 ACK，如果被动方由于网络原因没有到，那么它会再次发送 FIN， 此时如果主动关闭方已经 CLOSED 那就傻了，因此等一会儿。</li>
-<li>假设立马断开连接，但是又重用了这个连接，就是五元组完全一致，并且序号还在合适的范围内，虽然概率很低但理论上也有可能，那么新的连接会被已关闭连接链路上的一些残留数据干扰，因此给予一定的时间来处理一些残留数据。</li>
-</ul>
-<p>那么等待2MSL会引起什么问题呢，如果是服务器主动关闭了大量连接，会出现较大的资源占用问题，</p>
-<h1 id="写在最后">写在最后</h1>
-<blockquote>
-<p>2021-07-14 17:43</p>
-<p>先写到这里吧，今天的事情有点多。还有很多地方没有写完的明天再写</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>计算机网络</category>
-      </categories>
-      <tags>
-        <tag>计算机网络</tag>
-        <tag>TCP</tag>
       </tags>
   </entry>
   <entry>
@@ -3146,6 +3077,75 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
+    <title>TCP篇</title>
+    <url>/2021/07/14/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP/</url>
+    <content><![CDATA[<blockquote>
+<p>计算机网络中的TCP部分，简单复习一下。</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="tcp篇">TCP篇</h1>
+<h2 id="osi七层协议">OSI七层协议</h2>
+<p>OSI七层从下至上分别为</p>
+<ol type="1">
+<li>物理层：定义了物理设备标准，主要作用是传输比特流，这一层的数据叫比特</li>
+<li>数据链路层：定义了如何让格式化数据以进行传输，以及如何让控制对物理介质的访问，</li>
+<li>网络层：对网络中的两个主机系统之间提供连接和路径选择</li>
+<li>传输层：定义一些传输数据的协议和端口号</li>
+<li>会话层：负责在数据传输中设置和维护计算机网络中两台计算机之间的通信连接</li>
+<li>表示层：数据转换为能与接收者的系统格式兼容并适合传输的格式</li>
+<li>应用层：为应用软件而设计的接口，以设置与另一应用软件之间的通信</li>
+</ol>
+<p>TCP、UDP协议是作用来传输层的协议</p>
+<h2 id="tcp基础知识">TCP基础知识</h2>
+<h3 id="tcp是什么">tcp是什么</h3>
+<p>tcp的全称是 <code>Transmission Control Protocol</code>，即传输控制协议，它的重点在于控制，控制传输的可靠、有序的传输以及端对端的流量控制、拥塞控制等</p>
+<h3 id="tcp连接是什么">TCP连接是什么</h3>
+<p>我们都知道TCP是基于连接的，所谓连接即双方都维护了一个状态，并在米一次通信间来更新这个状态。</p>
+<h3 id="tcp协议头">TCP协议头</h3>
+<p>在深入了解TCP协议之前我们先来看下TCP的协议头吧，这里我截取了 <a href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">维基百科传输协议控制</a> 的图。</p>
+<figure>
+<img src="https://img.helloteemo.com.cn/2021.07/image-20210714170908967.png" alt="image-20210714170908967" /><figcaption aria-hidden="true">image-20210714170908967</figcaption>
+</figure>
+<p>我们不一定需要完全了解整体的内容，这里我挑选几个重要的参数来说</p>
+<ol type="1">
+<li>端口：包括源端口和目标端口</li>
+<li><code>seq</code> ：序列号，用来解决包乱序问题</li>
+<li><code>ack</code> ：确认号，用来解决丢包问题</li>
+<li><code>窗口大小</code> ：即滑动窗口大小，用来控流</li>
+<li><code>标志位</code> ：标识这个包是什么类型的，用来控制TCP的状态</li>
+</ol>
+<h3 id="三次握手">三次握手</h3>
+<p>三次握手是建立TCP连接的步骤。我们先来看图</p>
+<p><img src="https://img.helloteemo.com.cn/2021.07/image-20210714173409157.png" alt="image-20210714173409157" style="zoom:50%;" /></p>
+<p>为什么需要三次握手：为了初始化SeqNumer，并且三次握手时确保双方的发送接收功能都正常。</p>
+<h3 id="四次挥手">四次挥手</h3>
+<p>四次挥手和三次握手类似，先看图</p>
+<p><img src="https://pic2.zhimg.com/80/v2-8561a80c0b70da10eae1b298ca76c901_720w.jpg" /></p>
+<p>为什么需要四次挥手：因为TCP是全双工协议，也就是说双方都需要关闭。每一方都向对方发送FIN和回应ACK。从图中可以看到主动关闭方的状态是 FIN_WAIT_1 到 FIN_WAIT_2 然后再到 TIME_WAIT，而被动关闭方是 CLOSE_WAIT 到 LAST_ACK。</p>
+<h3 id="为什么一定要有time_wait">为什么一定要有TIME_WAIT</h3>
+<p>断开连接发起方在接受到接受方的 FIN 并回复 ACK 之后并没有直接进入 CLOSED 状态，而是进行了一波等待，等待时间为 2MSL。</p>
+<p>MSL 是 Maximum Segment Lifetime，即报文最长生存时间，RFC 793 定义的 MSL 时间是 2 分钟，Linux 实际实现是 30s，那么 2MSL 是一分钟。</p>
+<p><strong>那么为什么要等 2MSL 呢？</strong></p>
+<ul>
+<li>就是怕被动关闭方没有收到最后的 ACK，如果被动方由于网络原因没有到，那么它会再次发送 FIN， 此时如果主动关闭方已经 CLOSED 那就傻了，因此等一会儿。</li>
+<li>假设立马断开连接，但是又重用了这个连接，就是五元组完全一致，并且序号还在合适的范围内，虽然概率很低但理论上也有可能，那么新的连接会被已关闭连接链路上的一些残留数据干扰，因此给予一定的时间来处理一些残留数据。</li>
+</ul>
+<p>那么等待2MSL会引起什么问题呢，如果是服务器主动关闭了大量连接，会出现较大的资源占用问题，</p>
+<h1 id="写在最后">写在最后</h1>
+<blockquote>
+<p>2021-07-14 17:43</p>
+<p>先写到这里吧，今天的事情有点多。还有很多地方没有写完的明天再写</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>计算机网络</tag>
+        <tag>TCP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TCP篇3</title>
     <url>/2021/07/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP%E7%AF%873/</url>
     <content><![CDATA[<blockquote>
@@ -3243,6 +3243,49 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
+    <title>VR女友补丁安装全教程攻略</title>
+    <url>/2022/02/03/%E6%B8%B8%E6%88%8F/VR%E5%A5%B3%E5%8F%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>啊，嗯哼，来这里的都是老司机了吧，这里也不多逼逼VR女友是什么玩意了，VR 女友补丁安装方法</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="vr女友补丁安装方法">VR女友补丁安装方法</h1>
+<h2 id="准备过程">准备过程</h2>
+<p>我是在Steam中购买的VR女友，并且购买了 <code>Oculus Quest2</code>，使用了 <code>Quest Link</code> 串流玩游戏，这里需要使用到 <code>Steam VR</code>套件， <code>Steam VR</code>套件会在启动 <code>VR Kanojo</code> 的时候自动安装不需要我们操心。因为Steam版本是阉割版本，这个在Steam商城里面就有提到，所以我们需要通过打补丁的方式来获取原汁原味的 <code>VR 女友</code></p>
+<figure>
+<img src="https://img.helloteemo.com.cn/2022/02/03/1643818483.png" alt="image-20220203001440427" /><figcaption aria-hidden="true">image-20220203001440427</figcaption>
+</figure>
+<h2 id="如何安装补丁">如何安装补丁</h2>
+<blockquote>
+<p>这个补丁其实有三个补丁，我们主要来讲第三个补丁的获取安装方式</p>
+<ol type="1">
+<li>汉化补丁</li>
+<li>免VR补丁(如果需要)</li>
+<li>18+ 补丁(啊，嗯哼)</li>
+</ol>
+</blockquote>
+<p>首先声明，<a href="https://illusionvr.jp/index_en.php#conthome">官网</a> 貌似已经下掉了补丁包，我找到了一位大佬的 <code>GayHub</code> 上有包，<code>https://github.com/kryuki/VRKanojo_Patch</code> ，我们只需要下载<a href="https://github.com/kryuki/VRKanojo_Patch/blob/master/vrkanojo_steam_ex.exe">vrkanojo_steam_ex.exe</a> (点击可以直接下载)下来，并且到我们的游戏安装目录运行这个可执行文件，程序会弹出一个窗口，直接点 <code>解冻</code> 按钮就可以，它会在本地生成一个文件夹 <code>vrkanojo_staem_ex</code>，我们进入这个文件夹下，它有一个目录：<code>abdata</code>，把它移动到上一层就行(也就是程序安装目录)。</p>
+<h2 id="其它一些东西">其它一些东西</h2>
+<p>https://steamcommunity.com/app/751440/reviews/?l=tchinese&amp;browsefilter=toprated&amp;filterLanguage=all</p>
+<p>这里有一些画质增强的软件，但是我本身电脑配置有点差就没有去尝试</p>
+<h2 id="地址总结">地址总结</h2>
+<p>VR女友官网 : <code>https://illusionvr.jp/index_en.php#conthome</code> (进不去很正常)</p>
+<p>包地址: <code>https://github.com/kryuki/VRKanojo_Patch</code></p>
+<p>直接下载地址: <code>https://github.com/kryuki/VRKanojo_Patch/blob/master/vrkanojo_steam_ex.exe</code></p>
+<h1 id="写在最后">写在最后</h1>
+<p>啊，我还要去建设社会主义呢。</p>
+<figure>
+<img src="http://jyj.km.org.cn/UploadFiles_7686/201707/2017070410205203.jpg" alt="image-20220203001440427" /><figcaption aria-hidden="true">image-20220203001440427</figcaption>
+</figure>
+]]></content>
+      <categories>
+        <category>游戏</category>
+      </categories>
+      <tags>
+        <tag>游戏</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>把PHP项目部署到服务器上，让别人看见你的成果</title>
     <url>/2020/12/19/%E8%BF%90%E7%BB%B4/%E6%8A%8APHP%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%EF%BC%8C%E8%AE%A9%E5%88%AB%E4%BA%BA%E7%9C%8B%E8%A7%81%E4%BD%A0%E7%9A%84%E6%88%90%E6%9E%9C/</url>
     <content><![CDATA[<blockquote>
@@ -3291,6 +3334,28 @@ Protobuf文档生成</li>
       </categories>
       <tags>
         <tag>运维</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>操作系统笔记</title>
+    <url>/2022/11/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<blockquote>
+<p>操作系统笔记</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="操作系统笔记">操作系统笔记</h1>
+<h2 id="操作系统介绍">操作系统介绍</h2>
+<h4 id="系统调用过程调用的区别">系统调用、过程调用的区别</h4>
+<p>区别在于系统调用会把控制权限转移到OS中，同时提高硬件特权级别(hardware privilege level)。</p>
+<h4 id="用户模式系统内核模式区别">用户模式、系统(内核)模式区别</h4>
+<p>用户程序应用一般运行在用户模式(user mode)。而用户模式一般意味着硬件限制了应用程序的功能，比如说发起对磁盘的IO请求。</p>
+<p>而系统(内核)模式拥有完整的硬件权限。</p>
+]]></content>
+      <categories>
+        <category>操作系统</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
       </tags>
   </entry>
   <entry>
@@ -3595,6 +3660,48 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
+    <title>为什么要使用消息队列</title>
+    <url>/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</url>
+    <content><![CDATA[<blockquote>
+<p>为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p>
+</blockquote>
+<span id="more"></span>
+<h1 id="为什么使用消息队列">为什么使用消息队列</h1>
+<h2 id="简答">简答</h2>
+<ol type="1">
+<li>异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li>
+<li>应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li>
+<li>平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li>
+<li>日志处理：解决不同机器之间的日志输出问题</li>
+<li>消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li>
+</ol>
+<h2 id="详解">详解</h2>
+<h3 id="异步处理">异步处理</h3>
+<p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p>
+<h3 id="解除耦合">解除耦合</h3>
+<p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p>
+<p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p>
+<h3 id="平稳流量">平稳流量</h3>
+<p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p>
+<h2 id="缺点">缺点</h2>
+<h3 id="系统可用性降低">系统可用性降低</h3>
+<p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p>
+<h3 id="系统复杂度降低">系统复杂度降低</h3>
+<p>一个系统每新增一个组件就要增加十倍的复杂度</p>
+<h3 id="一致性问题">一致性问题</h3>
+<p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p>
+<h2 id="总结">总结</h2>
+<p>欲戴王冠，必承其重</p>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>基本理念</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>安装RocketMQ</title>
     <url>/2021/06/22/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E5%AE%89%E8%A3%85RocketMQ/</url>
     <content><![CDATA[<blockquote>
@@ -3821,128 +3928,6 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>消费者启动流程</title>
-    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="消费者启动流程">消费者启动流程</h1>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>消息消费</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>为什么要使用消息队列</title>
-    <url>/2021/01/21/RocketMQ/%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/</url>
-    <content><![CDATA[<blockquote>
-<p>为什么要使用消息队列呢，使用消息队列和不使用消息队列有什么区别，本文作为消息队列的一个开端，理解本文很重要，永远明白<strong>需求驱动技术的发展</strong></p>
-</blockquote>
-<span id="more"></span>
-<h1 id="为什么使用消息队列">为什么使用消息队列</h1>
-<h2 id="简答">简答</h2>
-<ol type="1">
-<li>异步处理：相对于传统的串行、并行模型，消息队列可以增加系统的吞吐量</li>
-<li>应用解耦：系统间通过消息通信，不需要关心其他系统的处理</li>
-<li>平稳流量：可以通过控制消息队列总长度来控制最大请求并发量，来缓解瞬时高并发请求</li>
-<li>日志处理：解决不同机器之间的日志输出问题</li>
-<li>消息通讯：消息队列一般都内置了高效的通信机制，因此也可以用在纯的消息通讯。比如实现点对点消息队列，或者聊天室等</li>
-</ol>
-<h2 id="详解">详解</h2>
-<h3 id="异步处理">异步处理</h3>
-<p>这个很简单，我们拿12306来举例，当用户在锁定一张票之后会有支付流程，支付完成之后会发短信提示用户出行记录，这个时候就需要支付模块去调用短信模块，如果短信模块的响应时长是300ms，那么整个系统的耗时就是支付耗时+短信模块响应时长。在使用了MQ之后就只需要计算支付耗时+插入MQ的时间。</p>
-<h3 id="解除耦合">解除耦合</h3>
-<p>还是那12306举例，支付流程之后如果是去调用短信模块，那么支付模块就耦合了短信模块，一个模块暂时还可以接受，但是如果这时候需要新增一个微信通知模块，一个邮件通知模块，那么一个支付流程就耦合了多个模块，并且如果这个时候需要撤销邮件通知，且邮件模块有和其他流程有点关系，那么。。。祝你还有头发吧。</p>
-<p>在使用了MQ之后可以将支付完成的信息发送到MQ中，那么订阅了这条信息的程序就会收到信息并自己处理。</p>
-<h3 id="平稳流量">平稳流量</h3>
-<p>依旧12306，在放票的那一瞬间流量就达到的高峰，如果任意让那么多流量直接打到服务器，服务器可能一时间处理不了那么多请求，这个时候我们可以使用MQ来控制请求的最大并发量(用其他的也可以)，来缓解并发量</p>
-<h2 id="缺点">缺点</h2>
-<h3 id="系统可用性降低">系统可用性降低</h3>
-<p>无论是异步处理还是解除耦合，都要依赖MQ的高可用，实际上MQ充当的就是一个信使的作用，如果信使都挂了，那么整个系统就瞬间炸裂</p>
-<h3 id="系统复杂度降低">系统复杂度降低</h3>
-<p>一个系统每新增一个组件就要增加十倍的复杂度</p>
-<h3 id="一致性问题">一致性问题</h3>
-<p>A 系统处理完了直接返回成功了，人都以为你这个请求就成功了；但是问题是，要是 BCD 三个系统那里，BD 两个系统写库成功了，结果 C 系统写库失败了，咋整？你这数据就不一致了。</p>
-<h2 id="总结">总结</h2>
-<p>欲戴王冠，必承其重</p>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>基本理念</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>消费者基本理念</title>
-    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</url>
-    <content><![CDATA[<blockquote>
-<p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="消费者基本理念">消费者基本理念</h1>
-<h2 id="消费者组">消费者组</h2>
-<p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p>
-<blockquote>
-<p>Q：为什么需要消费者组</p>
-<p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p>
-</blockquote>
-<h2 id="消息消费模式">消息消费模式</h2>
-<p>消费者组之间有集群模式和广播模式两种消费模式，</p>
-<ul>
-<li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li>
-<li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li>
-</ul>
-<h2 id="消息传送方式">消息传送方式</h2>
-<p>消息传送方式有两种：推模式和拉模式</p>
-<ol type="1">
-<li>推模式：消息到达Broker后，推送给消息消费者</li>
-<li>拉模式：消费端主动拉去消息请求</li>
-</ol>
-<h2 id="消息队列负载机制">消息队列负载机制</h2>
-<p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p>
-<p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p>
-<ol type="1">
-<li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li>
-<li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li>
-</ol>
-<h2 id="消息队列重平衡机制">消息队列重平衡机制</h2>
-<p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p>
-<p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p>
-<h2 id="消费模型">消费模型</h2>
-<p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p>
-<ol type="1">
-<li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li>
-<li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li>
-</ol>
-<h2 id="其它">其它</h2>
-<p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p>
-<p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p>
-<h1 id="写在最后">写在最后</h1>
-<blockquote>
-<p>2021-07-07 17:00</p>
-<p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p>
-</blockquote>
-<blockquote>
-<p>2021-07-08 11:43</p>
-<p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>消息消费</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>RocketMQ 生产者</title>
     <url>/2021/06/25/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85/</url>
     <content><![CDATA[<blockquote>
@@ -3972,6 +3957,70 @@ Protobuf文档生成</li>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">batchSend</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>    ArrayList&lt;Message&gt; list = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();<br>    list.add(<span class="hljs-keyword">new</span> Message(topicName, <span class="hljs-string">&quot;batch message no.1&quot;</span>.getBytes(StandardCharsets.UTF_8)));<br>    list.add(<span class="hljs-keyword">new</span> Message(topicName, <span class="hljs-string">&quot;batch message no.2&quot;</span>.getBytes(StandardCharsets.UTF_8)));<br>    list.add(<span class="hljs-keyword">new</span> Message(topicName, <span class="hljs-string">&quot;batch message no.3&quot;</span>.getBytes(StandardCharsets.UTF_8)));<br>    SendResult result = producer.send(list);<br>    log.info(<span class="hljs-string">&quot;batch send got :&#123;&#125;&quot;</span>, result);<br>&#125;<br></code></pre></td></tr></table></figure>
 <h3 id="指定消息队列发送消息">指定消息队列发送消息</h3>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sendToMessageQueue</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>    Message message = <span class="hljs-keyword">new</span> Message(topicName, <span class="hljs-string">&quot;send 2 message queue&quot;</span>.getBytes(StandardCharsets.UTF_8));<br>    List&lt;MessageQueue&gt; queues = producer.fetchPublishMessageQueues(topicName);<br>    MessageQueue queue = queues.get(queues.size() - <span class="hljs-number">1</span>);<br>    producer.send(message, queue);<br>&#125;<br></code></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>生产者</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RocketMQ 生产者启动流程</title>
+    <url>/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>简单介绍 <code>RocketMQ</code> 生产者启动流程</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="rocketmq-生产者启动流程">RocketMQ 生产者启动流程</h1>
+<p>还记得上一个章节的生产者发送消息的代码吗？我们在构造函数中新建了 <code>DefaultMQProducer</code> 类，并且设置了 <code>NamesrvAddr</code> 属性，它标志着 <code>Namesrv</code> 的地址，随后我们调用了 <code>prodeucer.start()</code> 来启动这个生产者，接下来我们就要探究 <code>start()</code> 方法究竟做了什么。</p>
+<blockquote>
+<p>在书写本章时的代码版本为 <code>RocketMQ-Client 4.3.0</code> , git节点在 <code>b4240d5cea8</code>，如果代码有所不同请见谅</p>
+</blockquote>
+<h2 id="defaultmqproducer-类"><code>DefaultMQProducer</code> 类</h2>
+<p><code>DefaultMQProducer</code> 类是 <code>RocketMQ</code> 生产者的默认实现，它继承了 <code>ClientConfig</code> 类 并间接实现了了 <code>MQAdmin</code> 类，类图见下图，接下来我们来讲一下这一个类一个接口。</p>
+<p><img src="https://img.helloteemo.com.cn/2021.06/image-20210626102312384.png" alt="image-20210626102312384" style="zoom:50%;" /></p>
+<h3 id="clientconfig"><code>ClientConfig</code></h3>
+<p>在这里我列举了 <code>ClientConfig</code> 的几个重要属性，和本章中比较重要的方法:<code>buildMQClientId</code>，这里<code>ClientID</code>主要是为了区分多台服务器的不同JVM实例，可以看到 <code>ClientID</code> 由 <code>ClientIP</code> 、<code>InstanceName</code> 、 <code>unitName</code> 组成，其中 <code>ClientIP</code> 分区了不同的服务器， <code>Instancename</code> 区分了不同JVM实例，<code>unitName</code> 区分了一个JVM实例中的不同子实例。如果我们不设置 <code>InstanceName</code>和<code>unitName</code> ，就可以使得 在JVM实例中只存在一个<code>ClientID</code>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> String namesrvAddr<br><span class="hljs-keyword">private</span> String clientIP;<br><span class="hljs-keyword">private</span> String instanceName;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> unitMode = <span class="hljs-keyword">false</span>;<br><span class="hljs-keyword">private</span> String unitName;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">buildMQClientId</span><span class="hljs-params">()</span> </span>&#123;<br>    StringBuilder sb = <span class="hljs-keyword">new</span> StringBuilder();<br>    sb.append(<span class="hljs-keyword">this</span>.getClientIP());<br><br>    sb.append(<span class="hljs-string">&quot;@&quot;</span>);<br>    sb.append(<span class="hljs-keyword">this</span>.getInstanceName());<br>    <span class="hljs-keyword">if</span> (!UtilAll.isBlank(<span class="hljs-keyword">this</span>.unitName)) &#123;<br>        sb.append(<span class="hljs-string">&quot;@&quot;</span>);<br>        sb.append(<span class="hljs-keyword">this</span>.unitName);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> sb.toString();<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="mqadmin"><code>MQAdmin</code></h3>
+<p><code>MQAdmin</code>接口定义了一些非常基本的方法，比如说<code>createTopic</code> 、<code>searchOffset</code> 之类的。</p>
+<h2 id="生产者启动流程">生产者启动流程</h2>
+<h3 id="step1">Step1</h3>
+<p>我们从 <code>DefaultMQProducer.start()</code>方法开始追踪</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">transient</span> DefaultMQProducerImpl defaultMQProducerImpl;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DefaultMQProducer</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String producerGroup)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>(<span class="hljs-keyword">null</span>, producerGroup, <span class="hljs-keyword">null</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DefaultMQProducer</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String namespace, <span class="hljs-keyword">final</span> String producerGroup, RPCHook rpcHook)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>.namespace = namespace;<br>    <span class="hljs-keyword">this</span>.producerGroup = producerGroup;<br>    defaultMQProducerImpl = <span class="hljs-keyword">new</span> DefaultMQProducerImpl(<span class="hljs-keyword">this</span>, rpcHook);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> MQClientException </span>&#123;<br>     <span class="hljs-keyword">this</span>.setProducerGroup(withNamespace(<span class="hljs-keyword">this</span>.producerGroup));<br>     <span class="hljs-keyword">this</span>.defaultMQProducerImpl.start();<br>     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">null</span> != traceDispatcher) &#123;<br>         <span class="hljs-keyword">try</span> &#123;<br>             traceDispatcher.start(<span class="hljs-keyword">this</span>.getNamesrvAddr(), <span class="hljs-keyword">this</span>.getAccessChannel());<br>         &#125; <span class="hljs-keyword">catch</span> (MQClientException e) &#123;<br>             log.warn(<span class="hljs-string">&quot;trace dispatcher start failed &quot;</span>, e);<br>         &#125;<br>     &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+<p>首先我们重新设置了生产者的生产者组名称，这里是为了兼容 <code>NameSpace</code> ，其中 <code>NameSpace</code> 在 <code>ClientConfig</code> 中配置，如果我们未配置的话则为原样的<code>ProducerGroup</code>，之后我们调用了 <code>defaultMQProducerImpl</code> 来启动生产者，那么这个<code>defaultMQProducerImpl</code>是什么呢。我们可以从上述代码中的第10行看出，<strong>他是一个<code>DefaultMQProducerImpl</code>类，也就是默认的生产者实现类，实际上生产者的消息发送都是通过这个类来实现的</strong> ，注意：我们通过构造方法把我们自身传递给了<code>DefaultMQProducerImpl</code>，这也是说在<code>DefaultMQProducerImpl</code>可以访问生产者中的任何公开信息。</p>
+<h3 id="step2">Step2</h3>
+<p>那么我们切换目标来跟踪<code>defaultMQProducerImpl.start();</code>方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> ServiceState serviceState = ServiceState.CREATE_JUST;<br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">start</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> startFactory)</span> <span class="hljs-keyword">throws</span> MQClientException </span>&#123;<br>        <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">this</span>.serviceState) &#123;<br>            <span class="hljs-keyword">case</span> CREATE_JUST:<br>                <span class="hljs-keyword">this</span>.serviceState = ServiceState.START_FAILED;<br>                <span class="hljs-comment">// 具体的生产者启动流程</span><br>                <span class="hljs-keyword">this</span>.serviceState = ServiceState.RUNNING;<br>                <span class="hljs-keyword">break</span>;<br> 			<span class="hljs-keyword">case</span> RUNNING:<br>            <span class="hljs-keyword">case</span> START_FAILED:<br>            <span class="hljs-keyword">case</span> SHUTDOWN_ALREADY:<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> MQClientException(<span class="hljs-string">&quot;The producer service state not OK, maybe started once, &quot;</span><br>                    + <span class="hljs-keyword">this</span>.serviceState<br>                    + FAQUrl.suggestTodo(FAQUrl.CLIENT_SERVICE_NOT_OK),<br>                    <span class="hljs-keyword">null</span>);<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">break</span>;<br>        &#125;   <br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这一大段代码是为了保证每一个生产者只启动一次。接下来我们就开始看看具体的流程吧</p>
+<h3 id="step3">Step3</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">this</span>.checkConfig();<br><br><span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.defaultMQProducer.getProducerGroup().equals(MixAll.CLIENT_INNER_PRODUCER_GROUP)) &#123;<br>    <span class="hljs-keyword">this</span>.defaultMQProducer.changeInstanceNameToPID();<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>首先检查prodeucerGroup是否符合要求，如果 <code>producerGroup</code> 不是 <code>CLIENT_INNER_PRODUCER_GROUP</code> 并且没有手动设置 <code>InstanceName</code> 的话就会重新设置一下 <code>InstanceName</code> 为 当前JVM程序运行的 <code>PID</code>。(这里其实可以思考一下为什么要这样做？)</p>
+<h3 id="step4">Step4</h3>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"># DefaultMQProducerImpl.java<br><span class="hljs-keyword">this</span>.mQClientFactory = MQClientManager.getInstance().getOrCreateMQClientInstance(<span class="hljs-keyword">this</span>.defaultMQProducer, rpcHook);<br><br># MQClientManager.java<br>    <br><span class="hljs-keyword">private</span> ConcurrentMap&lt;String<span class="hljs-comment">/* clientId */</span>, MQClientInstance&gt; factoryTable =<br>        <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;String, MQClientInstance&gt;();<br><span class="hljs-function"><span class="hljs-keyword">public</span> MQClientInstance <span class="hljs-title">getOrCreateMQClientInstance</span><span class="hljs-params">(<span class="hljs-keyword">final</span> ClientConfig clientConfig, RPCHook rpcHook)</span> </span>&#123;<br>    String clientId = clientConfig.buildMQClientId();<br>    MQClientInstance instance = <span class="hljs-keyword">this</span>.factoryTable.get(clientId);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">null</span> == instance) &#123;<br>        instance =<br>            <span class="hljs-keyword">new</span> MQClientInstance(clientConfig.cloneClientConfig(),<br>                                 <span class="hljs-keyword">this</span>.factoryIndexGenerator.getAndIncrement(), clientId, rpcHook);<br>        MQClientInstance prev = <span class="hljs-keyword">this</span>.factoryTable.putIfAbsent(clientId, instance);<br>        <span class="hljs-keyword">if</span> (prev != <span class="hljs-keyword">null</span>) &#123;<br>            instance = prev;<br>            log.warn(<span class="hljs-string">&quot;Returned Previous MQClientInstance for clientId:[&#123;&#125;]&quot;</span>, clientId);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            log.info(<span class="hljs-string">&quot;Created new MQClientInstance for clientId:[&#123;&#125;]&quot;</span>, clientId);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> instance;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这里可以跳转到 <a href="###MQClientManager类">附录</a> 查看<code>MQClientManager</code> 类的介绍。这段代码就是为了创建 <code>MQClientInstance</code> 对象，这里我们可以看出其实我们是基于<code>ClientID</code>来获取 <code>MQClientInstance</code> 对象的。而根据上述代码我们可以轻松的知道:如果我们未手动配置 <code>InstanceName</code> 和 <code>unitName</code> 的话，一个JVM实例只会有一个 <code>ClientID</code>（<code>ClientID=ClientIP+PID</code>） ，并且通过代码我们知道这个实例是缓存在了 <code>factoryTable</code> 中，也就是说，在一个JVM实例中一般只会存在一个<code>MQClientInstance</code> 实例。</p>
+<blockquote>
+<p><code>MQClientInstance</code> 封住了RocketMQ网络处理API，是Producer、Consumer与NamServer、Broker打交道的网络对象</p>
+</blockquote>
+<h3 id="step5">Step5</h3>
+<p>我们获取到了 <code>MQClientInstance</code> 之后，我们就要开始往 <code>MQClientInstance</code> 中注册我们的生产者。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">mQClientFactory.registerProducer(<span class="hljs-keyword">this</span>.defaultMQProducer.getProducerGroup(), <span class="hljs-keyword">this</span>);<br></code></pre></td></tr></table></figure>
+<p>注册的过程也很简单，只是更新了一下 <code>MQClientInstance</code> 的 <code>producerTable</code> 生产者列表而已。这里我们可以得出一个简单的结论：一个JVM实例中只存在一个 <code>ProducerGroup</code> 的生产者，这是为了使得一个JVM程序崩溃之后不会影响一个生产者组中的多个生产者。（其实）</p>
+<h3 id="step6">Step6</h3>
+<p>增加默认的Topic信息。并且启动 <code>MQClientInstance</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">this</span>.topicPublishInfoTable.put(<span class="hljs-keyword">this</span>.defaultMQProducer.getCreateTopicKey(), <span class="hljs-keyword">new</span> TopicPublishInfo());<br><br><span class="hljs-keyword">if</span> (startFactory) &#123;<br>    mQClientFactory.start();<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="mqclientmanager类">MQClientManager类</h2>
+<p><code>MQClientManager</code> 是用来维护 <code>MQClientInstance</code> 的。一个JVM实例中只会存在一个 <code>MQClientInstance</code> 实例，同时也为 <code>MQClientManager</code> 的实现是在是太轻量化了，所以<code>RocketMQ</code>的作者<code>yukong</code>大佬也是直接使用了饿汉式的单例模式。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MQClientManager</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> MQClientManager instance = <span class="hljs-keyword">new</span> MQClientManager();<br>     <span class="hljs-keyword">private</span> ConcurrentMap&lt;String<span class="hljs-comment">/* clientId */</span>, MQClientInstance&gt; factoryTable =<br>        <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;String, MQClientInstance&gt;();<br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">MQClientManager</span><span class="hljs-params">()</span> </span>&#123;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> MQClientManager <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>同时内部维护了一套 <code>ClientID</code> 和 <code>MQClientInstance</code> 的对应关系，并且提供了方法去添加、移除，这里不做更多的介绍。</p>
+<h2 id="写在最后">写在最后</h2>
+<p>讲道理写生产者启动流程还是蛮累的。本以为会比较轻松，因为相对于一些其他流程来说应该是相对比较简单的，没想到还是花了两天的时间陆陆续续的写完。</p>
+<p>现在是6月27日的晚上9点45分，周日，没想到一周唯一的休息日就这样在睡觉中度过去了(是真的睡了一天)，最后到了晚上吃完饭、吃完水果才想到博客没有写完，今天施队还说我吃饭吃的太少，水果吃的多，怕是会的糖尿病，整个人估计是废了吧。</p>
+<figure>
+<img src="https://img.helloteemo.com.cn/2021.06/image-20210627215117279.png" alt="image-20210627215117279" /><figcaption aria-hidden="true">image-20210627215117279</figcaption>
+</figure>
 ]]></content>
       <categories>
         <category>RocketMQ</category>
@@ -4097,6 +4146,86 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
+    <title>消费者启动流程</title>
+    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
+    <content><![CDATA[<blockquote>
+<p>本文主要讲解 <code>RocketMQ</code> 消费者启动流程</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="消费者启动流程">消费者启动流程</h1>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>消息消费</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>消费者基本理念</title>
+    <url>/2021/07/07/RocketMQ/%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/%E6%B6%88%E8%B4%B9%E8%80%85%E5%9F%BA%E6%9C%AC%E7%90%86%E5%BF%B5/</url>
+    <content><![CDATA[<blockquote>
+<p>本文主要讲解 <code>RocketMQ</code> 消费者基本理念。比如说消费者组是什么、消息消费模式都有多少。</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="消费者基本理念">消费者基本理念</h1>
+<h2 id="消费者组">消费者组</h2>
+<p>消费者组是一个逻辑的概念，是消息消费的基本单位，消息消费都是以组的模式开展的。<strong>同一个消费者组必须保证消费同一个topic，并且保证tag的过滤是完全一致的</strong>，如果一个消费者消费了多个topic，可能会造成消息丢失问题</p>
+<blockquote>
+<p>Q：为什么需要消费者组</p>
+<p>A：消费者组的存在使得实现负载均衡的容错的目标变得非常容易</p>
+</blockquote>
+<h2 id="消息消费模式">消息消费模式</h2>
+<p>消费者组之间有集群模式和广播模式两种消费模式，</p>
+<ul>
+<li>在集群模式之下，相同的消费者组中的每一个消费者实例平均分摊消息，也因为这个逻辑的存在，使得消息进度保存在了Broker中</li>
+<li>广播模式下，相同的消费者组的每一个实例都能收到全量的消息。消息进度保存在消费者中</li>
+</ul>
+<h2 id="消息传送方式">消息传送方式</h2>
+<p>消息传送方式有两种：推模式和拉模式</p>
+<ol type="1">
+<li>推模式：消息到达Broker后，推送给消息消费者</li>
+<li>拉模式：消费端主动拉去消息请求</li>
+</ol>
+<h2 id="消息队列负载机制">消息队列负载机制</h2>
+<p>消息队列负载机制遵循一个通用的思想: <strong>一个消息队列同一时间只允许被一个消费者消费，一个消费者可以消费多个消息队列</strong>。</p>
+<p><code>RocketMQ</code> 提供了很多的队列负载算法，下面介绍两种最常用的平均分配算法</p>
+<ol type="1">
+<li><code>AllocateMessageQueueAveragely</code> 平均分配，算法为：用总数除消费者个数，余数按照消费者顺序分配给消费者，并且队列分配是连续的</li>
+<li><code>AllocateMessageQueueAveragelyByCircle</code> 轮流平均分配，算法为轮流一个一个分配</li>
+</ol>
+<h2 id="消息队列重平衡机制">消息队列重平衡机制</h2>
+<p>重平衡是什么：在实际过程中，对 <code>topic</code> 、消费者进行扩容、缩容是一件非常正常的事情，但是我在进行扩容、缩容之后，消费者应该消费什么消息队列了呢。这就涉及到了消费者队列的重新分配，即消费队列重平衡机制</p>
+<p>在 <code>RocketMQ</code> 客户端中，每隔20S会去查询当前topic的所有队列、消费者个数，运用队列负载算法进行重新分配，与上一次的分配结果进行对比，如果发生了变化就重新进行队列分配</p>
+<h2 id="消费模型">消费模型</h2>
+<p><code>RocketMQ</code> 提供了并发消费、顺序消费两种消费模型</p>
+<ol type="1">
+<li>并发消费：对一个队列中的消息，每一个消费者内部都会创建一个线程池，对队列中的消息多线程处理，即偏移大的消息比偏移量小的有可能先消费</li>
+<li>顺序消费：在某些需要保证顺序消费，<code>RocketMQ</code> 中提供了 基于队列的顺序消费模型，即尽管一个消费者组中的消费者会创建一个多线程，但是针对 同一个Queue，会加锁处理</li>
+</ol>
+<h2 id="其它">其它</h2>
+<p>RocketMQ 支持局部顺序消息消费，也就是保证同一个消息队列上的消息顺序消费。不支持消息全局顺序消费，如果要实现某一主题的全局顺序消息消费，可以将该主题的队列数设置为 1，牺牲高可用性。</p>
+<p>RocketMQ 支持两种消息过滤模式:表达式(TAG、SQL92)与类过滤模式。</p>
+<h1 id="写在最后">写在最后</h1>
+<blockquote>
+<p>2021-07-07 17:00</p>
+<p>可以感觉到和LYL的关系缓和了不少，我们讨论了对以后生活的设想，比如说住的地方、生活模式之类的。</p>
+</blockquote>
+<blockquote>
+<p>2021-07-08 11:43</p>
+<p>昨天上班的时候居然没有发现是7月7日，下班吃饭的时候施队很莫名其妙的就说想看亮剑，我们看第一集的时候就看到77事变，还是蛮有意思的。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>RocketMQ</category>
+        <category>消息消费</category>
+      </categories>
+      <tags>
+        <tag>RocketMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>最大子数组和</title>
     <url>/2022/11/17/leetcode/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/%E6%9C%80%E5%A4%A7%E5%AD%90%E6%95%B0%E7%BB%84%E5%92%8C/</url>
     <content><![CDATA[<blockquote>
@@ -4152,70 +4281,6 @@ Protobuf文档生成</li>
       </tags>
   </entry>
   <entry>
-    <title>RocketMQ 生产者启动流程</title>
-    <url>/2021/06/26/RocketMQ/%E7%94%9F%E4%BA%A7%E8%80%85/RocketMQ%E7%94%9F%E4%BA%A7%E8%80%85%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</url>
-    <content><![CDATA[<blockquote>
-<p>简单介绍 <code>RocketMQ</code> 生产者启动流程</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="rocketmq-生产者启动流程">RocketMQ 生产者启动流程</h1>
-<p>还记得上一个章节的生产者发送消息的代码吗？我们在构造函数中新建了 <code>DefaultMQProducer</code> 类，并且设置了 <code>NamesrvAddr</code> 属性，它标志着 <code>Namesrv</code> 的地址，随后我们调用了 <code>prodeucer.start()</code> 来启动这个生产者，接下来我们就要探究 <code>start()</code> 方法究竟做了什么。</p>
-<blockquote>
-<p>在书写本章时的代码版本为 <code>RocketMQ-Client 4.3.0</code> , git节点在 <code>b4240d5cea8</code>，如果代码有所不同请见谅</p>
-</blockquote>
-<h2 id="defaultmqproducer-类"><code>DefaultMQProducer</code> 类</h2>
-<p><code>DefaultMQProducer</code> 类是 <code>RocketMQ</code> 生产者的默认实现，它继承了 <code>ClientConfig</code> 类 并间接实现了了 <code>MQAdmin</code> 类，类图见下图，接下来我们来讲一下这一个类一个接口。</p>
-<p><img src="https://img.helloteemo.com.cn/2021.06/image-20210626102312384.png" alt="image-20210626102312384" style="zoom:50%;" /></p>
-<h3 id="clientconfig"><code>ClientConfig</code></h3>
-<p>在这里我列举了 <code>ClientConfig</code> 的几个重要属性，和本章中比较重要的方法:<code>buildMQClientId</code>，这里<code>ClientID</code>主要是为了区分多台服务器的不同JVM实例，可以看到 <code>ClientID</code> 由 <code>ClientIP</code> 、<code>InstanceName</code> 、 <code>unitName</code> 组成，其中 <code>ClientIP</code> 分区了不同的服务器， <code>Instancename</code> 区分了不同JVM实例，<code>unitName</code> 区分了一个JVM实例中的不同子实例。如果我们不设置 <code>InstanceName</code>和<code>unitName</code> ，就可以使得 在JVM实例中只存在一个<code>ClientID</code>。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> String namesrvAddr<br><span class="hljs-keyword">private</span> String clientIP;<br><span class="hljs-keyword">private</span> String instanceName;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">boolean</span> unitMode = <span class="hljs-keyword">false</span>;<br><span class="hljs-keyword">private</span> String unitName;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">buildMQClientId</span><span class="hljs-params">()</span> </span>&#123;<br>    StringBuilder sb = <span class="hljs-keyword">new</span> StringBuilder();<br>    sb.append(<span class="hljs-keyword">this</span>.getClientIP());<br><br>    sb.append(<span class="hljs-string">&quot;@&quot;</span>);<br>    sb.append(<span class="hljs-keyword">this</span>.getInstanceName());<br>    <span class="hljs-keyword">if</span> (!UtilAll.isBlank(<span class="hljs-keyword">this</span>.unitName)) &#123;<br>        sb.append(<span class="hljs-string">&quot;@&quot;</span>);<br>        sb.append(<span class="hljs-keyword">this</span>.unitName);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> sb.toString();<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="mqadmin"><code>MQAdmin</code></h3>
-<p><code>MQAdmin</code>接口定义了一些非常基本的方法，比如说<code>createTopic</code> 、<code>searchOffset</code> 之类的。</p>
-<h2 id="生产者启动流程">生产者启动流程</h2>
-<h3 id="step1">Step1</h3>
-<p>我们从 <code>DefaultMQProducer.start()</code>方法开始追踪</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">transient</span> DefaultMQProducerImpl defaultMQProducerImpl;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DefaultMQProducer</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String producerGroup)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>(<span class="hljs-keyword">null</span>, producerGroup, <span class="hljs-keyword">null</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DefaultMQProducer</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String namespace, <span class="hljs-keyword">final</span> String producerGroup, RPCHook rpcHook)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>.namespace = namespace;<br>    <span class="hljs-keyword">this</span>.producerGroup = producerGroup;<br>    defaultMQProducerImpl = <span class="hljs-keyword">new</span> DefaultMQProducerImpl(<span class="hljs-keyword">this</span>, rpcHook);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> MQClientException </span>&#123;<br>     <span class="hljs-keyword">this</span>.setProducerGroup(withNamespace(<span class="hljs-keyword">this</span>.producerGroup));<br>     <span class="hljs-keyword">this</span>.defaultMQProducerImpl.start();<br>     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">null</span> != traceDispatcher) &#123;<br>         <span class="hljs-keyword">try</span> &#123;<br>             traceDispatcher.start(<span class="hljs-keyword">this</span>.getNamesrvAddr(), <span class="hljs-keyword">this</span>.getAccessChannel());<br>         &#125; <span class="hljs-keyword">catch</span> (MQClientException e) &#123;<br>             log.warn(<span class="hljs-string">&quot;trace dispatcher start failed &quot;</span>, e);<br>         &#125;<br>     &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
-<p>首先我们重新设置了生产者的生产者组名称，这里是为了兼容 <code>NameSpace</code> ，其中 <code>NameSpace</code> 在 <code>ClientConfig</code> 中配置，如果我们未配置的话则为原样的<code>ProducerGroup</code>，之后我们调用了 <code>defaultMQProducerImpl</code> 来启动生产者，那么这个<code>defaultMQProducerImpl</code>是什么呢。我们可以从上述代码中的第10行看出，<strong>他是一个<code>DefaultMQProducerImpl</code>类，也就是默认的生产者实现类，实际上生产者的消息发送都是通过这个类来实现的</strong> ，注意：我们通过构造方法把我们自身传递给了<code>DefaultMQProducerImpl</code>，这也是说在<code>DefaultMQProducerImpl</code>可以访问生产者中的任何公开信息。</p>
-<h3 id="step2">Step2</h3>
-<p>那么我们切换目标来跟踪<code>defaultMQProducerImpl.start();</code>方法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> ServiceState serviceState = ServiceState.CREATE_JUST;<br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">start</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> startFactory)</span> <span class="hljs-keyword">throws</span> MQClientException </span>&#123;<br>        <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">this</span>.serviceState) &#123;<br>            <span class="hljs-keyword">case</span> CREATE_JUST:<br>                <span class="hljs-keyword">this</span>.serviceState = ServiceState.START_FAILED;<br>                <span class="hljs-comment">// 具体的生产者启动流程</span><br>                <span class="hljs-keyword">this</span>.serviceState = ServiceState.RUNNING;<br>                <span class="hljs-keyword">break</span>;<br> 			<span class="hljs-keyword">case</span> RUNNING:<br>            <span class="hljs-keyword">case</span> START_FAILED:<br>            <span class="hljs-keyword">case</span> SHUTDOWN_ALREADY:<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> MQClientException(<span class="hljs-string">&quot;The producer service state not OK, maybe started once, &quot;</span><br>                    + <span class="hljs-keyword">this</span>.serviceState<br>                    + FAQUrl.suggestTodo(FAQUrl.CLIENT_SERVICE_NOT_OK),<br>                    <span class="hljs-keyword">null</span>);<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">break</span>;<br>        &#125;   <br>&#125;<br></code></pre></td></tr></table></figure>
-<p>这一大段代码是为了保证每一个生产者只启动一次。接下来我们就开始看看具体的流程吧</p>
-<h3 id="step3">Step3</h3>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">this</span>.checkConfig();<br><br><span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.defaultMQProducer.getProducerGroup().equals(MixAll.CLIENT_INNER_PRODUCER_GROUP)) &#123;<br>    <span class="hljs-keyword">this</span>.defaultMQProducer.changeInstanceNameToPID();<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>首先检查prodeucerGroup是否符合要求，如果 <code>producerGroup</code> 不是 <code>CLIENT_INNER_PRODUCER_GROUP</code> 并且没有手动设置 <code>InstanceName</code> 的话就会重新设置一下 <code>InstanceName</code> 为 当前JVM程序运行的 <code>PID</code>。(这里其实可以思考一下为什么要这样做？)</p>
-<h3 id="step4">Step4</h3>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"># DefaultMQProducerImpl.java<br><span class="hljs-keyword">this</span>.mQClientFactory = MQClientManager.getInstance().getOrCreateMQClientInstance(<span class="hljs-keyword">this</span>.defaultMQProducer, rpcHook);<br><br># MQClientManager.java<br>    <br><span class="hljs-keyword">private</span> ConcurrentMap&lt;String<span class="hljs-comment">/* clientId */</span>, MQClientInstance&gt; factoryTable =<br>        <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;String, MQClientInstance&gt;();<br><span class="hljs-function"><span class="hljs-keyword">public</span> MQClientInstance <span class="hljs-title">getOrCreateMQClientInstance</span><span class="hljs-params">(<span class="hljs-keyword">final</span> ClientConfig clientConfig, RPCHook rpcHook)</span> </span>&#123;<br>    String clientId = clientConfig.buildMQClientId();<br>    MQClientInstance instance = <span class="hljs-keyword">this</span>.factoryTable.get(clientId);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">null</span> == instance) &#123;<br>        instance =<br>            <span class="hljs-keyword">new</span> MQClientInstance(clientConfig.cloneClientConfig(),<br>                                 <span class="hljs-keyword">this</span>.factoryIndexGenerator.getAndIncrement(), clientId, rpcHook);<br>        MQClientInstance prev = <span class="hljs-keyword">this</span>.factoryTable.putIfAbsent(clientId, instance);<br>        <span class="hljs-keyword">if</span> (prev != <span class="hljs-keyword">null</span>) &#123;<br>            instance = prev;<br>            log.warn(<span class="hljs-string">&quot;Returned Previous MQClientInstance for clientId:[&#123;&#125;]&quot;</span>, clientId);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            log.info(<span class="hljs-string">&quot;Created new MQClientInstance for clientId:[&#123;&#125;]&quot;</span>, clientId);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> instance;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>这里可以跳转到 <a href="###MQClientManager类">附录</a> 查看<code>MQClientManager</code> 类的介绍。这段代码就是为了创建 <code>MQClientInstance</code> 对象，这里我们可以看出其实我们是基于<code>ClientID</code>来获取 <code>MQClientInstance</code> 对象的。而根据上述代码我们可以轻松的知道:如果我们未手动配置 <code>InstanceName</code> 和 <code>unitName</code> 的话，一个JVM实例只会有一个 <code>ClientID</code>（<code>ClientID=ClientIP+PID</code>） ，并且通过代码我们知道这个实例是缓存在了 <code>factoryTable</code> 中，也就是说，在一个JVM实例中一般只会存在一个<code>MQClientInstance</code> 实例。</p>
-<blockquote>
-<p><code>MQClientInstance</code> 封住了RocketMQ网络处理API，是Producer、Consumer与NamServer、Broker打交道的网络对象</p>
-</blockquote>
-<h3 id="step5">Step5</h3>
-<p>我们获取到了 <code>MQClientInstance</code> 之后，我们就要开始往 <code>MQClientInstance</code> 中注册我们的生产者。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">mQClientFactory.registerProducer(<span class="hljs-keyword">this</span>.defaultMQProducer.getProducerGroup(), <span class="hljs-keyword">this</span>);<br></code></pre></td></tr></table></figure>
-<p>注册的过程也很简单，只是更新了一下 <code>MQClientInstance</code> 的 <code>producerTable</code> 生产者列表而已。这里我们可以得出一个简单的结论：一个JVM实例中只存在一个 <code>ProducerGroup</code> 的生产者，这是为了使得一个JVM程序崩溃之后不会影响一个生产者组中的多个生产者。（其实）</p>
-<h3 id="step6">Step6</h3>
-<p>增加默认的Topic信息。并且启动 <code>MQClientInstance</code></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">this</span>.topicPublishInfoTable.put(<span class="hljs-keyword">this</span>.defaultMQProducer.getCreateTopicKey(), <span class="hljs-keyword">new</span> TopicPublishInfo());<br><br><span class="hljs-keyword">if</span> (startFactory) &#123;<br>    mQClientFactory.start();<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="mqclientmanager类">MQClientManager类</h2>
-<p><code>MQClientManager</code> 是用来维护 <code>MQClientInstance</code> 的。一个JVM实例中只会存在一个 <code>MQClientInstance</code> 实例，同时也为 <code>MQClientManager</code> 的实现是在是太轻量化了，所以<code>RocketMQ</code>的作者<code>yukong</code>大佬也是直接使用了饿汉式的单例模式。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MQClientManager</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> MQClientManager instance = <span class="hljs-keyword">new</span> MQClientManager();<br>     <span class="hljs-keyword">private</span> ConcurrentMap&lt;String<span class="hljs-comment">/* clientId */</span>, MQClientInstance&gt; factoryTable =<br>        <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;String, MQClientInstance&gt;();<br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-title">MQClientManager</span><span class="hljs-params">()</span> </span>&#123;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> MQClientManager <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>同时内部维护了一套 <code>ClientID</code> 和 <code>MQClientInstance</code> 的对应关系，并且提供了方法去添加、移除，这里不做更多的介绍。</p>
-<h2 id="写在最后">写在最后</h2>
-<p>讲道理写生产者启动流程还是蛮累的。本以为会比较轻松，因为相对于一些其他流程来说应该是相对比较简单的，没想到还是花了两天的时间陆陆续续的写完。</p>
-<p>现在是6月27日的晚上9点45分，周日，没想到一周唯一的休息日就这样在睡觉中度过去了(是真的睡了一天)，最后到了晚上吃完饭、吃完水果才想到博客没有写完，今天施队还说我吃饭吃的太少，水果吃的多，怕是会的糖尿病，整个人估计是废了吧。</p>
-<figure>
-<img src="https://img.helloteemo.com.cn/2021.06/image-20210627215117279.png" alt="image-20210627215117279" /><figcaption aria-hidden="true">image-20210627215117279</figcaption>
-</figure>
-]]></content>
-      <categories>
-        <category>RocketMQ</category>
-        <category>生产者</category>
-      </categories>
-      <tags>
-        <tag>RocketMQ</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>二叉树的遍历</title>
     <url>/2021/04/13/leetcode/%E6%A0%91/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/</url>
     <content><![CDATA[<blockquote>
@@ -4231,6 +4296,35 @@ Protobuf文档生成</li>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Integer&gt; <span class="hljs-title">inorderTraversal</span><span class="hljs-params">(TreeNode root)</span> </span>&#123;<br>    List&lt;Integer&gt; res = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();<br>    Stack&lt;TreeNode&gt; stack = <span class="hljs-keyword">new</span> Stack&lt;&gt;();<br>    TreeNode cur = root;<br>    <span class="hljs-keyword">while</span>(cur != <span class="hljs-keyword">null</span> || !stack.isEmpty())&#123;<br>        <span class="hljs-keyword">if</span>(cur != <span class="hljs-keyword">null</span>)&#123; <br>            stack.push(cur);<br>            cur = cur.left; <span class="hljs-comment">// left</span><br>        &#125;<span class="hljs-keyword">else</span>&#123;<br>            cur = stack.pop();<br>            res.add(cur.val); <span class="hljs-comment">// root</span><br>            cur = cur.right; <span class="hljs-comment">// right</span><br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
 <h2 id="后序遍历">后序遍历</h2>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 前序遍历顺序为：根 -&gt; 左 -&gt; 右</span><br><span class="hljs-comment">// 后序遍历顺序为：左 -&gt; 右 -&gt; 根</span><br><span class="hljs-comment">// 所以, 我们可以把前序遍历的稍作修改: 根 -&gt; 右 -&gt; 左, </span><br><span class="hljs-comment">// 然后结果存放到栈里进行倒序, 之后再遍历结果栈就可以输出后序遍历了</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;Integer&gt; <span class="hljs-title">postorderTraversal</span><span class="hljs-params">(TreeNode root)</span> </span>&#123;<br>    Stack&lt;TreeNode&gt; s = <span class="hljs-keyword">new</span> Stack&lt;&gt;();<br>    Stack&lt;TreeNode&gt; resStack = <span class="hljs-keyword">new</span> Stack&lt;&gt;();<br>    TreeNode cur = root;<br>    <span class="hljs-keyword">while</span>(cur != <span class="hljs-keyword">null</span> || !s.isEmpty())&#123;<br>        <span class="hljs-keyword">if</span>(cur != <span class="hljs-keyword">null</span>)&#123;<br>            resStack.push(cur); <span class="hljs-comment">// root</span><br>            s.push(cur); <br>            cur = cur.right; <span class="hljs-comment">// right</span><br>        &#125;<span class="hljs-keyword">else</span>&#123;<br>            cur = s.pop();<br>            cur = cur.left; <span class="hljs-comment">// left</span><br>        &#125;<br>    &#125;<br><br>    List&lt;Integer&gt; res = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();<br>    <span class="hljs-keyword">while</span>(!resStack.isEmpty())&#123;<br>        res.add(resStack.pop().val);<br>    &#125;<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>树</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>将有序数组转换为二叉搜索树</title>
+    <url>/2021/12/30/leetcode/%E6%A0%91/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/</url>
+    <content><![CDATA[<blockquote>
+<p>每日第三题，今天的事情做完了，来刷道题爽一下</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="将有序数组转换为二叉搜索树">将有序数组转换为二叉搜索树</h1>
+<p><a href="https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/">跳转链接</a></p>
+<figure>
+<img src="https://img.helloteemo.com.cn/2021/12/30/1640870463.png" alt="image-20211230212100152" /><figcaption aria-hidden="true">image-20211230212100152</figcaption>
+</figure>
+<h1 id="解题思路">解题思路</h1>
+<p>还是一样的，先确定二叉树的递归框架，二叉搜索树无非就是左子树小于根节点、右子树大于根节点，而满足高度平衡我们可以选择数组的中间元素作为根节点，这样左子树和右子树的就是高度平衡的。</p>
+<p>说完这两个条件大家都应该明白了，我们需要选择数组的中间元素作为根节点，之后再选取小于根节点的数据做左子树，大于根节点的数据做右子树，这不就是前序遍历嘛！！！即我们最先确定根节点，再去遍历左右子树。</p>
+<p>好了，书写递归最重要的一步我们确定了，接下来就可以确定递归的终止条件了，可以知道当数组为空的时候就没办法生成树了。所以终止条件就是数组为空</p>
+<h2 id="代码">代码</h2>
+<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sortedArrayToBST</span><span class="hljs-params">(nums []<span class="hljs-keyword">int</span>)</span> *<span class="hljs-title">TreeNode</span></span> &#123;<br>	<span class="hljs-keyword">return</span> sortedArrayToBSTHelper(nums, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(nums)<span class="hljs-number">-1</span>) <span class="hljs-comment">// 这里使用了下标来标注一个数组的可访问范围</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sortedArrayToBSTHelper</span><span class="hljs-params">(nums []<span class="hljs-keyword">int</span>, left, right <span class="hljs-keyword">int</span>)</span> *<span class="hljs-title">TreeNode</span></span> &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(nums) == <span class="hljs-number">0</span> || left &gt; right &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>	&#125;<br><br>	<span class="hljs-keyword">var</span> mid = (left + right) / <span class="hljs-number">2</span><br><br>	<span class="hljs-keyword">var</span> root = &amp;TreeNode&#123;Val: nums[(left + right) / <span class="hljs-number">2</span>]&#125;<br><br>	root.Left = sortedArrayToBSTHelper(nums, left, mid<span class="hljs-number">-1</span>) <br>	root.Right = sortedArrayToBSTHelper(nums, mid+<span class="hljs-number">1</span>, right)<br>	<span class="hljs-keyword">return</span> root<br>&#125;<br></code></pre></td></tr></table></figure>
+<h1 id="写在最后">写在最后</h1>
+<p>我们可是要成为卷王的男人QuQ</p>
 ]]></content>
       <categories>
         <category>leetcode</category>
@@ -4261,35 +4355,6 @@ Protobuf文档生成</li>
 <figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">isSymmetric</span><span class="hljs-params">(root *TreeNode)</span> <span class="hljs-title">bool</span></span> &#123;<br>    <span class="hljs-keyword">if</span> root == <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>    &#125;<br><br>    <span class="hljs-keyword">return</span> isSymmetricHelper(root.Left,root.Right)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">isSymmetricHelper</span><span class="hljs-params">(left,right *TreeNode)</span> <span class="hljs-title">bool</span></span> &#123;<br>    <span class="hljs-keyword">if</span> left == <span class="hljs-literal">nil</span> || right == <span class="hljs-literal">nil</span>&#123;<br>        <span class="hljs-keyword">return</span> left == right<br>    &#125;<br>    <span class="hljs-keyword">if</span> left.Val != right.Val&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> isSymmetricHelper(left.Left,right.Right) &amp;&amp; <br>        isSymmetricHelper(left.Right,right.Left)<br>&#125;<br></code></pre></td></tr></table></figure>
 <h1 id="写在最后">写在最后</h1>
 <p>中午有了点时间，再做一道。</p>
-]]></content>
-      <categories>
-        <category>leetcode</category>
-        <category>树</category>
-      </categories>
-      <tags>
-        <tag>leetcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>将有序数组转换为二叉搜索树</title>
-    <url>/2021/12/30/leetcode/%E6%A0%91/%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/</url>
-    <content><![CDATA[<blockquote>
-<p>每日第三题，今天的事情做完了，来刷道题爽一下</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="将有序数组转换为二叉搜索树">将有序数组转换为二叉搜索树</h1>
-<p><a href="https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/">跳转链接</a></p>
-<figure>
-<img src="https://img.helloteemo.com.cn/2021/12/30/1640870463.png" alt="image-20211230212100152" /><figcaption aria-hidden="true">image-20211230212100152</figcaption>
-</figure>
-<h1 id="解题思路">解题思路</h1>
-<p>还是一样的，先确定二叉树的递归框架，二叉搜索树无非就是左子树小于根节点、右子树大于根节点，而满足高度平衡我们可以选择数组的中间元素作为根节点，这样左子树和右子树的就是高度平衡的。</p>
-<p>说完这两个条件大家都应该明白了，我们需要选择数组的中间元素作为根节点，之后再选取小于根节点的数据做左子树，大于根节点的数据做右子树，这不就是前序遍历嘛！！！即我们最先确定根节点，再去遍历左右子树。</p>
-<p>好了，书写递归最重要的一步我们确定了，接下来就可以确定递归的终止条件了，可以知道当数组为空的时候就没办法生成树了。所以终止条件就是数组为空</p>
-<h2 id="代码">代码</h2>
-<figure class="highlight go"><table><tr><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sortedArrayToBST</span><span class="hljs-params">(nums []<span class="hljs-keyword">int</span>)</span> *<span class="hljs-title">TreeNode</span></span> &#123;<br>	<span class="hljs-keyword">return</span> sortedArrayToBSTHelper(nums, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(nums)<span class="hljs-number">-1</span>) <span class="hljs-comment">// 这里使用了下标来标注一个数组的可访问范围</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sortedArrayToBSTHelper</span><span class="hljs-params">(nums []<span class="hljs-keyword">int</span>, left, right <span class="hljs-keyword">int</span>)</span> *<span class="hljs-title">TreeNode</span></span> &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(nums) == <span class="hljs-number">0</span> || left &gt; right &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>	&#125;<br><br>	<span class="hljs-keyword">var</span> mid = (left + right) / <span class="hljs-number">2</span><br><br>	<span class="hljs-keyword">var</span> root = &amp;TreeNode&#123;Val: nums[(left + right) / <span class="hljs-number">2</span>]&#125;<br><br>	root.Left = sortedArrayToBSTHelper(nums, left, mid<span class="hljs-number">-1</span>) <br>	root.Right = sortedArrayToBSTHelper(nums, mid+<span class="hljs-number">1</span>, right)<br>	<span class="hljs-keyword">return</span> root<br>&#125;<br></code></pre></td></tr></table></figure>
-<h1 id="写在最后">写在最后</h1>
-<p>我们可是要成为卷王的男人QuQ</p>
 ]]></content>
       <categories>
         <category>leetcode</category>
